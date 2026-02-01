@@ -5,36 +5,45 @@ import { GoogleLogin } from "@react-oauth/google";
 import { jwtDecode } from "jwt-decode";
 
 export default function SignIn() {
-  const [form, setForm] = useState({ email: "", password: "", role: "student" });
+  const [form, setForm] = useState({
+    email: "",
+    password: "",
+    role: "student",
+  });
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Inside SignIn.jsx - handleSubmit function
       const res = await fetch(
-        "https://edumedia-hub-1-bgw0.onrender.com/api/v1/users/loginUser  ",
+        "https://edumedia-hub-1-bgw0.onrender.com/api/v1/users/loginUser",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
-          credentials: "include",
-        }
+          credentials: "omit", // Change from "include" to "omit"
+        },
       );
 
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || data.message || "Login failed");
+      if (!res.ok) throw new Error(data.message || "Login failed");
 
-      const token = data.token || data.accessToken || data.data?.accessToken;
-      const role = data.user?.role || data.data?.user?.role;
+      // ✅ MATCH BACKEND RESPONSE
+      const token = data.data?.accessToken;
+      const role = data.data?.user?.role;
 
-      if (!token || !role) throw new Error("Invalid server response");
+      if (!token || !role) {
+        throw new Error("Invalid server response");
+      }
 
       localStorage.setItem("authToken", token);
       localStorage.setItem("userRole", role);
@@ -54,7 +63,6 @@ export default function SignIn() {
   return (
     <div className="bg-black text-white flex items-center justify-center px-6 py-12">
       <div className="w-full max-w-md bg-neutral-900 rounded-2xl p-8 border border-neutral-800 my-10 mb-28 shadow-2xl shadow-cyan-400/10">
-        
         {/* Header */}
         <div className="mb-6 text-center">
           <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
@@ -84,17 +92,17 @@ export default function SignIn() {
             }}
           />
         </div>
-        
+
         {/* Note about Google login role */}
         <p className="text-center text-xs text-neutral-400 mb-4">
-          Note: If you choose "Login with Google", you will be signed in as a student.
+          Note: If you choose "Login with Google", you will be signed in as a
+          student.
         </p>
 
         <div className="text-center text-neutral-500 text-sm my-3">— OR —</div>
 
         {/* Normal Email/Password Login Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
-          
           {/* Email */}
           <div>
             <label className="block text-sm font-medium text-neutral-300 mb-1">
@@ -134,13 +142,38 @@ export default function SignIn() {
                 className="absolute inset-y-0 right-0 px-3 flex items-center text-neutral-400 hover:text-cyan-300 transition"
               >
                 {showPass ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
+                    />
                   </svg>
                 ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  <svg
+                    className="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
+                    />
                   </svg>
                 )}
               </button>
@@ -153,7 +186,6 @@ export default function SignIn() {
               I am a...
             </label>
             <div className="flex gap-2 bg-neutral-800 rounded-xl border border-neutral-700 p-1">
-              
               {/* Student */}
               <button
                 type="button"
@@ -195,11 +227,13 @@ export default function SignIn() {
         {/* Footer */}
         <p className="mt-6 text-center text-xs text-neutral-400">
           Don’t have an account?{" "}
-          <a href="/register" className="font-medium text-cyan-400 hover:underline">
+          <a
+            href="/register"
+            className="font-medium text-cyan-400 hover:underline"
+          >
             Sign up
           </a>
         </p>
-
       </div>
     </div>
   );
