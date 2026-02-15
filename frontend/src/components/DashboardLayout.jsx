@@ -9,11 +9,11 @@ const DashboardLayout = () => {
     <div className="flex min-h-screen bg-[#262626] text-[#E2E8CE] font-sans">
       <SideBar isOpen={isSidebarOpen} toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
       <div 
-        className={`flex-1 transition-all duration-300 p-4 sm:p-8 ${
+        className={`flex-1 transition-all duration-300 p-4 pt-[90px] sm:p-8 sm:pt-8 ${
           isSidebarOpen ? 'sm:ml-72' : 'sm:ml-20'
         }`}
       >
-        <div className="mt-16 sm:mt-4">
+        <div className="mt-0">
              <Outlet />
         </div>
       </div>

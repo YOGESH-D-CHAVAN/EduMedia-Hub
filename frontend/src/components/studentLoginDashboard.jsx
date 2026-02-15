@@ -322,7 +322,7 @@ export default function StudentDashboard() {
     <div className="flex min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
        <SideBar />
        
-       <main className="flex-1 sm:ml-72 p-6 lg:p-12 relative overflow-hidden">
+       <main className="flex-1 sm:ml-72 p-6 pt-[90px] sm:pt-6 lg:p-12 lg:pt-12 relative overflow-hidden">
            {/* Background Ambience */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
                  <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>

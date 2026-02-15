@@ -1,8 +1,9 @@
 // ResumeBuilder.jsx - Earthy Theme
 import React, { useReducer, useRef, useState, useEffect, useMemo } from "react";
+import { Link } from "react-router-dom";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import { Download, Trash, Plus, Minus, Upload, Grip, Check, AlertCircle, Image as ImageIcon, Code, Eye, FileText } from "lucide-react";
+import { Download, Trash, Plus, Minus, Upload, Grip, Check, AlertCircle, Image as ImageIcon, Code, Eye, FileText, ArrowLeft } from "lucide-react";
 
 // --- Initial Data ---
 const initialResumeData = {
@@ -112,15 +113,15 @@ const calculateResumeScore = (data) => {
 // --- Preview Components ---
 // Minimalist, Modern, Classic Templates (Simplified for brevity but styled)
 const ModernHeader = ({ personal, settings }) => (
-    <div className={`pb-6 mb-6 border-b-2 border-gray-800`}>
+    <div className={`pb-6 mb-6 border-b-2 border-[#1f2937]`}>
         <div className="flex items-center gap-6">
              {settings.showPhoto && personal.photo && (
-                <img src={personal.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-4 border-gray-200" />
+                <img src={personal.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-4 border-[#e5e7eb]" />
             )}
             <div className="flex-1">
-                <h1 className="font-extrabold text-4xl mb-1 text-gray-900 uppercase tracking-tight">{personal.name}</h1>
-                <p className="text-xl text-gray-600 font-medium mb-3">{personal.title}</p>
-                <div className="text-sm text-gray-500 flex flex-wrap gap-4 font-medium">
+                <h1 className="font-extrabold text-4xl mb-1 text-[#111827] uppercase tracking-tight">{personal.name}</h1>
+                <p className="text-xl text-[#4b5563] font-medium mb-3">{personal.title}</p>
+                <div className="text-sm text-[#6b7280] flex flex-wrap gap-4 font-medium">
                     <span>{personal.phone}</span>
                     <span>•</span>
                     <span>{personal.email}</span>
@@ -133,22 +134,22 @@ const ModernHeader = ({ personal, settings }) => (
 );
 
 const ClassicHeader = ({ personal, settings }) => (
-    <div className="text-center mb-8 pb-6 border-b border-gray-300">
-        <h1 className="font-serif text-3xl mb-2 text-gray-900 tracking-wide">{personal.name}</h1>
-        <p className="text-md text-gray-600 mb-2 italic">{personal.title}</p>
-        <div className="text-sm text-gray-500 font-serif flex flex-wrap justify-center gap-3">
+    <div className="text-center mb-8 pb-6 border-b border-[#d1d5db]">
+        <h1 className="font-serif text-3xl mb-2 text-[#111827] tracking-wide">{personal.name}</h1>
+        <p className="text-md text-[#4b5563] mb-2 italic">{personal.title}</p>
+        <div className="text-sm text-[#6b7280] font-serif flex flex-wrap justify-center gap-3">
              <span>{personal.email}</span> | <span>{personal.phone}</span> | <span>{personal.location}</span>
         </div>
     </div>
 );
 
 const CreativeHeader = ({ personal, settings }) => (
-    <div className="bg-gray-900 text-white p-8 -mx-12 -mt-12 mb-8 flex items-center justify-between">
+    <div className="bg-[#111827] text-[#ffffff] p-8 -mx-12 -mt-12 mb-8 flex items-center justify-between">
         <div>
             <h1 className="font-bold text-5xl mb-2 tracking-tighter">{personal.name && personal.name.split(' ')[0]} <span className="text-[#FF7F11]">{personal.name && personal.name.split(' ').slice(1).join(' ')}</span></h1>
-            <p className="text-xl text-gray-400">{personal.title}</p>
+            <p className="text-xl text-[#9ca3af]">{personal.title}</p>
         </div>
-        <div className="text-right text-sm text-gray-400 space-y-1">
+        <div className="text-right text-sm text-[#9ca3af] space-y-1">
              <div className="font-mono">{personal.email}</div>
              <div className="font-mono">{personal.phone}</div>
              <div className="font-mono">{personal.website}</div>
@@ -160,7 +161,7 @@ const CreativeHeader = ({ personal, settings }) => (
 
 const Section = ({ title, children }) => (
     <div className="mb-8">
-        <h2 className="text-sm font-black border-b-2 border-gray-800 pb-2 mb-4 uppercase tracking-widest text-gray-800">
+        <h2 className="text-sm font-black border-b-2 border-[#1f2937] pb-2 mb-4 uppercase tracking-widest text-[#1f2937]">
             {title}
         </h2>
         {children}
@@ -170,15 +171,15 @@ const Section = ({ title, children }) => (
 const DetailEntry = ({ item }) => (
     <div className="mb-6 text-left group">
         <div className="flex justify-between items-baseline mb-1">
-            <h3 className="font-bold text-lg text-gray-900">{item.title || item.degree || item.name}</h3>
-            <span className="text-sm text-gray-500 font-medium whitespace-nowrap">{item.year || `${item.startDate} - ${item.endDate}`}</span>
+            <h3 className="font-bold text-lg text-[#111827]">{item.title || item.degree || item.name}</h3>
+            <span className="text-sm text-[#6b7280] font-medium whitespace-nowrap">{item.year || `${item.startDate} - ${item.endDate}`}</span>
         </div>
-        <div className="text-sm text-gray-600 font-medium mb-2 italic">
+        <div className="text-sm text-[#4b5563] font-medium mb-2 italic">
             {item.company || item.institution || item.issuer} {item.location && `— ${item.location}`}
         </div>
-         {item.link && <div className="text-xs text-blue-600 mb-2 font-mono">{item.link}</div>}
+         {item.link && <div className="text-xs text-[#2563eb] mb-2 font-mono">{item.link}</div>}
         {item.description && (
-            <ul className="list-disc ml-4 text-sm text-gray-700 space-y-1.5 leading-relaxed marker:text-gray-400">
+            <ul className="list-disc ml-4 text-sm text-[#374151] space-y-1.5 leading-relaxed marker:text-[#9ca3af]">
                 {item.description.map((pt, i) => pt && <li key={i}>{pt}</li>)}
             </ul>
         )}
@@ -191,7 +192,7 @@ const ResumePreview = React.forwardRef(({ data }, ref) => {
         <div 
             ref={ref} 
             id="resume-content" 
-            className="bg-white p-12 shadow-2xl w-[210mm] min-h-[297mm] mx-auto text-black text-sm leading-relaxed"
+            className="bg-[#ffffff] p-12 shadow-2xl w-[210mm] min-h-[297mm] mx-auto text-[#000000] text-sm leading-relaxed"
         >
             {settings.template === 'modern' && <ModernHeader personal={data.personal} settings={settings} />}
             {settings.template === 'classic' && <ClassicHeader personal={data.personal} settings={settings} />}
@@ -199,7 +200,7 @@ const ResumePreview = React.forwardRef(({ data }, ref) => {
             
             {settings.showSummary && data.summary && (
                 <Section title="Summary">
-                    <p className="text-gray-700 leading-relaxed font-medium">{data.summary}</p>
+                    <p className="text-[#374151] leading-relaxed font-medium">{data.summary}</p>
                 </Section>
             )}
             
@@ -207,7 +208,7 @@ const ResumePreview = React.forwardRef(({ data }, ref) => {
                 <Section title="Skills">
                     <div className="flex flex-wrap gap-2">
                         {data.skills.map((skill, i) => (
-                            <span key={i} className="px-3 py-1 text-xs font-bold rounded bg-gray-100 text-gray-800 border border-gray-200">
+                            <span key={i} className="px-3 py-1 text-xs font-bold rounded bg-[#f3f4f6] text-[#1f2937] border border-[#e5e7eb]">
                                 {skill}
                             </span>
                         ))}
@@ -297,13 +298,60 @@ const ResumeBuilder = () => {
 
     const downloadPDF = async () => {
         const element = previewRef.current;
-        const canvas = await html2canvas(element, { scale: 2 });
-        const imgData = canvas.toDataURL("image/png");
-        const pdf = new jsPDF("p", "mm", "a4");
-        const pdfWidth = pdf.internal.pageSize.getWidth();
-        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
-        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-        pdf.save(`${data.personal.name.replace(/\s/g, '_')}_Resume.pdf`);
+        if (!element) {
+            alert("Preview element not found");
+            return;
+        }
+
+        try {
+            // Use html2canvas with better settings
+            const canvas = await html2canvas(element, { 
+                scale: 2, // Higher resolution
+                useCORS: true, // Handle cross-origin images (Cloudinary)
+                logging: false,
+                windowWidth: element.scrollWidth, // Ensure full width is captured
+                windowHeight: element.scrollHeight
+            });
+
+            const imgData = canvas.toDataURL("image/png");
+            
+            // Calculate A4 dimensions
+            const pdf = new jsPDF("p", "mm", "a4");
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            
+            const imgProperties = pdf.getImageProperties(imgData);
+            const imgRatio = imgProperties.width / imgProperties.height;
+            
+            // Calculate height of image in PDF based on width
+            const pdfImgHeight = pdfWidth / imgRatio;
+
+            // If content is roughly 1 page (allow small overflow), fit to page. 
+            // Otherwise, we might need a different strategy, but for now let's use the full height 
+            // or split (splitting is complex with just an image).
+            // Let's render as is. If it's taller than A4, we should probably add a new page or let it spill (but jsPDF A4 is fixed).
+            // For a resume, often we want it to fit A4. 
+            
+            // Strategy: Create a PDF that fits the content exactly to avoid cutting off text.
+            // Standard A4 is 210mm x 297mm.
+            
+            let finalPdf;
+            if (pdfImgHeight > pdfHeight) {
+                 // Content is longer than A4, create a custom-sized single page PDF
+                 finalPdf = new jsPDF("p", "mm", [pdfWidth, pdfImgHeight]);
+                 finalPdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfImgHeight);
+            } else {
+                 // Content fits in A4
+                 finalPdf = pdf;
+                 finalPdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfImgHeight);
+            }
+
+            finalPdf.save(`${data.personal.name.replace(/\s/g, '_')}_Resume.pdf`);
+
+        } catch (error) {
+            console.error("PDF generation failed", error);
+            alert("Failed to generate PDF. Please try again.");
+        }
     };
 
     const score = useMemo(() => calculateResumeScore(data), [data]);
@@ -387,9 +435,14 @@ const ResumeBuilder = () => {
             {/* Header */}
             <div className="max-w-[1920px] mx-auto mb-10 relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6">
                 <div>
-                     <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-4 shadow-md">
-                        Beta v2.0
-                    </div>
+                     <div className="flex items-center gap-3 mb-4">
+                        <Link to={localStorage.getItem("userRole") === "teacher" ? "/teacher" : "/student"} className="p-2 bg-[#333333] rounded-full text-[#ACBFA4] hover:text-[#FF7F11] hover:bg-[#444444] transition border border-[#444444]">
+                            <ArrowLeft className="w-4 h-4" />
+                        </Link>
+                        <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest shadow-md">
+                            Beta v2.0
+                        </div>
+                     </div>
                     <h1 className="text-4xl font-black text-[#E2E8CE] tracking-tighter">Resume <span className="text-[#FF7F11]">Architect</span></h1>
                     <p className="text-[#ACBFA4] font-medium mt-1">Build professional, ATS-friendly resumes in minutes.</p>
                 </div>
