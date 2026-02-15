@@ -1,6 +1,7 @@
 // EduMediaLanding.jsx - Earthy Theme with Expanded Content
 import React, { useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import { ArrowRight, CheckCircle, Users, BookOpen, Trophy, Globe, MessageCircle, Github, Linkedin, Mail } from "lucide-react";
 import eduImage from '../assets/edu.jpg';
 
@@ -20,6 +21,11 @@ export default function EduMediaLandingPro() {
 
   return (
     <>
+      <Helmet>
+        <title>EduMedia - Top Study Platform for Students & Teachers | Free Mock Tests</title>
+        <meta name="description" content="EduMedia: Your ultimate study companion. Join for free mock tests, interview preparation, resume building, and a thriving student-teacher community. Excel in your career today!" />
+        <meta name="keywords" content="study platform, free education, mock tests, resume builder, interview prep, student community, teacher jobs, career growth, online learning, india education" />
+      </Helmet>
       <div className="relative min-h-screen bg-[#262626] overflow-hidden font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
         
         {/* Cursor Spotlight */}

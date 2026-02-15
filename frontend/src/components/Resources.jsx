@@ -1,5 +1,5 @@
-// Resources.jsx - Earthy Theme
 import React from "react";
+import { Helmet } from "react-helmet";
 import { ExternalLink, CheckCircle } from "lucide-react";
 
 const Resources = () => {
@@ -10,6 +10,8 @@ const Resources = () => {
       { name: "Novoresume", url: "https://novoresume.com", desc: "One-page templates loved by recruiters" },
       { name: "Overleaf LaTeX", url: "https://overleaf.com", desc: "Clean academic/research CVs" },
     ],
+    // ... (rest of the links object is unchanged, but I only need to replace the top part)
+
     coding: [
       { name: "LeetCode", url: "https://leetcode.com/problemset/all/", desc: "1.2k+ problems + weekly contests" },
       { name: "HackerRank", url: "https://hackerrank.com/domains", desc: "Company-specific tracks (TCS, Infy, NQT)" },
@@ -81,6 +83,11 @@ const Resources = () => {
 
   return (
     <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-20 px-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative">
+      <Helmet>
+        <title>Curated Career Resources | Resume, Coding, System Design - EduMedia</title>
+        <meta name="description" content="Access hand-picked resources for free. Best tools for resume building, coding practice, aptitude tests, system design, and mental health support for students." />
+        <meta name="keywords" content="career resources, free coding sites, aptitude practice, system design guide, resume tools, student mental health, placement preparation" />
+      </Helmet>
       
        {/* Ambient Backgound */}
        <div className="fixed top-0 left-0 w-full h-full pointer-events-none">

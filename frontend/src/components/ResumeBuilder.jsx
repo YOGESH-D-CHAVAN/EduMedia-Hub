@@ -1,6 +1,7 @@
 // ResumeBuilder.jsx - Earthy Theme
 import React, { useReducer, useRef, useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
 import { Download, Trash, Plus, Minus, Upload, Grip, Check, AlertCircle, Image as ImageIcon, Code, Eye, FileText, ArrowLeft } from "lucide-react";
@@ -427,6 +428,11 @@ const ResumeBuilder = () => {
         <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] p-6 lg:p-10 relative">
             
             {/* Background Ambience */}
+            <Helmet>
+                <title>Free AI Resume Builder | Create ATS-Friendly CVs - EduMedia</title>
+                <meta name="description" content="Build a professional, ATS-friendly resume in minutes with EduMedia's free AI Resume Builder. Choose from modern templates and download as PDF." />
+                <meta name="keywords" content="resume builder, free cv maker, ai resume, ats friendly resume, curriculum vitae, resume templates, job application" />
+            </Helmet>
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
                  <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
                  <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
