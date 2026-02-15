@@ -20,10 +20,33 @@ export default function Register() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      navigate("/login");
-    }, 1500);
+
+    try {
+        const res = await fetch("http://localhost:5001/api/v1/users/registerUser", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                username: form.fullName, // Map fullName to username
+                email: form.email.trim(),
+                password: form.password,
+                role: form.role
+            })
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+            alert("Registration successful! Please login.");
+            navigate("/login");
+        } else {
+            alert(data.message || "Registration failed");
+        }
+    } catch (error) {
+        console.error("Registration error:", error);
+        alert("An error occurred during registration. Please try again.");
+    } finally {
+        setLoading(false);
+    }
   };
 
   return (

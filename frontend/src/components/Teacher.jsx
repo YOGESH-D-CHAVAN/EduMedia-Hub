@@ -147,7 +147,7 @@ export default function Teacher() {
       if (!response.ok) throw new Error("Failed to fetch posts");
       const data = await response.json();
       if (data.success) {
-        setPosts(data.posts.map(p => ({ ...p, liked: false })));
+        setPosts(data.posts.map(p => ({ ...p, likes: p.likes || [], liked: false })));
       }
     } catch (err) {
       setError(err.message);

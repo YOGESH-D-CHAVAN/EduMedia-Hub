@@ -124,6 +124,7 @@ export const getStudentFeed = async (req, res) => {
       media: post.media,
       author: post.author,
       comments: post.comments,
+      likes: post.likes || [],
       createdAt: post.createdAt,
       updatedAt: post.updatedAt,
     }));
