@@ -41,7 +41,7 @@ const SideBar = ({ isOpen = true, toggleSidebar }) => {
         fixed left-0 top-[74px] h-[calc(100vh-74px)] bg-[#262626] border-r border-[#333333] z-40
         transition-all duration-300 ease-in-out flex flex-col shadow-2xl shadow-black/50
         ${mobileMenuOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"} 
-        sm:translate-x-0 ${isOpen ? "sm:w-72" : "sm:w-20"}
+        sm:translate-x-0 sm:top-0 sm:h-screen ${isOpen ? "sm:w-72" : "sm:w-20"}
       `}>
           
         {/* Desktop Toggle Button */}
