@@ -13,8 +13,9 @@ export const createBlog = async (req, res) => {
       });
     }
 
-    // Handle cover image (uploaded via multer)
-    const cover = req.file ? `/uploads/${req.file.filename}` : null;
+
+    // Handle cover image (uploaded via multer/cloudinary)
+    const cover = req.file ? req.file.path : null;
 
     // Create a new blog document
     const newBlog = new Blog({

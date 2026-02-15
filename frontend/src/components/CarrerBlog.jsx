@@ -89,7 +89,7 @@ export default function CareerBlogs() {
     const load = async () => {
       setIsLoading(true);
       setError(null);
-      let fetchedData = MOCK_BLOGS; 
+      let fetchedData = [];
 
       try {
         const token = localStorage.getItem("authToken");
@@ -100,15 +100,26 @@ export default function CareerBlogs() {
         const apiData = await res.json();
         if (res.ok && Array.isArray(apiData.blogs)) {
           fetchedData = apiData.blogs;
+        } else {
+             // Fallback if API fails or empty?
+             // fetchedData = MOCK_BLOGS; 
+             // Actually, if API works but returns empty, we show empty.
         }
       } catch (e) {
-        console.error("Fetch error, using mock data:", e);
+        console.error("Fetch error:", e);
+        // fetch failed completely
+        setError("Failed to load blogs.");
       } finally {
         setBlogs(fetchedData.map((b) => ({ ...b, isBookmarked: false })));
         setIsLoading(false);
       }
     };
+    
     load();
+    
+    const handleUpdate = () => load();
+    window.addEventListener('blogUpdated', handleUpdate);
+    return () => window.removeEventListener('blogUpdated', handleUpdate);
   }, []);
 
   /* ---- Handlers ---- */
