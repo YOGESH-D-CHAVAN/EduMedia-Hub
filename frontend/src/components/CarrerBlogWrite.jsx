@@ -118,6 +118,7 @@ export default function BlogWriter() {
     formData.append("title", title);
     formData.append("markdown", markdown);
     formData.append("author", `User-${localUserId.substring(0, 4)}`);
+    formData.append("tags", tags);
 
     if (cover && cover.startsWith("data:")) {
       const res = await fetch(cover);
@@ -211,6 +212,16 @@ export default function BlogWriter() {
               </label>
             </div>
             {cover && <img src={cover} alt="cover" className="w-full h-40 object-cover rounded-xl border border-[#444444] shadow-lg" />}
+            
+            <div>
+               <label className="block text-xs font-black text-[#ACBFA4] uppercase tracking-widest mb-2">Tags (comma separated)</label>
+               <input
+                 value={tags}
+                 onChange={(e) => setTags(e.target.value)}
+                 placeholder="tech, design, future..."
+                 className="w-full px-4 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] outline-none transition-all font-medium text-sm shadow-inner"
+               />
+            </div>
           </div>
 
           <div className="flex-1 bg-[#333333] rounded-3xl border border-[#444444] p-1 shadow-2xl flex flex-col relative group">

@@ -1,9 +1,10 @@
 import Blog from "../models/Blog.js";
 
 // Create / Publish Blog
+// Create / Publish Blog
 export const createBlog = async (req, res) => {
   try {
-    const { title, markdown, author } = req.body;
+    const { title, markdown, author, tags } = req.body;
 
     // Validate required fields
     if (!title || !markdown || !author) {
@@ -13,6 +14,14 @@ export const createBlog = async (req, res) => {
       });
     }
 
+    // Process tags
+    let processedTags = [];
+    if (typeof tags === 'string') {
+       // If coming from FormData, it might be a comma separated string
+       processedTags = tags.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    } else if (Array.isArray(tags)) {
+       processedTags = tags.map(t => String(t).trim()).filter(t => t.length > 0);
+    }
 
     // Handle cover image (uploaded via multer/cloudinary)
     const cover = req.file ? req.file.path : null;
@@ -23,6 +32,7 @@ export const createBlog = async (req, res) => {
       markdown,
       author,
       cover,
+      tags: processedTags,
       date: new Date(),
       readTime: Math.ceil(markdown.length / 1000) + 2,
     });
@@ -41,6 +51,21 @@ export const createBlog = async (req, res) => {
       message: "Something went wrong while publishing your blog. Please try again later.",
     });
   }
+};
+
+// Increment View Count
+export const incrementView = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const blog = await Blog.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+        
+        if(!blog) return res.status(404).json({ success: false, message: "Blog not found" });
+
+        return res.status(200).json({ success: true, views: blog.views });
+    } catch (error) {
+        console.error("Error incrementing view:", error);
+        return res.status(500).json({ success: false, message: "Server error" });
+    }
 };
 
 // Get all blogs
