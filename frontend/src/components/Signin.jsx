@@ -28,7 +28,7 @@ export default function SignIn() {
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify({ ...form, email: form.email.trim() }),
           credentials: "include", 
         }
       );
