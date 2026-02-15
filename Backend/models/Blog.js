@@ -10,6 +10,7 @@ const blogSchema = new mongoose.Schema({
   author: { type: String, required: true },
   date: { type: Date, default: Date.now },
   readTime: Number,
+  views: { type: Number, default: 0 },
 });
 
 export default mongoose.model("Blog", blogSchema);

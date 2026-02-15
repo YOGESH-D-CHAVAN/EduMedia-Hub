@@ -100,7 +100,7 @@ export default function BlogWriter() {
       .replace(/^# (.*$)/gim, "<h1 class='text-4xl font-black mb-6 text-[#E2E8CE] tracking-tight font-serif'>$1</h1>")
       .replace(/\*\*(.+)\*\*/g, "<strong class='font-bold text-[#FF7F11]'>$1</strong>")
       .replace(/\*(.+)\*/g, "<em class='italic text-[#ACBFA4] font-serif'>$1</em>")
-      .replace(/!\[([^\]]+)\]\(([^)]+)\)/g, "<img alt='$1' src='$2' class='rounded-2xl my-8 max-w-full border border-[#444444] shadow-xl' onerror='this.onerror=null;this.src=\"https://placehold.co/600x400?text=Image+Error\"' />")
+      .replace(/!\[([^\]]+)\]\(([^)]+)\)/g, "<img alt='$1' src='$2' class='rounded-2xl my-8 max-w-full border border-[#444444] shadow-xl' onerror=\"this.onerror=null;this.src='https://placehold.co/600x400?text=Image+Error'\" />")
       .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "<a href='$2' target='_blank' class='text-[#ACBFA4] hover:text-[#FF7F11] underline decoration-[#FF7F11] underline-offset-4 transition-colors'>$1</a>")
       .replace(/\`(.+)\`/g, "<code class='bg-[#333333] text-[#FF7F11] px-1.5 py-0.5 rounded text-sm font-mono border border-[#444444]'>$1</code>")
       .replace(/```(\w+)?\n([\s\S]+?)\n```/g, "<pre class='bg-[#1a1a1a] text-[#E2E8CE] p-6 rounded-2xl overflow-auto my-8 border border-[#333333] shadow-inner font-mono text-sm leading-relaxed'><code class='language-$1'>$2</code></pre>")
@@ -118,6 +118,7 @@ export default function BlogWriter() {
     formData.append("title", title);
     formData.append("markdown", markdown);
     formData.append("author", `User-${localUserId.substring(0, 4)}`);
+    formData.append("tags", tags);
 
     if (cover && cover.startsWith("data:")) {
       const res = await fetch(cover);
@@ -141,11 +142,20 @@ export default function BlogWriter() {
       setMessage({ type: 'success', text: "Published successfully!" });
       setTitle(""); setMarkdown(""); setTags(""); setCover("");
       localStorage.removeItem(`blog-draft-${localUserId}`);
+      
+      // Dispatch event to update blog list
+      window.dispatchEvent(new Event('blogUpdated'));
+      
+      // Redirect after a short delay to see the success message
+      setTimeout(() => {
+          window.location.href = "/career-blogs";
+      }, 1500);
+
     } catch (e) {
       console.error(e);
       setMessage({ type: 'error', text: e.message || "Publish failed." });
     } finally {
-      setTimeout(() => setMessage(null), 3000);
+      if(!saved) setTimeout(() => setMessage(null), 3000);
     }
   };
 
@@ -202,6 +212,16 @@ export default function BlogWriter() {
               </label>
             </div>
             {cover && <img src={cover} alt="cover" className="w-full h-40 object-cover rounded-xl border border-[#444444] shadow-lg" />}
+            
+            <div>
+               <label className="block text-xs font-black text-[#ACBFA4] uppercase tracking-widest mb-2">Tags (comma separated)</label>
+               <input
+                 value={tags}
+                 onChange={(e) => setTags(e.target.value)}
+                 placeholder="tech, design, future..."
+                 className="w-full px-4 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] outline-none transition-all font-medium text-sm shadow-inner"
+               />
+            </div>
           </div>
 
           <div className="flex-1 bg-[#333333] rounded-3xl border border-[#444444] p-1 shadow-2xl flex flex-col relative group">

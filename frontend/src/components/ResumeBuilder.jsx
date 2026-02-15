@@ -132,6 +132,32 @@ const ModernHeader = ({ personal, settings }) => (
     </div>
 );
 
+const ClassicHeader = ({ personal, settings }) => (
+    <div className="text-center mb-8 pb-6 border-b border-gray-300">
+        <h1 className="font-serif text-3xl mb-2 text-gray-900 tracking-wide">{personal.name}</h1>
+        <p className="text-md text-gray-600 mb-2 italic">{personal.title}</p>
+        <div className="text-sm text-gray-500 font-serif flex flex-wrap justify-center gap-3">
+             <span>{personal.email}</span> | <span>{personal.phone}</span> | <span>{personal.location}</span>
+        </div>
+    </div>
+);
+
+const CreativeHeader = ({ personal, settings }) => (
+    <div className="bg-gray-900 text-white p-8 -mx-12 -mt-12 mb-8 flex items-center justify-between">
+        <div>
+            <h1 className="font-bold text-5xl mb-2 tracking-tighter">{personal.name && personal.name.split(' ')[0]} <span className="text-[#FF7F11]">{personal.name && personal.name.split(' ').slice(1).join(' ')}</span></h1>
+            <p className="text-xl text-gray-400">{personal.title}</p>
+        </div>
+        <div className="text-right text-sm text-gray-400 space-y-1">
+             <div className="font-mono">{personal.email}</div>
+             <div className="font-mono">{personal.phone}</div>
+             <div className="font-mono">{personal.website}</div>
+        </div>
+    </div>
+);
+
+
+
 const Section = ({ title, children }) => (
     <div className="mb-8">
         <h2 className="text-sm font-black border-b-2 border-gray-800 pb-2 mb-4 uppercase tracking-widest text-gray-800">
@@ -167,7 +193,9 @@ const ResumePreview = React.forwardRef(({ data }, ref) => {
             id="resume-content" 
             className="bg-white p-12 shadow-2xl w-[210mm] min-h-[297mm] mx-auto text-black text-sm leading-relaxed"
         >
-            <ModernHeader personal={data.personal} settings={settings} />
+            {settings.template === 'modern' && <ModernHeader personal={data.personal} settings={settings} />}
+            {settings.template === 'classic' && <ClassicHeader personal={data.personal} settings={settings} />}
+            {settings.template === 'creative' && <CreativeHeader personal={data.personal} settings={settings} />}
             
             {settings.showSummary && data.summary && (
                 <Section title="Summary">
@@ -280,6 +308,73 @@ const ResumeBuilder = () => {
 
     const score = useMemo(() => calculateResumeScore(data), [data]);
 
+    // --- New Unique Features ---
+    const handleGithubImport = async () => {
+        const username = prompt("Enter your GitHub username to auto-fill details:");
+        if (!username) return;
+
+        try {
+            const userRes = await fetch(`https://api.github.com/users/${username}`);
+            const userJson = await userRes.json();
+            
+            if (userJson.message === "Not Found") {
+                alert("User not found!");
+                return;
+            }
+
+            const reposRes = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=5`);
+            const reposJson = await reposRes.json();
+
+            // Construct new state
+            const newData = {
+                ...data,
+                personal: {
+                    ...data.personal,
+                    name: userJson.name || username,
+                    location: userJson.location || data.personal.location,
+                    website: userJson.blog || data.personal.website,
+                    github: `github.com/${username}`,
+                    photo: userJson.avatar_url,
+                    title: userJson.bio || "Software Engineer", 
+                },
+                projects: reposJson.map(repo => ({
+                    id: repo.id,
+                    title: repo.name,
+                    link: repo.html_url.replace('https://', ''),
+                    year: new Date(repo.updated_at).getFullYear().toString(),
+                    description: [repo.description || "Open source contribution.", `Star count: ${repo.stargazers_count}`, `Language: ${repo.language || 'N/A'}`]
+                })),
+                skills: [...new Set([...data.skills, ...reposJson.map(r => r.language).filter(Boolean)])]
+            };
+            
+            dispatch({ type: 'LOAD_STATE', payload: newData });
+            alert("Imported data from GitHub!");
+        } catch (e) {
+            console.error(e);
+            alert("Failed to fetch GitHub data.");
+        }
+    };
+
+    const aiPolish = (text) => {
+        const replacements = {
+            "worked on": "engineered",
+            "made": "developed",
+            "helped": "facilitated",
+            "used": "utilized",
+            "fixed": "resolved",
+            "saw": "identified",
+            "changed": "transformed",
+            "led": "spearheaded",
+            "managed": "orchestrated",
+        };
+        let newText = text;
+        Object.keys(replacements).forEach(key => {
+            const regex = new RegExp(`\\b${key}\\b`, "gi");
+            newText = newText.replace(regex, replacements[key]);
+        });
+        return newText;
+    };
+
     return (
         <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] p-6 lg:p-10 relative">
             
@@ -300,9 +395,28 @@ const ResumeBuilder = () => {
                 </div>
 
                 <div className="flex items-center gap-4 bg-[#333333] p-2 rounded-2xl border border-[#444444] shadow-xl">
+                      <button onClick={handleGithubImport} className="flex items-center gap-2 px-4 py-2 bg-[#262626] border border-[#444444] text-[#E2E8CE] rounded-xl font-bold uppercase tracking-widest text-[10px] hover:bg-[#333333] hover:text-[#FF7F11] transition">
+                         <Code className="w-4 h-4" /> Import GitHub
+                      </button>
                      <div className="px-6 py-2 rounded-xl bg-[#262626] border border-[#444444]">
                         <span className="text-[#666666] text-xs font-black uppercase tracking-widest mr-2">Score</span>
                         <span className={`text-xl font-black ${score >= 80 ? 'text-[#FF7F11]' : 'text-[#ACBFA4]'}`}>{score}</span>
+                     </div>
+                    
+                     {/* Theme Selector */}
+                     <div className="mb-6 bg-[#333333] p-4 rounded-2xl border border-[#444444] flex items-center justify-between">
+                        <span className="text-xs font-black uppercase text-[#ACBFA4] tracking-widest">Layout Style</span>
+                        <div className="flex gap-2">
+                             {['modern', 'classic', 'creative'].map(t => (
+                                 <button 
+                                    key={t} 
+                                    onClick={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { template: t } })}
+                                    className={`px-3 py-1 rounded-lg text-xs font-bold uppercase ${data.settings.template === t ? 'bg-[#FF7F11] text-[#262626]' : 'bg-[#262626] text-[#666666]'}`}
+                                >
+                                    {t}
+                                 </button>
+                             ))}
+                        </div>
                      </div>
                      <button onClick={downloadPDF} className="flex items-center gap-2 px-6 py-3 bg-[#FF7F11] text-[#262626] rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition active:scale-95 shadow-md">
                         <Download className="w-4 h-4" /> Export PDF
@@ -365,8 +479,13 @@ const ResumeBuilder = () => {
 
                     {activeTab === 'summary' && (
                         <div className="bg-[#333333] p-8 rounded-[2rem] border border-[#444444] shadow-xl">
-                             <h2 className="text-xl font-black mb-6 text-[#E2E8CE] flex items-center gap-3"> <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span> Executive Summary</h2>
-                             <TextAreaField label="Bio" value={data.summary} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'summary', value: e.target.value })} placeholder="Summarize your professional journey..." rows={6} />
+                            <h2 className="text-xl font-black mb-6 text-[#E2E8CE] flex items-center gap-3"> <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span> Executive Summary</h2>
+                             <div className="relative">
+                                 <TextAreaField label="Bio" value={data.summary} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'summary', value: e.target.value })} placeholder="Summarize your professional journey..." rows={6} />
+                                 <button onClick={() => dispatch({ type: 'UPDATE_FIELD', section: 'summary', value: aiPolish(data.summary) })} className="absolute top-0 right-0 text-[10px] bg-[#FF7F11] text-[#262626] font-black uppercase tracking-widest px-2 py-1 rounded-md hover:scale-105 transition flex items-center gap-1">
+                                    ✨ AI Polish
+                                 </button>
+                             </div>
                         </div>
                     )}
 
@@ -386,8 +505,9 @@ const ResumeBuilder = () => {
                                     <div className="mt-4">
                                         <label className="block text-xs font-black text-[#666666] uppercase tracking-widest mb-2">Key Achievements</label>
                                         {item.description.map((pt, i) => (
-                                            <div key={i} className="flex gap-2 mb-2">
-                                                <input className="flex-1 bg-[#333333] border border-[#444444] rounded-lg px-3 py-2 text-sm text-[#E2E8CE] focus:border-[#FF7F11] outline-none" value={pt} onChange={(e) => dispatch({ type: 'UPDATE_BULLET_POINT', section: 'experience', id: item.id, index: i, value: e.target.value })} />
+                                            <div key={i} className="flex gap-2 mb-2 relative group">
+                                                <input className="flex-1 bg-[#333333] border border-[#444444] rounded-lg px-3 py-2 text-sm text-[#E2E8CE] focus:border-[#FF7F11] outline-none pr-8" value={pt} onChange={(e) => dispatch({ type: 'UPDATE_BULLET_POINT', section: 'experience', id: item.id, index: i, value: e.target.value })} />
+                                                <button onClick={() => dispatch({ type: 'UPDATE_BULLET_POINT', section: 'experience', id: item.id, index: i, value: aiPolish(pt) })} className="absolute right-12 top-1/2 -translate-y-1/2 text-[#FF7F11] hover:text-[#e06c09] opacity-0 group-hover:opacity-100 transition" title="Auto-Improve">✨</button>
                                                 <button onClick={() => dispatch({ type: 'REMOVE_BULLET_POINT', section: 'experience', id: item.id, index: i })} className="text-[#666666] hover:text-[#FF7F11]"><Trash className="w-4 h-4" /></button>
                                             </div>
                                         ))}

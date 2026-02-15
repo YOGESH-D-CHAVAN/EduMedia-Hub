@@ -75,12 +75,36 @@ export default function CareerBlogs() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [toast, setToast] = useState(null);
-
-  /* ---- expanded cards ---- */
   const [expanded, setExpanded] = useState(new Set());
+
+  /* ---- View Tracker ---- */
+  const trackView = async (id) => {
+      try {
+          const viewed = sessionStorage.getItem(`viewed-${id}`);
+          if(viewed) return;
+          
+          const token = localStorage.getItem("authToken");
+          await fetch(`http://localhost:5001/api/v1/blog/${id}/view`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` }
+          });
+          
+          sessionStorage.setItem(`viewed-${id}`, "true");
+          // Optimistic update
+          setBlogs(prev => prev.map(b => b._id === id ? { ...b, views: (b.views || 0) + 1 } : b));
+      } catch (e) {
+          console.error("View track error", e);
+      }
+  };
+
   const toggleExpand = (_id) => {
     const n = new Set(expanded);
-    if (n.has(_id)) n.delete(_id); else n.add(_id);
+    if (n.has(_id)) {
+        n.delete(_id);
+    } else {
+        n.add(_id);
+        trackView(_id);
+    }
     setExpanded(n);
   };
 
@@ -89,7 +113,7 @@ export default function CareerBlogs() {
     const load = async () => {
       setIsLoading(true);
       setError(null);
-      let fetchedData = MOCK_BLOGS; 
+      let fetchedData = [];
 
       try {
         const token = localStorage.getItem("authToken");
@@ -100,15 +124,26 @@ export default function CareerBlogs() {
         const apiData = await res.json();
         if (res.ok && Array.isArray(apiData.blogs)) {
           fetchedData = apiData.blogs;
+        } else {
+             // Fallback if API fails or empty?
+             // fetchedData = MOCK_BLOGS; 
+             // Actually, if API works but returns empty, we show empty.
         }
       } catch (e) {
-        console.error("Fetch error, using mock data:", e);
+        console.error("Fetch error:", e);
+        // fetch failed completely
+        setError("Failed to load blogs.");
       } finally {
         setBlogs(fetchedData.map((b) => ({ ...b, isBookmarked: false })));
         setIsLoading(false);
       }
     };
+    
     load();
+    
+    const handleUpdate = () => load();
+    window.addEventListener('blogUpdated', handleUpdate);
+    return () => window.removeEventListener('blogUpdated', handleUpdate);
   }, []);
 
   /* ---- Handlers ---- */
@@ -174,7 +209,9 @@ export default function CareerBlogs() {
             day: "numeric",
           });
 
-          const coverUrl = blog.cover || "https://placehold.co/600x400/333333/E2E8CE?text=EduMedia";
+          const coverUrl = blog.cover 
+            ? (blog.cover.startsWith("http") ? blog.cover : `http://localhost:5001${blog.cover.replace('uploads\\', '/uploads/')}`)
+            : "https://placehold.co/600x400/333333/E2E8CE?text=EduMedia";
 
           return (
             <article
@@ -203,9 +240,22 @@ export default function CareerBlogs() {
                       <User className="w-4 h-4 text-[#FF7F11]" /> {blog.author}
                     </span>
                     <span className="flex items-center gap-2">
+                       <Eye className="w-4 h-4 text-[#FF7F11]" /> {blog.views || 0}
+                    </span>
+                    <span className="flex items-center gap-2">
                       <Clock className="w-4 h-4 text-[#FF7F11]" /> {blog.readTime} min
                     </span>
                   </div>
+                  
+                  {blog.tags && blog.tags.length > 0 && (
+                      <div className="flex flex-wrap gap-2 mb-4">
+                          {blog.tags.map(t => (
+                              <span key={t} className="px-2 py-1 bg-[#262626] border border-[#444444] rounded text-[10px] uppercase font-bold text-[#E2E8CE] tracking-wider">
+                                  #{t}
+                              </span>
+                          ))}
+                      </div>
+                  )}
 
                   <div
                     className={`text-[#E2E8CE]/80 text-base leading-loose transition-all duration-500 ease-in-out overflow-hidden relative ${
