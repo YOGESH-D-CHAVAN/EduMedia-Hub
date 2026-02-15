@@ -1,5 +1,6 @@
 // MockTest.jsx - Earthy Theme with Multiple Tests
 import React, { useState, useEffect, useMemo, useRef } from "react";
+import { Helmet } from "react-helmet";
 import { BsClock, BsDownload, BsArrowLeft, BsCheckCircle } from "react-icons/bs";
 import { Radar } from "react-chartjs-2";
 import jsPDF from "jspdf";
@@ -451,6 +452,11 @@ export default function MockTestSoftSkills() {
 
     return (
         <div className="min-h-screen bg-[#262626] text-[#E2E8CE] p-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
+             <Helmet>
+                <title>Free Mock Tests & Placement Assessment | Soft Skills, Aptitude - EduMedia</title>
+                <meta name="description" content="Take free mock tests for placement preparation. Assess your soft skills, aptitude, communication, and technical knowledge. Get instant analysis and improvement tips." />
+                <meta name="keywords" content="mock test, placement quiz, soft skills assessment, aptitude test, free online test, interview preparation, career assessment" />
+             </Helmet>
              {/* Background Ambience */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>

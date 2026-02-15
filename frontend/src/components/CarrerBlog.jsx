@@ -1,5 +1,6 @@
 // CarrerBlog.jsx - Earthy Theme
 import React, { useEffect, useState } from "react";
+import { Helmet } from "react-helmet";
 import {
   Search,
   Bookmark,
@@ -312,6 +313,11 @@ export default function CareerBlogs() {
 
   return (
     <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-20 px-6 font-sans">
+      <Helmet>
+        <title>Career Blogs & Tech Insights | Student Resources - EduMedia</title>
+        <meta name="description" content="Read the latest articles on technology, career growth, interview tips, and student success stories. Stay updated with EduMedia's curated blog." />
+        <meta name="keywords" content="career blog, tech articles, interview tips, student guide, education trends, software development, career advice" />
+      </Helmet>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row items-end justify-between mb-16 border-b border-[#333333] pb-10">

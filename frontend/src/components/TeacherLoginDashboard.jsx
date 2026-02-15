@@ -1,5 +1,6 @@
 // TeacherLoginDashboard.jsx (Post Creation)
 import React, { useState } from "react";
+import { Helmet } from "react-helmet";
 import { Upload, X, CheckCircle, AlertTriangle } from "lucide-react";
 
 const API_BASE_URL = "http://localhost:5001";
@@ -107,6 +108,12 @@ export default function TeacherPost() {
 
   return (
     <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans flex items-center justify-center p-6">
+      <Helmet>
+        <title>Teacher Dashboard - Create Posts & Announcements | EduMedia</title>
+        <meta name="description" content="Teacher Dashboard: Create and manage announcements, resources, and activities for your students. Keep your class updated and engaged." />
+        <meta name="keywords" content="teacher dashboard, classroom management, student announcements, education tools, teacher resources, lms features" />
+        <meta name="robots" content="noindex, nofollow" /> {/* Dashboard pages often shouldn't be indexed */}
+      </Helmet>
       
       {message && <SuccessNotification message={message} onClose={() => setMessage(null)} />}
 
