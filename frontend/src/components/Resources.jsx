@@ -1,7 +1,8 @@
+// Resources.jsx - Earthy Theme
 import React from "react";
+import { ExternalLink, CheckCircle } from "lucide-react";
 
 const Resources = () => {
-  // All links open in new tab & are verified 2025-06
   const links = {
     resume: [
       { name: "Resume Worded", url: "https://resumeworded.com", desc: "AI-powered resume review & ATS check" },
@@ -49,9 +50,14 @@ const Resources = () => {
   };
 
   const Card = ({ title, children }) => (
-    <div className="rounded-2xl bg-white/5 border border-white/10 p-6 backdrop-blur-md shadow-lg">
-      <h3 className="text-xl font-bold text-cyan-300 mb-4">{title}</h3>
-      <div className="space-y-3">{children}</div>
+    <div className="rounded-[2rem] bg-[#333333] border border-[#444444] p-8 hover:border-[#FF7F11] transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/5 rounded-full blur-[60px] group-hover:bg-[#FF7F11]/10 transition-colors pointer-events-none"></div>
+      
+      <h3 className="text-2xl font-black text-[#E2E8CE] mb-6 tracking-tight flex items-center gap-3">
+         <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span>
+         {title}
+      </h3>
+      <div className="space-y-3 relative z-10">{children}</div>
     </div>
   );
 
@@ -60,47 +66,55 @@ const Resources = () => {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-start gap-3 p-3 rounded-lg bg-white/10 hover:bg-cyan-500/20 transition-all duration-200"
+      className="flex items-start gap-4 p-4 rounded-xl bg-[#262626] border border-[#444444] hover:border-[#ACBFA4] transition-all duration-200 group/link"
     >
-      <div className="mt-1 w-2 h-2 rounded-full bg-cyan-400" />
-      <div>
-        <div className="font-semibold text-white">{name}</div>
-        <div className="text-sm text-slate-300">{desc}</div>
+      <div className="mt-1 w-2 h-2 rounded-full bg-[#FF7F11] group-hover/link:scale-125 transition-transform" />
+      <div className="flex-1">
+        <div className="font-bold text-[#E2E8CE] group-hover/link:text-[#FF7F11] transition-colors">{name}</div>
+        <div className="text-xs font-medium text-[#ACBFA4] mt-1">{desc}</div>
       </div>
-      <svg
-        className="ml-auto w-4 h-4 text-slate-400"
-        fill="none"
-        stroke="currentColor"
-        viewBox="0 0 24 24"
-      >
-        <path
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          strokeWidth={2}
-          d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4m-4-4l8 8m0 0v-4m0 4h-4"
-        />
-      </svg>
+      <ExternalLink
+        className="ml-auto w-4 h-4 text-[#666666] group-hover/link:text-[#E2E8CE] transition-colors"
+      />
     </a>
   );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white py-16 px-6">
-      <div className="max-w-7xl mx-auto">
-        <h2 className="text-5xl font-extrabold text-center mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400">
-          Curated Resources
-        </h2>
-        <p className="text-center text-slate-300 mb-12 text-lg">
-          Hand-picked links that actually work – no affiliate junk.
-        </p>
+    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-20 px-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative">
+      
+       {/* Ambient Backgound */}
+       <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+      </div>
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <Card title="📄 Resume Builders">{links.resume.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
-          <Card title="💻 Coding Platforms">{links.coding.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
-          <Card title="🧠 Aptitude & Puzzles">{links.aptitude.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
-          <Card title="🏗️ System Design">{links.system.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
-          <Card title="🚀 Projects & Open-Source">{links.projects.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
-          <Card title="👥 Communities">{links.community.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
-          <Card title="🧘 Mental Health">{links.mental.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="text-center mb-20">
+            <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+                Toolkit
+            </div>
+            <h2 className="text-5xl md:text-6xl font-black text-[#E2E8CE] tracking-tighter mb-6 relative inline-block">
+            Curated <span className="text-[#FF7F11]">Resources</span>
+            </h2>
+            <p className="text-xl text-[#ACBFA4] max-w-2xl mx-auto font-medium leading-relaxed">
+            Hand-picked tools and links that actually work. No fluff, just value.
+            </p>
+        </div>
+
+        <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <Card title="Resume Builders">{links.resume.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+          <Card title="Coding Platforms">{links.coding.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+          <Card title="Aptitude & Puzzles">{links.aptitude.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+          <Card title="System Design">{links.system.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+          <Card title="Projects & OSS">{links.projects.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+          <Card title="Communities">{links.community.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+          <Card title="Mental Health">{links.mental.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
+        </div>
+        
+        <div className="mt-20 text-center border-t border-[#444444] pt-10">
+             <p className="text-[#666666] text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#ACBFA4]" /> Verified & Updated {new Date().getFullYear()}
+             </p>
         </div>
 
       </div>

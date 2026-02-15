@@ -1,101 +1,129 @@
+// Sidebar.jsx - Earthy Tone Update with Collapsible State
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
+import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
 
-const SideBar = () => {
+const SideBar = ({ isOpen = true, toggleSidebar }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const location = useLocation();
 
   const routes = [
-    { label: "Interview Questions", path: "/interview-questions", icon: "💬", color: "text-cyan-400", badge: "Popular" },
-    { label: "Placement Guidance", path: "/placement-guidance", icon: "🎯", color: "text-purple-400" },
-    { label: "Resources", path: "/resources", icon: "📚", color: "text-yellow-400" },
-    { label: "Resume Builder", path: "/resume-builder", icon: "📄", color: "text-green-400", badge: "New" },
-    { label: "Mock Tests", path: "/mock-tests", icon: "📝", color: "text-pink-400" },
-    { label: "Career Blogs", path: "/career-blogs", icon: "🌟", color: "text-blue-400" },
-    { label: "Company Reviews", path: "/company-reviews", icon: "🏢", color: "text-red-400" },
-    { label: "Salary Insights", path: "/salary-insights", icon: "💰", color: "text-emerald-400" },
-    { label: "EduQ&A", path: "/EduQ&A", icon: "❓", color: "text-indigo-400" },
+    { label: "Interview Questions", path: "/interview-questions", icon: "💬", badge: "Hot" },
+    { label: "Placement Guidance", path: "/placement-guidance", icon: "✨" },
+    { label: "Resources", path: "/resources", icon: "📚" },
+    { label: "Resume Builder", path: "/resume-builder", icon: "📝", badge: "New" },
+    { label: "Mock Tests", path: "/mock-tests", icon: "📝" },
+    { label: "Career Blogs", path: "/career-blogs", icon: "🌟" },
+    { label: "Company Reviews", path: "/company-reviews", icon: "🏢" },
+    { label: "Salary Insights", path: "/salary-insights", icon: "💰" },
+    { label: "EduQ&A", path: "/EduQ&A", icon: "❓" },
   ];
 
   return (
     <>
-      {/* 1. CSS to hide scrollbars (Add this to your global CSS or keep it here) */}
-      <style>{`
-        .hide-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .hide-scrollbar {
-          -ms-overflow-style: none;  /* IE and Edge */
-          scrollbar-width: none;  /* Firefox */
-        }
-      `}</style>
-
-      {/* Mobile Toggle Button */}
-      <div className="sm:hidden fixed top-0 left-0 w-full bg-black border-b border-neutral-800 z-50 px-4 py-3 flex justify-between items-center">
-        <span className="text-lg font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-          EduMedia Hub
+      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
+      
+      {/* Mobile Header Toggle */}
+      <div className="sm:hidden fixed top-0 left-0 w-full bg-[#262626] border-b border-[#333333] z-50 px-4 py-3 flex justify-between items-center shadow-md h-[74px]">
+        <span className="text-lg font-bold text-[#E2E8CE] tracking-tight">
+          Edu<span className="text-[#FF7F11]">Media</span>
         </span>
         <button 
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="text-neutral-300 p-2 rounded-lg hover:bg-neutral-800"
+          className="text-[#ACBFA4] p-2 hover:text-[#E2E8CE]"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={mobileMenuOpen ? "M6 18L18 6M6 6l12 12" : "M4 6h16M4 12h16M4 18h16"} />
-          </svg>
+          {mobileMenuOpen ? <ChevronRight /> : <Menu />}
         </button>
       </div>
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed left-0 top-0 h-screen bg-black border-r border-neutral-800 z-40
-        transition-transform duration-300 ease-in-out w-72
-        ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"} 
-        sm:translate-x-0 flex flex-col
+        fixed left-0 top-[74px] h-[calc(100vh-74px)] bg-[#262626] border-r border-[#333333] z-40
+        transition-all duration-300 ease-in-out flex flex-col shadow-2xl shadow-black/50
+        ${mobileMenuOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"} 
+        sm:translate-x-0 ${isOpen ? "sm:w-72" : "sm:w-20"}
       `}>
-        
-        {/* Logo Section */}
-        <div className="hidden sm:flex px-6 py-8">
-          <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-            EduMedia Hub
+          
+        {/* Desktop Toggle Button */}
+        <button 
+            onClick={toggleSidebar}
+            className="hidden sm:flex absolute -right-3 top-6 w-6 h-6 bg-[#333333] border border-[#444444] rounded-full items-center justify-center text-[#ACBFA4] hover:text-[#FF7F11] hover:border-[#FF7F11] transition-colors z-50 shadow-md"
+        >
+            {isOpen ? <ChevronLeft size={14} /> : <ChevronRight size={14} />}
+        </button>
+
+        {/* Logo Section (Desktop) */}
+        <div className={`hidden sm:flex px-6 py-8 items-center gap-3 border-b border-[#333333]/50 ${!isOpen && "justify-center px-2"}`}>
+          <div className="w-10 h-10 shrink-0 bg-[#FF7F11] rounded-full flex items-center justify-center text-[#262626] font-bold text-xl shadow-lg shadow-orange-500/20">
+            E
+          </div>
+          <span className={`text-2xl font-extrabold text-[#E2E8CE] tracking-tight whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+            Edu<span className="text-[#FF7F11]">Media</span>
           </span>
         </div>
 
-        {/* Navigation - Added hide-scrollbar class */}
-        <nav className="flex-1 px-4 space-y-2 overflow-y-auto pt-20 sm:pt-0 pb-6 hide-scrollbar">
-          {routes.map((route, idx) => (
-            <Link
-              key={idx}
-              to={route.path}
-              onClick={() => setMobileMenuOpen(false)}
-              className="group flex items-center gap-4 px-4 py-3 rounded-xl 
-                         text-neutral-300 hover:text-white hover:bg-neutral-800/50
-                         border border-transparent hover:border-neutral-700
-                         transition-all duration-200 active:scale-[0.98]"
-            >
-              <span className={`text-xl ${route.color} group-hover:scale-110 transition-transform`}>
-                {route.icon}
-              </span>
-              <span className="flex-1 text-sm font-medium">{route.label}</span>
-              {route.badge && (
-                <span className="px-2 py-0.5 text-[10px] rounded-full bg-gradient-to-r from-cyan-500 to-purple-500 text-black font-bold uppercase tracking-tighter">
-                  {route.badge}
+        {/* Navigation Links */}
+        <nav className="flex-1 px-3 py-6 space-y-1 overflow-y-auto hide-scrollbar overflow-x-hidden">
+          {isOpen && <p className="px-4 text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-4 opacity-70 animate-fade-in">Menu</p>}
+          
+          {routes.map((route) => {
+             const isActive = location.pathname === route.path;
+             return (
+              <Link
+                key={route.label}
+                to={route.path}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`group flex items-center gap-3 px-3 py-3.5 rounded-lg border transition-all duration-200 relative ${
+                  isActive 
+                    ? "bg-[#333333] border-[#FF7F11] text-[#FF7F11] shadow-md shadow-orange-900/10" 
+                    : "bg-transparent border-transparent text-[#E2E8CE]/80 hover:bg-[#333333] hover:text-[#E2E8CE]"
+                } ${!isOpen && "justify-center"}`}
+              >
+                <div className={`text-xl transition-transform duration-300 shrink-0 ${isActive ? 'scale-110' : 'group-hover:scale-110 grayscale group-hover:grayscale-0'}`}>
+                  {route.icon}
+                </div>
+                
+                <span className={`text-sm font-semibold tracking-wide whitespace-nowrap overflow-hidden transition-all duration-300 ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0 absolute"}`}>
+                    {route.label}
                 </span>
-              )}
-            </Link>
-          ))}
+
+                {route.badge && isOpen && (
+                  <span className={`px-2 py-0.5 text-[10px] rounded font-bold uppercase tracking-wider ml-auto ${
+                    isActive 
+                      ? "bg-[#FF7F11]/10 text-[#FF7F11]" 
+                      : "bg-[#ACBFA4]/20 text-[#ACBFA4]"
+                  }`}>
+                    {route.badge}
+                  </span>
+                )}
+                
+                {/* Tooltip for collapsed state */}
+                {!isOpen && (
+                    <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-3 py-1.5 bg-[#333333] text-[#E2E8CE] text-xs font-bold rounded shadow-xl border border-[#444444] opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">
+                        {route.label}
+                    </div>
+                )}
+              </Link>
+             );
+          })}
         </nav>
 
         {/* Sidebar Footer */}
-        <div className="p-4 border-t border-neutral-800">
-          <div className="flex items-center gap-3 px-2 py-2 text-neutral-500 text-xs italic">
-            <span>© 2024 EduMedia Hub</span>
-          </div>
+        <div className={`p-4 border-t border-[#333333] bg-[#222222] ${!isOpen && "flex justify-center"}`}>
+           <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#ACBFA4] flex items-center justify-center text-[#262626] font-bold text-xs shrink-0">U</div>
+              <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
+                 <p className="text-xs font-bold text-[#E2E8CE] whitespace-nowrap">Guest User</p>
+                 <p className="text-[10px] text-[#ACBFA4] whitespace-nowrap">Basic Plan</p>
+              </div>
+           </div>
         </div>
       </aside>
 
-      {/* Overlay for mobile */}
+      {/* Mobile Overlay */}
       {mobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 sm:hidden"
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm z-30 sm:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}

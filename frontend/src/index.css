@@ -1,21 +1,72 @@
 
 @import "tailwindcss";
 
-.shimmer {
-  background: linear-gradient(90deg, #1e293b 40%, #334155 50%, #1e293b 60%);
-  background-size: 300% 100%;
-  animation: shimmer 1.5s infinite;
-}
-@keyframes shimmer {
-  0%   { background-position: 100% 0; }
-  100% { background-position: 0 0; }
+@theme {
+  /* New Color Palette */
+  --color-primary-brand: #FF7F11; /* Vibration Orange */
+  --color-secondary-brand: #ACBFA4; /* Sage Green */
+  --color-accent-brand: #E2E8CE; /* Pale Beige */
+  --color-dark-surface: #262626; /* Dark Grey */
+  
+  /* Mapped for compatibility if using v4 theme vars */
+  --color-primary-500: #FF7F11;
+  --color-primary-600: #e06c09;
+  
+  --color-surface-card: #333333; /* Slightly lighter than bg */
 }
 
-.animate-marquee {
-  display: flex;
-  animation: marquee 25s linear infinite;
+/* Base Styles */
+body {
+  background-color: var(--color-dark-surface);
+  color: var(--color-accent-brand);
+  font-family: 'Inter', sans-serif;
 }
-@keyframes marquee {
-  0%   { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+
+/* Utility Classes for new theme */
+.bg-theme-dark { 
+  background-color: var(--color-dark-surface); 
+}
+.bg-theme-card {
+  background-color: #333333;
+}
+.text-theme-primary {
+  color: var(--color-primary-brand);
+}
+.text-theme-secondary {
+  color: var(--color-secondary-brand);
+}
+.text-theme-light {
+  color: var(--color-accent-brand);
+}
+
+/* Glassmorphism overrides for this theme */
+.glass {
+  background: rgba(38, 38, 38, 0.7);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(172, 191, 164, 0.1);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-dark-surface); 
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-secondary-brand);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-primary-brand);
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }

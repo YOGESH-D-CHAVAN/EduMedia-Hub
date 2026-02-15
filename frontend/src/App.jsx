@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import './App.css'
 import EduMediaLandingPro from './components/EduMediaLanding'
 import Header from './components/Header'
@@ -21,12 +22,45 @@ import CareerBlogs from './components/CarrerBlog'
 import BlogWriter from './components/CarrerBlogWrite'
 import CompanyReview from './components/ComponyReview'
 import SalaryInsights from './components/SalaryInsighs'
-import AboutPage from './components/About'
 import QandABoard from './components/Quetions'
 import Chat from './components/Chat'
+import DashboardLayout from './components/DashboardLayout'
 
 
 function App() {
+
+  useEffect(() => {
+    const refreshSession = async () => {
+      try {
+        // Attempt to refresh the token using the httpOnly cookie
+        const res = await fetch(
+          "http://localhost:5001/api/v1/users/refresh-token",
+          {
+            method: "POST",
+            credentials: "include", // This sends the refreshToken cookie
+          }
+        );
+
+        if (res.ok) {
+          const data = await res.json();
+          const newAccessToken = data.data?.accessToken;
+          const newRefreshToken = data.data?.refreshToken; // If backend rotates it
+
+          if (newAccessToken) {
+            localStorage.setItem("authToken", newAccessToken);
+            window.dispatchEvent(new Event("authStatusChange"));
+          }
+        }
+      } catch (error) {
+        console.log("Session refresh failed / No info", error);
+        // Optional: clear localStorage if refresh explicitly fails 401? 
+        // For now, let's keep it simple so we don't log them out unnecessarily if it's just a network error.
+      }
+    };
+
+    refreshSession();
+  }, []);
+
   return (
     <>
       <Header />
@@ -42,18 +76,23 @@ function App() {
         <Route path='/student' element={<StudentDashboard/>} />
         <Route path='/teacher' element={<TeacherPost/>} />
         <Route path='/teacher-post' element={<TeacherPostCreator/>} />
+
         <Route path='/profile' element={<Profile/>} />
-        <Route path='/interview-questions' element={<InterviewQuestions/>} />
-        <Route path='/placement-guidance' element={<PlacementGuidance/>} />
-        <Route path='/resources' element={<Resources/>} />
-        <Route path='/resume-builder' element={<ResumeBuilder/>} />
-        <Route path='/mock-tests' element={<MockTestSoftSkills/>} />
-        <Route path='/career-blogs' element={<CareerBlogs/>} />
-        <Route path='/career-blogs-write' element={<BlogWriter/>} />
-        <Route path='/company-reviews' element={<CompanyReview/>} />
-        <Route path='/salary-insights' element={<SalaryInsights/>} />
-        <Route path='/About' element={<AboutPage/>} />
-        <Route path='/EduQ&A' element={<QandABoard/>} />
+        
+        {/* Dashboard Pages with Sidebar */}
+        <Route element={<DashboardLayout />}>
+          <Route path='/interview-questions' element={<InterviewQuestions/>} />
+          <Route path='/placement-guidance' element={<PlacementGuidance/>} />
+          <Route path='/resources' element={<Resources/>} />
+          <Route path='/resume-builder' element={<ResumeBuilder/>} />
+          <Route path='/mock-tests' element={<MockTestSoftSkills/>} />
+          <Route path='/career-blogs' element={<CareerBlogs/>} />
+          <Route path='/career-blogs-write' element={<BlogWriter/>} />
+          <Route path='/company-reviews' element={<CompanyReview/>} />
+          <Route path='/salary-insights' element={<SalaryInsights/>} />
+          <Route path='/EduQ&A' element={<QandABoard/>} />
+        </Route>
+        
         <Route path='/chat' element={<Chat/>} />
       </Routes>
       <Footer />

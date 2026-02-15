@@ -1,56 +1,34 @@
+// TeacherLoginDashboard.jsx (Post Creation)
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { X, CheckCircle, Upload, Plus } from "lucide-react";
+import { Upload, X, CheckCircle, AlertTriangle } from "lucide-react";
 
-/* ---------- SUCCESS TOAST ---------- */
+const API_BASE_URL = "http://localhost:5001";
+
+/* ---------- NOTIFICATIONS ---------- */
 const SuccessNotification = ({ message, onClose }) => (
   <div
     onClick={onClose}
-    className="fixed inset-0 z-50 bg-black/70 backdrop-blur-lg flex items-start justify-center p-8 animate-fade-in"
+    className="fixed inset-0 z-50 bg-[#262626]/80 backdrop-blur-md flex items-start justify-center p-8 animate-fade-in"
   >
-    <div className="mt-20 bg-neutral-900 border border-cyan-400 rounded-2xl p-6 shadow-cyan-400/30 shadow-2xl w-full max-w-md animate-slide-in-down">
+    <div className="mt-20 bg-[#333333] border border-[#ACBFA4] rounded-2xl p-6 shadow-2xl shadow-orange-500/10 w-full max-w-md animate-slide-in-down font-sans">
       <div className="flex items-center justify-between">
+        {/* Success Icon */}
         <div className="flex items-center gap-3">
-          <CheckCircle className="text-cyan-400 w-6 h-6" />
-          <h3 className="text-xl font-bold text-white">Success!</h3>
+          <div className="w-8 h-8 rounded-full bg-[#10B981]/10 flex items-center justify-center text-[#10B981]">
+            <CheckCircle className="w-5 h-5" />
+          </div>
+          <h3 className="text-xl font-bold text-[#E2E8CE] tracking-tight">Success!</h3>
         </div>
-        <button
-          onClick={onClose}
-          className="text-neutral-400 hover:text-white transition"
-        >
+        <button className="text-[#64748B] hover:text-[#E2E8CE] transition">
           <X className="w-5 h-5" />
         </button>
       </div>
-      <p className="mt-2 text-neutral-300">{message}</p>
+      <p className="mt-3 text-[#ACBFA4] font-medium leading-relaxed">{message}</p>
     </div>
   </div>
 );
 
-/* ---------- MEDIA PREVIEW ---------- */
-const MediaPreview = ({ media, onRemove }) => (
-  <div className="mt-4 flex flex-wrap gap-3">
-    {media.map((file, index) => (
-      <div
-        key={index}
-        className="relative px-4 py-1 bg-cyan-400/10 text-cyan-300 text-sm rounded-full flex items-center gap-2 border border-cyan-400/30"
-      >
-        <span className="truncate max-w-xs">{file.name || file.url}</span>
-        <button
-          type="button"
-          onClick={() => onRemove(index)}
-          className="w-5 h-5 ml-1 bg-red-600 rounded-full text-xs font-bold flex items-center justify-center hover:bg-red-500 transition transform hover:scale-110"
-          aria-label={`Remove ${file.name || file.url}`}
-        >
-          &times;
-        </button>
-      </div>
-    ))}
-  </div>
-);
-
-/* ---------- MAIN COMPONENT ---------- */
 export default function TeacherPost() {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: "",
     content: "",
@@ -58,35 +36,34 @@ export default function TeacherPost() {
     audience: "All Students",
     tags: "",
   });
-  const [media, setMedia] = useState([]); // Local selected files
-  const [uploadedMedia, setUploadedMedia] = useState([]); // URLs from Cloudinary
+  const [mediaFiles, setMediaFiles] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
-  const [isSuccess, setIsSuccess] = useState(false);
 
-  /* ---------- HANDLERS ---------- */
-  const handleChange = (e) =>
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-
-  const handleFileChange = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setMedia((prev) => [...prev, ...newFiles].slice(0, 5));
-    e.target.value = null; // reset input
   };
 
-  const handleRemoveMedia = (index) =>
-    setMedia((prev) => prev.filter((_, i) => i !== index));
+  const handleFileChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length + mediaFiles.length > 5) {
+      setError("Asset limit exceeded (Max 5).");
+      return;
+    }
+    setMediaFiles([...mediaFiles, ...files]);
+    setError(null);
+  };
 
-  const closeSuccess = () => {
-    setIsSuccess(false);
-    navigate("/teacher");
+  const removeFile = (index) => {
+    setMediaFiles(mediaFiles.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-    setIsSuccess(false);
     setLoading(true);
+    setError(null);
+    setMessage(null);
 
     try {
       const data = new FormData();
@@ -94,254 +71,201 @@ export default function TeacherPost() {
       data.append("content", formData.content);
       data.append("type", formData.type);
       data.append("audience", formData.audience);
+      data.append("tags", formData.tags);
 
-      formData.tags
-        .split(",")
-        .map((t) => t.trim())
-        .filter((t) => t)
-        .forEach((tag) => data.append("tags", tag));
+      for (let i = 0; i < mediaFiles.length; i++) {
+        data.append("media", mediaFiles[i]);
+      }
 
-      media.forEach((file) => data.append("media", file));
+      const token = localStorage.getItem("authToken");
+      if (!token) throw new Error("Please log in to post.");
 
-      const res = await fetch("https://edumedia-hub-1-bgw0.onrender.com/api/v1/post", {
+      const res = await fetch(`${API_BASE_URL}/api/v1/post`, {
         method: "POST",
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: data, // ✅ FormData automatically sets correct content-type
+        headers: { Authorization: `Bearer ${token}` },
+        body: data,
       });
 
       const result = await res.json();
+      if (!res.ok) throw new Error(result.message || "Failed to publish.");
 
-      if (!res.ok || !result.success)
-        throw new Error(result.message || "Failed to create post.");
-
-      setUploadedMedia(result.post.media); // Store Cloudinary URLs
-      setIsSuccess(true);
-      setMedia([]); // Clear local files
+      setMessage("Content successfully distributed.");
+      setFormData({
+        title: "",
+        content: "",
+        type: "Announcement",
+        audience: "All Students",
+        tags: "",
+      });
+      setMediaFiles([]);
     } catch (err) {
-      console.error("Post Creation Error:", err);
-      setError(err.message || "An unexpected error occurred.");
+      setError(err.message);
     } finally {
       setLoading(false);
     }
   };
 
-  /* ---------- RENDER ---------- */
   return (
-    <>
-      {/* Animations */}
-      <style>{`
-        .animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
-        .animate-slide-in-down { animation: slide-in-down 0.5s ease-out forwards; }
-        @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
-        @keyframes slide-in-down { 0% { opacity: 0; transform: translateY(-50px); } 100% { opacity: 1; transform: translateY(0); } }
-      `}</style>
+    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans flex items-center justify-center p-6">
+      
+      {message && <SuccessNotification message={message} onClose={() => setMessage(null)} />}
 
-      {isSuccess && (
-        <SuccessNotification
-          message="Your new post has been published successfully!"
-          onClose={closeSuccess}
-        />
-      )}
-
-      <div className="min-h-screen bg-black text-white flex items-center justify-center p-4">
-        <div className="w-full max-w-3xl bg-neutral-900 p-8 sm:p-12 rounded-3xl shadow-2xl border border-neutral-800 animate-slide-in-down">
-          <h1 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500 mb-2">
-            New Post
+      <div className="w-full max-w-4xl bg-[#333333] rounded-3xl shadow-2xl border border-[#444444] p-10 sm:p-12 animate-fade-in relative overflow-hidden">
+        
+        {/* Subtle pattern */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF7F11]/5 rounded-full blur-[80px] pointer-events-none transform translate-x-1/2 -translate-y-1/2"></div>
+        
+        <header className="relative z-10 mb-10 pb-6 border-b border-[#444444]">
+          <h1 className="text-4xl font-black text-[#E2E8CE] tracking-tight mb-2">
+            Create <span className="text-[#FF7F11]">New Post</span>
           </h1>
-          <p className="text-neutral-400 mb-10 text-lg">
-            Share announcements, resources, or activities instantly.
+          <p className="text-[#ACBFA4] font-medium text-lg">
+            Update your community with fresh content.
           </p>
+        </header>
 
-          {error && (
-            <div className="bg-red-900/50 border border-red-500 text-red-300 px-4 py-3 rounded-xl mb-6">
-              <strong>Error:</strong> {error}
-            </div>
-          )}
+        {error && (
+          <div className="bg-[#450a0a] border border-[#7f1d1d] text-[#fca5a5] px-6 py-4 rounded-xl mb-8 font-bold flex items-center gap-3 shadow-lg">
+            <AlertTriangle className="w-5 h-5" />
+            <span>ERROR: {error}</span>
+          </div>
+        )}
 
-          <form onSubmit={handleSubmit} className="space-y-8">
+        <form onSubmit={handleSubmit} className="space-y-8 relative z-10">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* Title */}
             <div>
-              <label className="block text-sm font-semibold text-neutral-300 mb-2">
-                Title
+              <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-3">
+                Headline
               </label>
               <input
-                type="text"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="e.g., Weekly Homework Reminder"
+                placeholder="Ex: Mid-Term Project Brief"
                 required
-                className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 focus:ring-2 focus:ring-cyan-400 outline-none transition"
+                className="w-full px-5 py-4 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] outline-none transition-all font-bold text-lg shadow-inner"
               />
             </div>
 
-            {/* Content */}
+            {/* Tags */}
             <div>
-              <label className="block text-sm font-semibold text-neutral-300 mb-2">
-                Content
-              </label>
-              <textarea
-                name="content"
-                value={formData.content}
+              <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-3">Topic Tags</label>
+              <input
+                name="tags"
+                value={formData.tags}
                 onChange={handleChange}
-                placeholder="Write your main message here..."
-                rows="5"
-                required
-                className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 focus:ring-2 focus:ring-cyan-400 outline-none transition resize-none"
+                placeholder="Ex: #design, #urgent"
+                className="w-full px-5 py-4 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] outline-none font-medium text-lg shadow-inner"
               />
             </div>
+          </div>
 
-            {/* Post type, audience, tags */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-neutral-300 mb-2">
-                  Post Type
-                </label>
+          {/* Content */}
+          <div>
+            <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-3">
+              Description / Body
+            </label>
+            <textarea
+              name="content"
+              value={formData.content}
+              onChange={handleChange}
+              placeholder="What's on your mind?"
+              rows="6"
+              required
+              className="w-full px-5 py-4 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] outline-none transition-all text-base leading-relaxed resize-none shadow-inner"
+            />
+          </div>
+
+          {/* Selectors */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-3">Format</label>
+              <div className="relative">
                 <select
                   name="type"
                   value={formData.type}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white focus:ring-2 focus:ring-cyan-400 outline-none transition"
+                  className="w-full px-5 py-4 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] focus:border-[#FF7F11] outline-none cursor-pointer appearance-none font-bold"
                 >
                   <option>Announcement</option>
                   <option>Resource</option>
                   <option>Question</option>
                   <option>Activity</option>
                 </select>
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#ACBFA4]">▼</div>
               </div>
+            </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-neutral-300 mb-2">
-                  Audience
-                </label>
+            <div>
+              <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-3">Distribution</label>
+              <div className="relative">
                 <select
                   name="audience"
                   value={formData.audience}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white focus:ring-2 focus:ring-cyan-400 outline-none transition"
+                  className="w-full px-5 py-4 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] focus:border-[#FF7F11] outline-none cursor-pointer appearance-none font-bold"
                 >
                   <option>All Students</option>
+                  <option>CS Dept</option>
+                  <option>EE Dept</option>
                 </select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-neutral-300 mb-2">
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  name="tags"
-                  value={formData.tags}
-                  onChange={handleChange}
-                  placeholder="math, homework, due-friday"
-                  className="w-full px-4 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white placeholder-neutral-500 focus:ring-2 focus:ring-cyan-400 outline-none transition"
-                />
+                <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-[#ACBFA4]">▼</div>
               </div>
             </div>
+          </div>
 
-            {/* Media Upload */}
-            <div
-              className="border-2 border-dashed border-neutral-700 p-8 rounded-2xl bg-neutral-800/50 hover:bg-neutral-800 transition duration-300 cursor-pointer group"
-              onClick={() => document.getElementById("fileInput").click()}
-            >
-              <div className="flex items-center justify-center flex-col">
-                <Upload className="w-8 h-8 text-cyan-400 group-hover:text-cyan-300 transition" />
-                <label className="block text-base font-semibold text-neutral-300 mt-2 mb-1 cursor-pointer">
-                  Click to attach files (Max 5)
-                </label>
-                <p className="text-sm text-neutral-500">
-                  Supports images, videos, and PDFs.
-                </p>
-              </div>
-              <input
-                id="fileInput"
-                type="file"
-                multiple
-                onChange={handleFileChange}
-                disabled={media.length >= 5}
-                className="hidden"
-                accept="image/*,video/*,application/pdf"
-              />
-              <MediaPreview media={media} onRemove={handleRemoveMedia} />
+          {/* File Upload Area */}
+          <div
+            className="border-2 border-dashed border-[#444444] bg-[#262626]/50 hover:bg-[#262626] hover:border-[#FF7F11] transition-all p-10 rounded-2xl flex flex-col items-center justify-center cursor-pointer group shadow-inner"
+            onClick={() => document.getElementById("fileInput").click()}
+          >
+            <div className="bg-[#333333] p-4 rounded-full mb-4 group-hover:scale-110 transition-transform shadow-xl shadow-orange-500/10">
+              <Upload className="w-8 h-8 text-[#FF7F11]" />
             </div>
+            <label className="text-lg font-bold text-[#CBFA4] group-hover:text-[#E2E8CE] cursor-pointer transition-colors">
+              Drop Assets Here
+            </label>
+            <p className="text-sm text-[#666666] mt-2 font-medium bg-[#262626] px-3 py-1 rounded-full border border-[#333333]">Max 5 Files (JPG, MP4, PDF)</p>
+            <input
+              id="fileInput"
+              type="file"
+              multiple
+              accept="image/*,video/*,application/pdf"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </div>
 
-            {/* Submit */}
-            <button
-              type="submit"
-              disabled={loading || !formData.title || !formData.content}
-              className="w-full flex items-center justify-center gap-2 px-6 py-4 
-                         bg-gradient-to-r from-cyan-500 to-purple-500 text-black 
-                         font-bold text-lg rounded-2xl shadow-xl hover:shadow-2xl 
-                         hover:scale-[1.01] transition duration-300 
-                         disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="animate-spin h-5 w-5 text-black"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  <span>Publishing...</span>
-                </>
-              ) : (
-                <>
-                  <Plus className="w-5 h-5" />
-                  <span>Publish Post</span>
-                </>
-              )}
-            </button>
-          </form>
-
-          {/* Render Uploaded Media */}
-          {uploadedMedia.length > 0 && (
-            <div className="mt-8">
-              <h2 className="text-xl font-bold text-white mb-4">Uploaded Media</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {uploadedMedia.map((m, index) =>
-                  m.type === "image" ? (
-                    <img
-                      key={index}
-                      src={m.url}
-                      alt="post media"
-                      className="w-full h-64 object-cover rounded-xl"
-                    />
-                  ) : m.type === "video" ? (
-                    <video key={index} controls className="w-full h-64 rounded-xl">
-                      <source src={m.url} type="video/mp4" />
-                    </video>
-                  ) : (
-                    <a
-                      key={index}
-                      href={m.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-cyan-400 underline"
-                    >
-                      Download File
-                    </a>
-                  )
-                )}
-              </div>
+          {/* File Preview Chips */}
+          {mediaFiles.length > 0 && (
+            <div className="flex flex-wrap gap-3 p-4 bg-[#262626] rounded-xl border border-[#444444]">
+              {mediaFiles.map((file, idx) => (
+                <div key={idx} className="bg-[#333333] border border-[#555555] pl-3 pr-2 py-1.5 rounded-lg text-xs font-bold text-[#ACBFA4] flex items-center gap-2 shadow-sm">
+                  <span className="truncate max-w-[120px]">{file.name}</span>
+                  <button onClick={() => removeFile(idx)} className="text-[#64748B] hover:text-[#FF7F11] bg-[#262626] rounded-full p-0.5 transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
-        </div>
+
+          {/* Submit Action */}
+          <button
+            type="submit"
+            disabled={loading || !formData.title || !formData.content}
+            className="w-full py-5 rounded-2xl bg-[#FF7F11] hover:bg-[#e06c09] text-[#262626] font-black text-xl shadow-xl shadow-orange-500/20 active:translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 uppercase tracking-widest"
+          >
+            {loading ? (
+              <span className="animate-pulse">Broadcasting...</span>
+            ) : (
+              "Publish Content"
+            )}
+          </button>
+        </form>
       </div>
-    </>
+    </div>
   );
 }

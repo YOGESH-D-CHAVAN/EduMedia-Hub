@@ -3,7 +3,7 @@ import { io } from "socket.io-client";
 const URL =
   window.location.hostname === "localhost"
     ? "http://localhost:5001"
-    : "https://edumedia-hub-1-bgw0.onrender.com";
+    : "http://localhost:5001";
 
 const socket = io(URL, {
   path: "/socket.io",

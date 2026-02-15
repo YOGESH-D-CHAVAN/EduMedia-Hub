@@ -56,12 +56,12 @@ export const loginUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Please provide both email and password to continue.");
   }
 
-  // Find user by email and role
-  const user = await User.findOne({ email, role });
+  // Find user by email (ignore role provided by frontend)
+  const user = await User.findOne({ email });
   if (!user) {
     throw new ApiError(
       404,
-      "We couldn’t find an account with that email and role. Please check your details or register."
+      "We couldn’t find an account with that email. Please check your email or register."
     );
   }
 
@@ -121,4 +121,61 @@ export const logoutUser = asyncHandler(async (req, res) => {
   return res.status(200).json(
     new ApiResponse(200, "👋 You have been logged out successfully. See you soon!")
   );
+});
+
+
+export const refreshAccessToken = asyncHandler(async (req, res) => {
+  const incomingRefreshToken =
+    req.cookies.refreshToken || req.body.refreshToken;
+
+  if (!incomingRefreshToken) {
+    throw new ApiError(401, "Unauthorized request");
+  }
+
+  try {
+    const decoded = jwt.verify(
+      incomingRefreshToken,
+      process.env.REFRESH_SECRET
+    );
+    const user = await User.findById(decoded.userId);
+
+    if (!user) {
+      throw new ApiError(401, "Invalid refresh token");
+    }
+
+    if (incomingRefreshToken !== incomingRefreshToken) {
+      throw new ApiError(401, "Refresh token is expired or used");
+    }
+
+    const options = {
+      httpOnly: true,
+      secure: true,
+    };
+
+    const accessToken = jwt.sign(
+        { userId: user._id },
+        process.env.JWT_SECRET,
+        { expiresIn: "15min" }
+      );
+    
+      const refreshToken = jwt.sign(
+        { userId: user._id },
+        process.env.REFRESH_SECRET,
+        { expiresIn: "7d" }
+      );
+
+    return res
+      .status(200)
+    //   .cookie("accessToken", accessToken, options)  // Optional if you want access token in cookie too
+      .cookie("refreshToken", refreshToken, options)
+      .json(
+        new ApiResponse(
+          200,
+          { accessToken, refreshToken },
+          "Access token refreshed"
+        )
+      );
+  } catch (error) {
+    throw new ApiError(401, error?.message || "Invalid refresh token");
+  }
 });

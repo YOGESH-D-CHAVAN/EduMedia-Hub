@@ -1,220 +1,146 @@
-import React, { useState, useEffect } from "react";
+// StudentDashboard.jsx - Earthy Theme with Functional Backend Integration
+import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import SideBar from "../Sidebar";
-
-const API_BASE_URL = "https://edumedia-hub-1-bgw0.onrender.com";
+import { Heart, MessageSquare, X, ArrowRight, User, Image, FileText, Video, Plus, Loader, Send } from "lucide-react";
 
 /* ---------- HELPER: ALPHABET AVATAR ---------- */
 const AlphabetAvatar = ({ name, size = "w-12 h-12", fontSize = "text-xl" }) => {
   const firstLetter = name ? name.charAt(0).toUpperCase() : "?";
-
-  // Array of colors to make the UI vibrant
+  
+  // Earthy / Vibrant palette for avatars
   const colors = [
-    "bg-cyan-600",
-    "bg-purple-600",
-    "bg-blue-600",
-    "bg-pink-600",
-    "bg-emerald-600",
-    "bg-indigo-600",
+    "bg-[#FF7F11] text-[#262626]",
+    "bg-[#ACBFA4] text-[#262626]",
+    "bg-[#E2E8CE] text-[#262626]",
+    "bg-[#666666] text-[#E2E8CE]",
+    "bg-[#333333] text-[#FF7F11]",
   ];
 
-  // Pick a color based on the first letter's char code so it stays consistent for that user
   const colorIndex = firstLetter.charCodeAt(0) % colors.length;
-  const bgColor = colors[colorIndex];
+  const colorClass = colors[colorIndex];
 
   return (
-    <div
-      className={`${size} ${bgColor} rounded-full flex items-center justify-center font-black text-white border-2 border-neutral-800 shadow-inner`}
-    >
+    <div className={`${size} ${colorClass} rounded-2xl flex items-center justify-center font-black border border-[#444444] shadow-inner transform hover:rotate-3 transition duration-300 shrink-0`}>
       <span className={fontSize}>{firstLetter}</span>
     </div>
   );
 };
 
-/* ---------- ICONS ---------- */
-const HeartIcon = ({ className }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24">
-    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
-  </svg>
-);
-
-const CommentIcon = () => (
-  <svg
-    className="w-5 h-5"
-    fill="none"
-    stroke="currentColor"
-    viewBox="0 0 24 24"
-  >
-    <path
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      strokeWidth={2}
-      d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
-    />
-  </svg>
-);
-
-/* ---------- LIGHTBOX & MEDIA STRIP (Logic remains same) ---------- */
+/* ---------- LIGHTBOX ---------- */
 const LightBox = ({ src, type, onClose }) => {
   if (!src) return null;
   return (
-    <div
-      onClick={onClose}
-      className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-xl flex items-center justify-center p-6 animate-fade-in"
-    >
-      <div className="relative max-w-6xl w-full flex justify-center">
+    <div onClick={onClose} className="fixed inset-0 z-[100] bg-[#262626]/95 backdrop-blur-xl flex items-center justify-center p-6 animate-fade-in cursor-zoom-out">
+      <div className="relative max-w-6xl w-full flex justify-center" onClick={e => e.stopPropagation()}>
+         <button onClick={onClose} className="absolute -top-12 right-0 text-[#E2E8CE] hover:text-[#FF7F11] transition"><X className="w-8 h-8" /></button>
         {type === "image" && (
-          <img
-            src={src}
-            alt="Preview"
-            className="max-h-[90vh] rounded-2xl object-contain shadow-2xl"
-          />
+          <img src={src} alt="Preview" className="max-h-[85vh] rounded-[2rem] object-contain shadow-2xl border border-[#444444]" />
         )}
         {type === "video" && (
-          <video
-            src={src}
-            controls
-            autoPlay
-            className="max-h-[90vh] rounded-2xl shadow-2xl"
-          />
+          <video src={src} controls autoPlay className="max-h-[85vh] rounded-[2rem] shadow-2xl border border-[#444444]" />
         )}
         {type === "pdf" && (
-          <iframe
-            src={src}
-            className="w-full h-[90vh] rounded-2xl bg-white"
-            title="PDF"
-          />
+          <iframe src={src} className="w-full h-[85vh] rounded-[2rem] bg-white border border-[#444444]" title="PDF" />
         )}
       </div>
     </div>
   );
 };
 
+/* ---------- MEDIA STRIP ---------- */
 const MediaStrip = ({ media = [] }) => {
   const [lightBox, setLightBox] = useState(null);
+  
+  // Logic to determine type if not provided
   const getType = (file) => {
-    const url = file.url || file;
-    if (/\.(jpg|jpeg|png|gif|webp)$/i.test(url)) return "image";
-    if (/\.(mp4|webm|ogg)$/i.test(url)) return "video";
-    if (/\.pdf$/i.test(url)) return "pdf";
-    return "file";
+      const url = file.url || file;
+      if (/\.(jpg|jpeg|png|gif|webp)$/i.test(url)) return "image";
+      if (/\.(mp4|webm|ogg)$/i.test(url)) return "video";
+      if (/\.pdf$/i.test(url)) return "pdf";
+      return "file";
   };
+
   return (
     <>
-      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 auto-rows-[12rem] mb-6">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 auto-rows-[10rem] mb-6">
         {media.map((file, idx) => {
-          const url = file.url?.startsWith("http")
-            ? file.url
-            : `${API_BASE_URL}/${file.url || file}`;
+          const url = file.url?.startsWith("http") ? file.url : `http://localhost:5001/${file.url || file}`;
           const type = file.type || getType(file);
+          
           return (
-            <div
-              key={idx}
-              onClick={() => setLightBox({ url, type })}
-              className="relative group cursor-pointer overflow-hidden rounded-2xl bg-neutral-900 border border-neutral-800 hover:border-cyan-400 transition-all duration-300"
-            >
-              {type === "image" && (
-                <img
-                  src={url}
-                  alt="Media"
-                  className="w-full h-full object-cover"
-                />
-              )}
-              {type === "video" && (
-                <video
-                  src={url}
-                  muted
-                  loop
-                  autoPlay
-                  className="w-full h-full object-cover"
-                />
-              )}
+            <div key={idx} onClick={() => setLightBox({ url, type })} className="relative group cursor-pointer overflow-hidden rounded-[1.5rem] bg-[#262626] border border-[#444444] hover:border-[#FF7F11] transition-all duration-300 shadow-md">
+               <div className="absolute inset-0 bg-[#000]/20 group-hover:bg-transparent transition-all z-10" />
+               
+              {type === "image" && <img src={url} className="w-full h-full object-cover transform group-hover:scale-110 transition duration-700" />}
+              {type === "video" && <video src={url} muted loop className="w-full h-full object-cover filter brightness-75 group-hover:brightness-100 transition" />}
               {type === "pdf" && (
-                <div className="flex flex-col items-center justify-center h-full bg-cyan-900/20 text-cyan-500">
-                  <span className="text-4xl mb-2">📄</span>
-                  <span className="text-xs font-bold">PDF</span>
+                <div className="flex flex-col items-center justify-center h-full text-[#ACBFA4] group-hover:text-[#E2E8CE] transition">
+                  <FileText className="w-12 h-12 mb-2" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">PDF Document</span>
                 </div>
               )}
+               
+               {/* Icon Overlay */}
+               <div className="absolute top-2 right-2 z-20 bg-[#333333]/80 p-2 rounded-full backdrop-blur-sm text-[#E2E8CE]">
+                   {type === 'image' && <Image className="w-4 h-4" />}
+                   {type === 'video' && <Video className="w-4 h-4" />}
+                   {type === 'pdf' && <FileText className="w-4 h-4" />}
+               </div>
             </div>
           );
         })}
       </div>
-      <LightBox
-        src={lightBox?.url}
-        type={lightBox?.type}
-        onClose={() => setLightBox(null)}
-      />
+      <LightBox src={lightBox?.url} type={lightBox?.type} onClose={() => setLightBox(null)} />
     </>
   );
 };
 
-/* ---------- COMMENT SECTION WITH ALPHABET AVATAR ---------- */
+/* ---------- COMMENTS ---------- */
 const CommentSection = ({ postId, comments = [], onAdd }) => {
   const [text, setText] = useState("");
   const [show, setShow] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!text.trim()) return;
-    const tempComment = {
-      _id: Date.now(),
-      text: text,
-      user: { username: "You" },
-    };
-    onAdd(tempComment);
-    setText("");
-    try {
-      await fetch(`${API_BASE_URL}/api/v1/posts/${postId}/comment`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-        },
-        body: JSON.stringify({ text: tempComment.text }),
-      });
-    } catch (err) {
-      console.error(err);
-    }
+      e.preventDefault();
+      if(!text.trim()) return;
+      setIsSubmitting(true);
+      await onAdd(postId, text);
+      setText("");
+      setIsSubmitting(false);
   };
 
   return (
-    <div className="mt-6 border-t border-neutral-800 pt-4">
-      <button
-        onClick={() => setShow(!show)}
-        className="flex items-center gap-2 text-sm font-medium text-cyan-400 hover:text-cyan-300 transition"
-      >
-        <CommentIcon />{" "}
-        {show ? "Hide Comments" : `Comments (${comments.length})`}
+    <div className="mt-8 pt-6 border-t border-[#444444]">
+      <button onClick={() => setShow(!show)} className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#666666] hover:text-[#FF7F11] transition mb-4">
+        <MessageSquare className="w-4 h-4" /> {show ? "Hide Discussion" : `View Discussion (${comments.length})`}
       </button>
+
       {show && (
-        <div className="mt-4 space-y-4">
+        <div className="space-y-6 animate-fade-in pl-4 border-l-2 border-[#333333]">
           {comments.map((c, i) => (
-            <div key={i} className="flex items-start gap-3">
-              {/* Using AlphabetAvatar instead of <img> */}
-              <AlphabetAvatar
-                name={c.user?.username}
-                size="w-8 h-8"
-                fontSize="text-xs"
-              />
-              <div className="bg-neutral-800/50 rounded-2xl px-4 py-2 border border-neutral-700">
-                <p className="font-bold text-xs text-neutral-300">
-                  {c.user?.username || "Anonymous"}
-                </p>
-                <p className="text-sm text-neutral-400">{c.text}</p>
-              </div>
+            <div key={i} className="flex gap-4 group">
+               <div className="mt-1"><AlphabetAvatar name={c.user?.username} size="w-8 h-8" fontSize="text-xs" /></div>
+               <div className="flex-1">
+                   <div className="bg-[#262626] rounded-xl rounded-tl-none p-4 border border-[#333333] group-hover:border-[#444444] transition-colors">
+                       <p className="font-black text-[10px] text-[#ACBFA4] uppercase tracking-widest mb-1">{c.user?.username || "Anonymous"}</p>
+                       <p className="text-[#E2E8CE] text-sm leading-relaxed font-medium">{c.text}</p>
+                   </div>
+               </div>
             </div>
           ))}
-          <form onSubmit={handleSubmit} className="flex gap-2 pt-2">
-            <input
-              type="text"
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Write a comment..."
-              className="flex-1 bg-neutral-900 border border-neutral-700 rounded-full px-4 py-2 text-sm outline-none focus:border-cyan-500"
-            />
-            <button className="bg-cyan-600 px-4 py-2 rounded-full text-sm font-bold text-black">
-              Post
-            </button>
+          
+          <form onSubmit={handleSubmit} className="flex gap-3 pt-4">
+             <input 
+                value={text} 
+                onChange={e => setText(e.target.value)} 
+                placeholder="Join the conversation..." 
+                className="flex-1 bg-[#262626] border border-[#444444] rounded-xl px-5 py-3 text-sm text-[#E2E8CE] outline-none focus:border-[#FF7F11] placeholder-[#666666] transition shadow-inner font-medium"
+             />
+             <button disabled={!text.trim() || isSubmitting} className="bg-[#FF7F11] text-[#262626] px-6 py-3 rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition disabled:opacity-50 disabled:cursor-not-allowed shadow-lg flex items-center gap-2">
+                 {isSubmitting ? <Loader className="w-4 h-4 animate-spin"/> : "Send"}
+             </button>
           </form>
         </div>
       )}
@@ -222,120 +148,259 @@ const CommentSection = ({ postId, comments = [], onAdd }) => {
   );
 };
 
+/* ---------- CREATE POST MODAL ---------- */
+const CreatePostModal = ({ isOpen, onClose, onPostCreated }) => {
+    const [title, setTitle] = useState("");
+    const [content, setContent] = useState("");
+    const [media, setMedia] = useState(null);
+    const [loading, setLoading] = useState(false);
+
+    if (!isOpen) return null;
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const formData = new FormData();
+            formData.append("title", title);
+            formData.append("content", content);
+            formData.append("type", "GENERAL"); // Default type
+            formData.append("audience", "public");
+            if(media) {
+                Array.from(media).forEach(file => {
+                    formData.append("media", file);
+                });
+            }
+
+            const token = localStorage.getItem("authToken");
+            const res = await fetch("http://localhost:5001/api/v1/post", {
+                method: "POST",
+                headers: {
+                    Authorization: `Bearer ${token}`
+                },
+                body: formData
+            });
+            
+            const data = await res.json();
+            if(res.ok) {
+                onPostCreated(data.post);
+                setTitle("");
+                setContent("");
+                setMedia(null);
+                onClose();
+            } else {
+                alert(data.message || "Failed to create post");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error creating post");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#262626]/90 backdrop-blur-sm p-4 animate-fade-in">
+             <div className="bg-[#333333] rounded-[2rem] p-8 w-full max-w-2xl border border-[#444444] shadow-2xl relative">
+                  <button onClick={onClose} className="absolute top-6 right-6 text-[#ACBFA4] hover:text-[#FF7F11] transition"><X className="w-6 h-6"/></button>
+                  <h2 className="text-2xl font-black text-[#E2E8CE] mb-6">Create New Post</h2>
+                  <form onSubmit={handleSubmit} className="space-y-6">
+                      <div>
+                          <input 
+                              placeholder="Title" 
+                              value={title} 
+                              onChange={e => setTitle(e.target.value)} 
+                              className="w-full bg-[#262626] border border-[#444444] rounded-xl px-5 py-3 text-[#E2E8CE] focus:border-[#FF7F11] outline-none font-bold"
+                              required
+                          />
+                      </div>
+                      <div>
+                          <textarea 
+                              placeholder="What's on your mind?" 
+                              value={content} 
+                              onChange={e => setContent(e.target.value)} 
+                              rows={5}
+                              className="w-full bg-[#262626] border border-[#444444] rounded-xl px-5 py-3 text-[#E2E8CE] focus:border-[#FF7F11] outline-none resize-none font-medium"
+                              required
+                          />
+                      </div>
+                      <div>
+                          <label className="flex items-center gap-3 px-5 py-3 bg-[#262626] border border-[#444444] rounded-xl cursor-pointer hover:border-[#ACBFA4] transition group">
+                              <Image className="w-5 h-5 text-[#ACBFA4] group-hover:text-[#FF7F11]" />
+                              <span className="text-sm font-bold text-[#E2E8CE]">Attach Media (Images, Video, PDF)</span>
+                              <input type="file" multiple onChange={e => setMedia(e.target.files)} className="hidden" />
+                          </label>
+                          {media && <p className="text-xs text-[#ACBFA4] mt-2 font-bold uppercase tracking-wide">{media.length} files selected</p>}
+                      </div>
+                      
+                      <div className="flex justify-end gap-4 pt-4 border-t border-[#444444]">
+                          <button type="button" onClick={onClose} className="px-6 py-3 rounded-xl text-[#ACBFA4] font-bold uppercase tracking-widest text-xs hover:text-[#E2E8CE] transition">Cancel</button>
+                          <button disabled={loading} type="submit" className="px-8 py-3 bg-[#FF7F11] text-[#262626] rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition shadow-lg flex items-center gap-2">
+                              {loading ? <Loader className="w-4 h-4 animate-spin"/> : "Post Update"}
+                          </button>
+                      </div>
+                  </form>
+             </div>
+        </div>
+    );
+};
+
 /* ---------- MAIN DASHBOARD ---------- */
 export default function StudentDashboard() {
   const [posts, setPosts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const userId = localStorage.getItem("userId") || "mock-student";
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch(`${API_BASE_URL}/api/v1/feed`, {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("authToken")}`,
-          },
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  const fetchPosts = async () => {
+    try {
+        const token = localStorage.getItem("authToken");
+        const res = await fetch("http://localhost:5001/api/v1/feed", {
+            headers: { Authorization: `Bearer ${token}` }
         });
         const data = await res.json();
-        if (data.success) {
-          setPosts(
-            data.posts.map((p) => ({
-              ...p,
-              liked: p.likes?.includes(userId),
-              likes: p.likes || [],
-              media: p.media || [],
-              comments: p.comments || [],
-            })),
-          );
+        if(res.ok) {
+            setPosts(data.posts || []);
         }
-      } catch (err) {
-        console.error(err);
-      } finally {
+    } catch (error) {
+        console.error("Failed to fetch feed", error);
+    } finally {
         setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+     fetchPosts();
+  }, []);
+
+  const handlePostCreated = (newPost) => {
+      setPosts([newPost, ...posts]);
+  };
+
+  const handleAddComment = async (postId, text) => {
+      try {
+          const token = localStorage.getItem("authToken");
+          const res = await fetch(`http://localhost:5001/api/v1/${postId}/comment`, {
+              method: "POST",
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ text })
+          });
+          const data = await res.json();
+          if(res.ok) {
+              setPosts(posts.map(p => {
+                  if(p._id === postId) {
+                      return { ...p, comments: [...p.comments, data.comment] };
+                  }
+                  return p;
+              }));
+          }
+      } catch (error) {
+          console.error("Error adding comment", error);
       }
-    };
-    fetchPosts();
-  }, [userId]);
+  };
+  
+  const handleLike = async (postId) => {
+      try {
+          const token = localStorage.getItem("authToken");
+          const res = await fetch(`http://localhost:5001/api/v1/${postId}/like`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` }
+          });
+          if(res.ok) {
+               // Update local state is tricky without returned updated post or user id check
+               // Re-fetch or simplistic update? Simplistic update for now.
+               fetchPosts(); 
+          }
+      } catch (error) {
+          console.error("Error liking post", error);
+      }
+  };
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
-      <SideBar />
-      <main className="flex-1 sm:ml-72 transition-all duration-300">
-        <div className="max-w-5xl mx-auto px-6 py-12">
-          <header className="mb-12">
-            <h1 className="text-4xl md:text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-500">
-              Student Community Pulse
-            </h1>
-            <p className="text-neutral-500 mt-3 text-lg">
-              Connect with peers and access shared resources.
-            </p>
-            
-          </header>
+    <div className="flex min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
+       <SideBar />
+       
+       <main className="flex-1 sm:ml-72 p-6 lg:p-12 relative overflow-hidden">
+           {/* Background Ambience */}
+            <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+                 <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
+                 <div className="absolute bottom-[-10%] left-[20%] w-[50rem] h-[50rem] bg-[#ACBFA4]/5 rounded-full blur-[120px]"></div>
+            </div>
 
-          <Link
-              to="/chat"
-              className="bg-gradient-to-r from-purple-600 to-pink-600 px-8 py-3 rounded-2xl font-bold hover:scale-105 transition shadow-lg shadow-purple-500/20"
-            >
-              + join
-            </Link>
+           <div className="max-w-5xl mx-auto relative z-10">
+               {/* Header */}
+               <header className="mb-16 flex flex-col md:flex-row justify-between items-end gap-6 border-b border-[#444444] pb-8">
+                   <div>
+                       <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-4 shadow-md">
+                          Campus Feed
+                       </div>
+                       <h1 className="text-5xl font-black text-[#E2E8CE] tracking-tighter mb-2">Community <span className="text-[#FF7F11]">Pulse</span></h1>
+                       <p className="text-[#ACBFA4] font-medium text-lg">See what's happening in your network.</p>
+                   </div>
+                   
+                   <div className="flex gap-4">
+                       <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-3 px-8 py-4 bg-[#ACBFA4] text-[#262626] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#9cafe4] transition hover:-translate-y-1 shadow-lg group">
+                            <Plus className="w-4 h-4"/> Create Post
+                       </button>
+                       <Link to="/chat" className="flex items-center gap-3 px-8 py-4 bg-[#FF7F11] text-[#262626] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition hover:-translate-y-1 shadow-lg group">
+                            Start Discussion <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                       </Link>
+                   </div>
+               </header>
+               
+               {/* Feed */}
+               <div className="space-y-12 pb-20">
+                   {loading ? (
+                       <div className="text-center py-20"><div className="animate-spin w-12 h-12 border-4 border-[#333333] border-t-[#FF7F11] rounded-full mx-auto"></div></div>
+                   ) : posts.length === 0 ? (
+                       <div className="text-center py-20 border-2 border-dashed border-[#444444] rounded-[2rem]">
+                           <p className="text-[#ACBFA4] font-bold text-lg">No posts yet. Be the first to share!</p>
+                       </div>
+                   ) : posts.map(post => (
+                       <article key={post._id} className="bg-[#333333] rounded-[2.5rem] p-8 md:p-10 border border-[#444444] shadow-2xl hover:border-[#FF7F11]/50 transition duration-500 group relative overflow-hidden">
+                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF7F11]/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-[#FF7F11]/10 transition-colors"></div>
+                           
+                           {/* Post Header */}
+                           <div className="flex items-center gap-5 mb-8 relative z-10">
+                               <AlphabetAvatar name={post.author?.username || "Unknown"} size="w-14 h-14" fontSize="text-2xl" />
+                               <div>
+                                   <h3 className="text-xl font-bold text-[#E2E8CE] flex items-center gap-3">
+                                       {post.author?.username || "Unknown"}
+                                       {post.author?.role === 'teacher' && <span className="text-[10px] bg-[#ACBFA4] text-[#262626] px-2 py-0.5 rounded-md uppercase font-black tracking-wider">Faculty</span>}
+                                   </h3>
+                                   <p className="text-xs text-[#666666] font-bold uppercase tracking-widest mt-1">{post.type || "GENERAL"} • {new Date(post.createdAt).toLocaleDateString()}</p>
+                               </div>
+                           </div>
+                           
+                           {/* Content */}
+                           <div className="mb-8 relative z-10">
+                               {post.title && <h2 className="text-2xl font-black text-[#E2E8CE] mb-4 tracking-tight leading-tight">{post.title}</h2>}
+                               <p className="text-[#ACBFA4] text-lg font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                           </div>
+                           
+                           {/* Media */}
+                           {post.media?.length > 0 && <div className="relative z-10"><MediaStrip media={post.media} /></div>}
+                           
+                           {/* Actions */}
+                           <div className="flex items-center gap-4 relative z-10">
+                               <button onClick={() => handleLike(post._id)} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest hover:border-[#FF7F11] hover:text-[#FF7F11] transition group/btn">
+                                   <Heart className="w-4 h-4 group-hover/btn:fill-current" /> {post.likes?.length || 0}
+                               </button>
+                           </div>
+                           
+                           {/* Comments */}
+                           <div className="relative z-10">
+                                <CommentSection postId={post._id} comments={post.comments} onAdd={handleAddComment} />
+                           </div>
+                       </article>
+                   ))}
+               </div>
+           </div>
 
-          <div className="space-y-10">
-            {posts.map((post) => (
-              <article
-                key={post._id}
-                className="bg-neutral-900/50 border border-neutral-800 rounded-[2.5rem] p-8 hover:border-cyan-500/50 transition-all duration-500"
-              >
-                <div className="flex items-center gap-4 mb-6">
-                  {/* Using AlphabetAvatar for Post Author */}
-                  <AlphabetAvatar
-                    name={post.author?.username}
-                    size="w-14 h-14"
-                    fontSize="text-2xl"
-                  />
-                  <div>
-                    <h3 className="font-bold text-neutral-200 text-lg">
-                      {post.author?.username || "Anonymous"}
-                      {post.author?.role === "teacher" && (
-                        <span className="ml-2 text-[10px] bg-cyan-600 text-black px-2 py-0.5 rounded-full uppercase font-black">
-                          Teacher
-                        </span>
-                      )}
-                    </h3>
-                    <p className="text-xs text-neutral-500 uppercase tracking-widest">
-                      {post.type} •{" "}
-                      {new Date(post.createdAt).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
-
-                <h2 className="text-2xl font-bold mb-4 text-white">
-                  {post.title}
-                </h2>
-                <p className="text-neutral-400 mb-6 leading-relaxed text-lg">
-                  {post.content}
-                </p>
-
-                {post.media.length > 0 && <MediaStrip media={post.media} />}
-
-                <button
-                  onClick={() => {
-                    /* Like logic */
-                  }}
-                  className={`flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold bg-neutral-800 text-neutral-400`}
-                >
-                  <HeartIcon className="w-5 h-5" /> {post.likes.length} Likes
-                </button>
-
-                <CommentSection
-                  postId={post._id}
-                  comments={post.comments}
-                  onAdd={(c) => {}}
-                />
-              </article>
-            ))}
-          </div>
-        </div>
-      </main>
+           <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onPostCreated={handlePostCreated} />
+       </main>
     </div>
   );
 }
