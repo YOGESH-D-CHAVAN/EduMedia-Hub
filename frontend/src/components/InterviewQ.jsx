@@ -1,4 +1,6 @@
+// InterviewQ.jsx - Earthy Theme
 import React, { useState, useEffect, useMemo, useRef, useCallback } from "react";
+import { Search } from "lucide-react";
 
 const initialQuestions = [
   // 🌐 Web Development
@@ -111,8 +113,6 @@ const initialQuestions = [
   { text: "What is a sprite?", field: "Game Development", answer: "A 2D image used in games for characters and objects." }
 ];
 
-// Determine all unique fields for the filter buttons
-// This automatically extracts fields from your array - just add questions and they appear!
 const allFields = ["All Fields", ...new Set(initialQuestions.map(q => q.field))];
 
 const InterviewQuestions = () => {
@@ -121,38 +121,34 @@ const InterviewQuestions = () => {
   const [visible, setVisible] = useState([]);
   const [openAnswerIndex, setOpenAnswerIndex] = useState(null);
   const scrollRef = useRef(null);
+  const [search, setSearch] = useState("");
 
-  // Function to toggle answer visibility
   const toggleAnswer = (index) => {
     setOpenAnswerIndex(openAnswerIndex === index ? null : index);
   };
 
-  // Filter questions based on selected field
   const filteredQuestions = useMemo(() => {
-    if (selectedField === "All Fields") {
-      console.log(`Showing all ${questions.length} questions across ${allFields.length - 1} fields`);
-      return questions;
+    let q = questions;
+    if (selectedField !== "All Fields") {
+        q = q.filter(item => item.field === selectedField);
     }
-    const fieldQuestions = questions.filter(q => q.field === selectedField);
-    console.log(`Showing ${fieldQuestions.length} questions for ${selectedField}`);
-    return fieldQuestions;
-  }, [selectedField, questions]);
+    if (search) {
+        q = q.filter(item => item.text.toLowerCase().includes(search.toLowerCase()) || item.answer.toLowerCase().includes(search.toLowerCase()));
+    }
+    return q;
+  }, [selectedField, questions, search]);
 
-  // Handle staggered animation when filter changes
   useEffect(() => {
     setVisible([]);
     setOpenAnswerIndex(null);
-    
     filteredQuestions.forEach((_, i) => {
       setTimeout(() => {
         setVisible((v) => [...v, i]);
-      }, i * 60);
+      }, i * 50);
     });
-    
     return () => setVisible([]);
   }, [filteredQuestions]);
 
-  // Scroll functions for field navigation
   const scrollLeft = useCallback(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollBy({ left: -200, behavior: 'smooth' });
@@ -165,85 +161,72 @@ const InterviewQuestions = () => {
     }
   }, []);
 
-  // Touch swipe handlers for mobile
-  const touchStartX = useRef(0);
-  const touchEndX = useRef(0);
-
-  const handleTouchStart = (e) => {
-    touchStartX.current = e.changedTouches[0].screenX;
-  };
-
-  const handleTouchEnd = (e) => {
-    touchEndX.current = e.changedTouches[0].screenX;
-    handleSwipe();
-  };
-
-  const handleSwipe = () => {
-    const currentIndex = allFields.indexOf(selectedField);
-    if (touchEndX.current < touchStartX.current - 50 && currentIndex < allFields.length - 1) {
-      setSelectedField(allFields[currentIndex + 1]);
-    }
-    if (touchEndX.current > touchStartX.current + 50 && currentIndex > 0) {
-      setSelectedField(allFields[currentIndex - 1]);
-    }
-  };
-
   return (
-    <div 
-      className="h-screen overflow-y-auto bg-gray-950 text-white font-sans scrollbar-hide"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 pb-32">
-        {/* Header with Stats */}
-        <div className="text-center mb-10">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-gradient-x">
-            Tech Interview Prep
+    <div className="h-screen overflow-y-auto bg-[#262626] text-[#E2E8CE] font-sans scrollbar-hide selection:bg-[#FF7F11] selection:text-[#262626]">
+      
+      {/* Background Ambience */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+      </div>
+
+      <div className="max-w-7xl mx-auto px-6 py-12 pb-32 relative z-10">
+        
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+             Career Forge
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black mb-6 text-[#E2E8CE] tracking-tighter">
+            Interview <span className="text-[#FF7F11]">Prep</span>
           </h2>
-          <p className="text-gray-400 text-lg font-light mb-2">
-            Swipe left/right or use arrows to explore {allFields.length - 1} tech fields
+          <p className="text-[#ACBFA4] text-lg font-medium max-w-2xl mx-auto mb-8">
+             Master the technical interview with our curated collection of questions across {allFields.length - 1} domains.
           </p>
-          <div className="flex justify-center gap-6 mt-4 text-sm text-gray-400">
-            <span className="px-4 py-2 bg-gray-800 rounded-full">
-              <span className="text-cyan-400 font-bold">{questions.length}</span> Total Questions
+
+          <div className="max-w-md mx-auto relative mb-8">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ACBFA4]" />
+              <input 
+                 value={search}
+                 onChange={(e) => setSearch(e.target.value)}
+                 placeholder="Search questions..."
+                 className="w-full bg-[#333333] border border-[#444444] rounded-full pl-12 pr-6 py-4 text-[#E2E8CE] placeholder-[#666666] font-bold outline-none focus:border-[#FF7F11] shadow-xl transition-all"
+              />
+          </div>
+
+          <div className="flex justify-center gap-4 text-xs font-bold uppercase tracking-widest text-[#666666]">
+            <span className="px-4 py-2 bg-[#333333] rounded-lg border border-[#444444]">
+              <span className="text-[#FF7F11]">{questions.length}</span> Questions
             </span>
-            <span className="px-4 py-2 bg-gray-800 rounded-full">
-              <span className="text-purple-400 font-bold">{allFields.length - 1}</span> Fields Covered
-            </span>
-            <span className="px-4 py-2 bg-gray-800 rounded-full">
-              <span className="text-pink-400 font-bold">{filteredQuestions.length}</span> Currently Showing
+            <span className="px-4 py-2 bg-[#333333] rounded-lg border border-[#444444]">
+              <span className="text-[#ACBFA4]">{allFields.length - 1}</span> Topics
             </span>
           </div>
         </div>
 
-        {/* Enhanced Field Filter Bar */}
-        <div className="sticky top-0 z-20 py-4 bg-gray-950/90 backdrop-blur-md border-b border-gray-800/50">
-          <div className="flex items-center justify-between gap-4">
-            {/* Left Arrow Button */}
+        {/* Filter Bar */}
+        <div className="sticky top-0 z-30 py-4 bg-[#262626]/90 backdrop-blur-md border-b border-[#333333] mb-8">
+          <div className="flex items-center gap-4">
             <button
               onClick={scrollLeft}
-              className="flex-shrink-0 p-3 rounded-full bg-gray-800 hover:bg-gray-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
+              className="flex-shrink-0 p-3 rounded-full bg-[#333333] hover:bg-[#FF7F11] hover:text-[#262626] transition-all border border-[#444444] shadow-lg"
             >
-              <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
 
-            {/* Scrollable Field Container */}
             <div 
               ref={scrollRef}
               className="flex-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2"
             >
               <div className="flex gap-3 w-max min-w-full justify-center">
-                {/* All fields are automatically generated from your array */}
                 {allFields.map((field) => (
                   <button
                     key={field}
                     onClick={() => setSelectedField(field)}
-                    className={`snap-start px-6 py-3 text-sm font-semibold rounded-full whitespace-nowrap transition-all duration-300 transform
+                    className={`snap-start px-6 py-3 text-xs font-black uppercase tracking-wider rounded-full whitespace-nowrap transition-all transform border
                       ${selectedField === field
-                        ? "bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white shadow-xl shadow-purple-500/30 scale-105"
-                        : "bg-gray-800 text-gray-300 hover:bg-gray-700 hover:scale-105 hover:text-white"
+                        ? "bg-[#FF7F11] border-[#FF7F11] text-[#262626] scale-105 shadow-xl shadow-orange-500/20"
+                        : "bg-[#333333] border-[#444444] text-[#ACBFA4] hover:bg-[#444444] hover:text-[#E2E8CE]"
                       }`}
                   >
                     {field}
@@ -252,131 +235,82 @@ const InterviewQuestions = () => {
               </div>
             </div>
 
-            {/* Right Arrow Button */}
             <button
               onClick={scrollRight}
-              className="flex-shrink-0 p-3 rounded-full bg-gray-800 hover:bg-gray-700 transition-all duration-200 shadow-lg hover:shadow-xl active:scale-95"
+              className="flex-shrink-0 p-3 rounded-full bg-[#333333] hover:bg-[#FF7F11] hover:text-[#262626] transition-all border border-[#444444] shadow-lg"
             >
-              <svg className="w-5 h-5 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
           </div>
         </div>
 
-        {/* Question Grid - Shows ALL filtered questions automatically */}
-        <div className="grid gap-6 mt-8 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        {/* Grid */}
+        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {filteredQuestions.map((q, i) => {
             const isAnswerOpen = openAnswerIndex === i;
             return (
               <div
-                key={`${q.field}-${i}`} // Improved key to handle duplicates
+                key={`${q.field}-${i}`}
                 className={`
-                  relative overflow-hidden rounded-2xl bg-gray-900 border border-gray-800 
-                  transition-all duration-500 ease-out
+                  relative overflow-hidden rounded-[2rem] bg-[#333333] border border-[#444444] 
+                  transition-all duration-500 ease-out p-8
                   ${visible.includes(i) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
                   ${isAnswerOpen 
-                    ? "ring-2 ring-purple-500 shadow-2xl shadow-purple-500/20" 
-                    : "hover:shadow-2xl hover:shadow-gray-900/40 hover:border-gray-700 hover:scale-[1.02]"
+                    ? "ring-2 ring-[#FF7F11] shadow-2xl shadow-orange-500/10" 
+                    : "hover:shadow-xl hover:border-[#FF7F11]/50 hover:-translate-y-1"
                   }
                 `}
                 onClick={() => toggleAnswer(i)}
               >
-                {/* Top gradient bar */}
-                <div className="h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500" />
-                
-                <div className="p-6">
-                  {/* Field Badge - Shows which field this question belongs to */}
-                  <div className="inline-block px-3 py-1 rounded-full bg-gray-800 text-cyan-400 text-xs font-bold uppercase tracking-wider mb-4">
+                {/* Field Badge */}
+                <span className="inline-block px-3 py-1 bg-[#262626] rounded-lg border border-[#444444] text-[10px] font-black uppercase tracking-widest text-[#ACBFA4] mb-4">
                     {q.field}
-                  </div>
+                </span>
 
-                  {/* Question Text */}
-                  <p className="text-white font-semibold text-lg leading-relaxed mb-4">
-                    {q.text}
-                  </p>
+                {/* Question */}
+                <h3 className="text-xl font-bold text-[#E2E8CE] leading-snug mb-4">
+                  {q.text}
+                </h3>
 
-                  {/* Answer Section (Accordion) */}
-                  <div
+                {/* Answer Accordion */}
+                <div
                     className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                      isAnswerOpen ? "max-h-96 mt-4" : "max-h-0"
+                      isAnswerOpen ? "max-h-96 opacity-100 mt-6" : "max-h-0 opacity-0"
                     }`}
                   >
-                    <div className="pt-4 border-t border-gray-800">
-                      <div className="flex items-center mb-3">
-                        <div className="w-8 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mr-3" />
-                        <span className="text-purple-400 font-bold text-sm uppercase">Answer</span>
-                      </div>
-                      <p className="text-gray-300 leading-relaxed text-base">
+                    <div className="pt-6 border-t border-[#444444]">
+                      <div className="text-[#FF7F11] font-black text-xs uppercase tracking-widest mb-2">Answer</div>
+                      <p className="text-[#ACBFA4] font-medium leading-relaxed">
                         {q.answer}
                       </p>
                     </div>
                   </div>
 
-                  {/* Toggle Button */}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleAnswer(i);
-                    }}
-                    className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 text-white text-sm font-semibold hover:from-purple-700 hover:to-pink-700 transition-all duration-200 hover:gap-3 active:scale-95"
-                  >
-                    {isAnswerOpen ? "Hide Answer" : "View Answer"}
-                    <svg
-                      className={`w-4 h-4 transition-transform duration-300 ${
-                        isAnswerOpen ? "rotate-180" : ""
-                      }`}
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
-                </div>
-
-                {/* Hover gradient overlay */}
-                <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/5 via-purple-500/5 to-pink-500/5 opacity-0 hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+                {/* Expand Button */}
+                <button 
+                    className="w-full mt-6 py-3 rounded-xl bg-[#262626] text-[#E2E8CE] font-bold text-xs uppercase tracking-widest hover:bg-[#FF7F11] hover:text-[#262626] transition-all flex items-center justify-center gap-2 group border border-[#444444]"
+                >
+                    {isAnswerOpen ? "Hide Answer" : "Reveal Answer"}
+                    <svg className={`w-4 h-4 transition-transform duration-300 ${isAnswerOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+                </button>
               </div>
             );
           })}
         </div>
 
-        {/* Empty State (only shows if filter returns nothing) */}
+        {/* Empty State */}
         {filteredQuestions.length === 0 && (
-          <div className="text-center py-20 mt-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-gray-800 mb-4">
-              <svg className="w-10 h-10 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.172 16.172a4 4 0 015.656 0M9 12h6m-6-4h6m2 5.291A7.962 7.962 0 0112 15c-2.34 0-4.29-1.009-5.824-2.563M15 6.5a3 3 0 11-6 0 3 3 0 016 0zm6 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+          <div className="text-center py-32 opacity-50">
+            <div className="w-24 h-24 rounded-full bg-[#333333] mx-auto mb-6 flex items-center justify-center border border-[#444444]">
+                 <Search className="w-10 h-10 text-[#ACBFA4]" />
             </div>
-            <p className="text-xl text-gray-400">No questions found for this field.</p>
-            <p className="text-gray-500 mt-2">Try selecting a different category.</p>
+            <h3 className="text-2xl font-black text-[#E2E8CE]">No Questions Found</h3>
+            <p className="text-[#ACBFA4]">Try adjusting your search or filters.</p>
           </div>
         )}
       </div>
 
-      {/* Floating Action Button for quick field switch (mobile only) */}
-      <button
-        onClick={() => {
-          const currentIndex = allFields.indexOf(selectedField);
-          const nextIndex = (currentIndex + 1) % allFields.length;
-          setSelectedField(allFields[nextIndex]);
-        }}
-        className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-white shadow-2xl shadow-purple-500/40 hover:scale-110 active:scale-95 transition-all duration-200 sm:hidden"
-        aria-label="Next field"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
-        </svg>
-      </button>
-
       <style>{`
-        @keyframes gradient-x {
-          0%, 100% { background-size: 200% 200%; background-position: left center; }
-          50% { background-size: 200% 200%; background-position: right center; }
-        }
-        .animate-gradient-x { animation: gradient-x 3s ease infinite; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>

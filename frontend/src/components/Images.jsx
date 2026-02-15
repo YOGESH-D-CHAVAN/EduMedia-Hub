@@ -1,145 +1,141 @@
 import React from "react";
-import { Link } from "react-router-dom";
-
 import img1 from "../assets/img1.jpg";
 import img2 from "../assets/img4.jpg";
 import img3 from "../assets/img3.png";
 import img4 from "../assets/img4.jpeg";
 
 const AlternatingImageShowcase = () => {
+  // Theme Palette
+  const theme = {
+    bg: "#262626", // Dark Grey
+    highlight: "#FF7F11", // Orange
+    accent: "#ACBFA4", // Sage
+    textPrimary: "#E2E8CE", // Pale Beige
+    cardBg: "#333333", // Lighter Grey
+  };
+
   const items = [
     {
-      image: img1,
-      title: "📚 Publish Blogs & Educational Posts",
+      title: "Publish Blogs & Posts",
       description:
-        "Educators and users can easily create, upload, and share rich multimedia content—including text posts, lecture notes, and study materials—to a wide audience. Empower learning through sharing.",
-      tags: [
-        "Teacher Dashboard",
-        "Rich Text Editor",
-        "Multimedia Uploads",
-        "Content Management",
-      ],
+        "Cultivate knowledge by creating rich multimedia content. Share lecture notes, insights, and study materials to help the community grow.",
+      image: img1,
+      tags: ["Content Creation", "Rich Editor", "Multimedia"],
       link: "/new-post",
     },
     {
-      image: img2,
-      title: "🧠 Practice Tech Interview Questions",
+      title: "Practice Interview Qs",
       description:
-        "Prepare for your next job interview with our comprehensive database of questions across 14 technical fields. Filter by subject, view clear answers, and track your readiness.",
-      tags: [
-        "AI/ML",
-        "DevOps",
-        "System Design",
-        "Cybersecurity",
-        "Practice Mode",
-      ],
+        "Prepare for your next role with our curated database. Filter by subject, view clear answers, and track your readiness naturally.",
+      image: img2,
+      tags: ["Technical Skills", "System Design", "Practice"],
       link: "/interview-prep",
     },
     {
-      image: img3,
-      title: "📄 Free Professional Resume Builder",
+      title: "Resume Builder",
       description:
-        "Generate a stunning, industry-standard resume in minutes. Choose from modern templates, organize your experience, and download in multiple formats, all for free.",
-      tags: ["Template Customization", "PDF Export", "Career Tools", "A.I. Suggestions"],
+        "Craft a professional resume that stands out. Choose from organic templates and download in multiple formats.",
+      image: img3,
+      tags: ["Templates", "PDF Export", "Career Tools"],
       link: "/resume-builder",
     },
     {
-      image: img4,
-      title: "🌐 Ask to Experts",
+      title: "Expert Discussions",
       description:
-        "Explore trending educational content, connect with teachers and subject matter experts, and engage in discussions to deepen your understanding of complex topics.",
-      tags: ["Community", "Expert Q&A", "Trend Analysis", "Interactive Learning"],
+        "Engage with teachers and subject matter experts. Deepen understanding through meaningful conversation.",
+      image: img4,
+      tags: ["Mentorship", "Q&A", "Community"],
       link: "/discover",
     },
   ];
 
   return (
-    <div className="relative min-h-screen bg-black text-white overflow-hidden">
-      {/* Background grid */}
-      <div className="absolute inset-0 opacity-5">
-        <div
-          className="absolute inset-0"
-          style={{
-            backgroundImage:
-              "linear-gradient(#06b6d4 1px, transparent 1px), linear-gradient(90deg, #06b6d4 1px, transparent 1px)",
-            backgroundSize: "50px 50px",
-          }}
-        />
+    <div className="relative min-h-screen bg-[#262626] text-[#E2E8CE] overflow-hidden font-sans selection:bg-[#FF7F11] selection:text-[#262626] py-24">
+      
+      {/* Background Texture */}
+      <div className="absolute inset-0 opacity-[0.03]" 
+           style={{ backgroundImage: 'radial-gradient(#ACBFA4 1px, transparent 1px)', backgroundSize: '30px 30px' }}>
       </div>
 
-      {/* Glow */}
-      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
-        <div className="absolute top-20 left-20 w-96 h-96 bg-cyan-500/10 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse animation-delay-2000" />
+       {/* Organic Glows */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
+        <div className="absolute top-20 -left-20 w-[40rem] h-[40rem] bg-[#FF7F11]/10 rounded-full blur-[100px] animate-pulse-slow" />
+        <div className="absolute bottom-40 -right-20 w-[40rem] h-[40rem] bg-[#ACBFA4]/10 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+      <div className="relative max-w-7xl mx-auto px-6">
+        
         {/* Header */}
-        <div className="text-center mb-20">
-          <h2 className="text-5xl md:text-7xl font-black bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 bg-clip-text text-transparent uppercase">
-            EduMedia Core Features
+        <div className="text-center mb-24">
+          <div className="inline-block px-4 py-1 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] text-xs font-bold uppercase tracking-widest mb-6 shadow-lg">
+            Core Modules
+          </div>
+          <h2 className="text-5xl md:text-7xl font-black text-[#E2E8CE] tracking-tighter mb-6 relative z-10">
+            System <span className="text-[#FF7F11] relative inline-block">
+              Features
+              <svg className="absolute w-full h-3 -bottom-1 left-0 text-[#FF7F11] opacity-60" viewBox="0 0 100 10" preserveAspectRatio="none">
+                 <path d="M0 5 Q 50 10 100 5" stroke="currentColor" strokeWidth="6" fill="none" />
+              </svg>
+            </span>
           </h2>
-          <div className="w-32 h-1 bg-gradient-to-r from-cyan-500 to-purple-500 mx-auto mt-4" />
+          <p className="max-w-2xl mx-auto text-[#ACBFA4] text-lg font-medium leading-relaxed">
+            Essential tools designed to foster learning and development in a unified ecosystem.
+          </p>
         </div>
 
-        <div className="space-y-24">
+        <div className="space-y-32">
           {items.map((item, index) => (
             <div
               key={index}
-              className={`group relative flex flex-col md:flex-row items-center gap-12 ${
+              className={`relative flex flex-col md:flex-row gap-16 items-center ${
                 index % 2 === 1 ? "md:flex-row-reverse" : ""
               }`}
             >
-              {/* Image */}
-              <div className="relative w-full md:w-1/2 group-hover:scale-105 transition-transform duration-500">
-                <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/40 backdrop-blur-md shadow-2xl relative">
+              {/* Image Container */}
+              <div className="w-full md:w-1/2 relative group">
+                {/* Decorative Frame */}
+                <div className={`absolute inset-0 rounded-[2.5rem] border-2 border-[#444444] transform transition-transform duration-500 ${index % 2 === 0 ? 'rotate-3 group-hover:rotate-6' : '-rotate-3 group-hover:-rotate-6'}`}></div>
+                
+                <div className="relative rounded-[2.5rem] overflow-hidden shadow-2xl bg-[#333333] border border-[#444444] group-hover:border-[#FF7F11] transition-all duration-500">
+                  <div className="absolute inset-0 bg-[#262626]/20 z-10 group-hover:opacity-0 transition-opacity duration-500"></div>
                   <img
                     src={item.image}
                     alt={item.title}
-                    className="w-full h-72 sm:h-96 object-cover group-hover:scale-110 transition-transform duration-700"
+                    className="w-full h-[400px] object-cover filter grayscale-[30%] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700 ease-out"
                   />
+                  
+                   {/* Badge */}
+                   <div className="absolute top-6 left-6 z-20 bg-[#333333]/90 backdrop-blur border border-[#444444] px-4 py-2 rounded-full text-[#FF7F11] font-bold text-xs uppercase tracking-widest shadow-lg">
+                      Module 0{index + 1}
+                   </div>
                 </div>
               </div>
 
-              {/* Content */}
-              <div className="w-full md:w-1/2 space-y-6">
-                <h3 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent">
-                  {item.title}
-                </h3>
+              {/* Text Content */}
+              <div className="w-full md:w-1/2 space-y-8 relative">
+                 <div className="absolute -left-8 top-0 w-1 h-24 bg-gradient-to-b from-[#FF7F11] to-transparent rounded-full opacity-60 hidden md:block"></div>
 
-                <p className="text-gray-400 text-lg leading-relaxed border-l-2 border-gray-800 pl-4">
+                <h3 className="text-4xl font-black text-[#E2E8CE] tracking-tight leading-tight group-hover:text-[#FF7F11] transition-colors">{item.title}</h3>
+                
+                <p className="text-[#ACBFA4] text-xl leading-relaxed font-medium font-sans border-l-2 md:border-none border-[#444444] pl-4 md:pl-0">
                   {item.description}
                 </p>
 
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-3 pt-2">
                   {item.tags.map((tag, i) => (
                     <span
                       key={i}
-                      className="px-4 py-2 bg-gray-900/60 text-cyan-300 border border-gray-700 rounded-full text-sm hover:border-cyan-500 transition"
+                      className="px-5 py-2.5 bg-[#333333] text-[#E2E8CE] border border-[#444444] rounded-xl text-xs font-bold uppercase tracking-wider hover:border-[#FF7F11] hover:text-[#FF7F11] transition-all cursor-default shadow-sm hover:shadow-md"
                     >
                       {tag}
                     </span>
                   ))}
                 </div>
-
-                {/* CTA Button */}
-              
               </div>
             </div>
           ))}
         </div>
       </div>
-
-      {/* Animation */}
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: .3; }
-          50% { opacity: .1; }
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-      `}</style>
     </div>
   );
 };

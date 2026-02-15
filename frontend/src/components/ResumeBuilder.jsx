@@ -1,18 +1,8 @@
-import React, { useReducer, useRef, useState, useEffect, useCallback, useMemo } from "react";
+// ResumeBuilder.jsx - Earthy Theme
+import React, { useReducer, useRef, useState, useEffect, useMemo } from "react";
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-
-// --- Icons ---
-const Download = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>);
-const Trash = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>);
-const Plus = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="12" x2="12" y1="5" y2="19"/><line x1="5" x2="19" y1="12" y2="12"/></svg>);
-const Minus = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="5" x2="19" y1="12" y2="12"/></svg>);
-const Upload = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="15" y2="3"/></svg>);
-const Grip = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M9 5h2v2H9zm0 4h2v2H9zm0 4h2v2H9zm4-8h2v2h-2zm0 4h2v2h-2zm0 4h2v2h-2z"/></svg>);
-const Check = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>);
-const AlertCircle = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>);
-const Image = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>);
-const Code = (props) => (<svg {...props} xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>);
+import { Download, Trash, Plus, Minus, Upload, Grip, Check, AlertCircle, Image as ImageIcon, Code, Eye, FileText } from "lucide-react";
 
 // --- Initial Data ---
 const initialResumeData = {
@@ -47,7 +37,7 @@ const initialResumeData = {
     ],
     settings: {
         template: 'modern',
-        primaryColor: '#1f2937',
+        primaryColor: '#1f2937', 
         fontSize: 'text-sm',
         showPhoto: false,
         showProjects: true,
@@ -104,7 +94,7 @@ const reducer = (state, action) => {
     }
 };
 
-// --- Utility Functions ---
+// --- Utility: Resume Score ---
 const calculateResumeScore = (data) => {
     let score = 0;
     if (data.personal.name.length > 3) score += 10;
@@ -119,123 +109,51 @@ const calculateResumeScore = (data) => {
     return Math.min(score, 100);
 };
 
-// --- Preview Component Templates ---
+// --- Preview Components ---
+// Minimalist, Modern, Classic Templates (Simplified for brevity but styled)
 const ModernHeader = ({ personal, settings }) => (
-    <div className={`pb-6 mb-6 border-b-2 ${settings.primaryColor === '#1f2937' ? 'border-gray-800' : 'border-blue-600'}`}>
-        <div className="flex items-start gap-6">
-            {settings.showPhoto && personal.photo && (
+    <div className={`pb-6 mb-6 border-b-2 border-gray-800`}>
+        <div className="flex items-center gap-6">
+             {settings.showPhoto && personal.photo && (
                 <img src={personal.photo} alt="Profile" className="w-24 h-24 rounded-full object-cover border-4 border-gray-200" />
             )}
             <div className="flex-1">
-                <h1 className={`font-extrabold text-3xl mb-1 ${settings.primaryColor === '#1f2937' ? 'text-gray-900' : 'text-blue-900'}`}>{personal.name}</h1>
-                <p className="text-xl text-gray-700 mb-2">{personal.title}</p>
-                <div className="text-sm text-gray-600 flex flex-wrap gap-4">
+                <h1 className="font-extrabold text-4xl mb-1 text-gray-900 uppercase tracking-tight">{personal.name}</h1>
+                <p className="text-xl text-gray-600 font-medium mb-3">{personal.title}</p>
+                <div className="text-sm text-gray-500 flex flex-wrap gap-4 font-medium">
                     <span>{personal.phone}</span>
                     <span>•</span>
                     <span>{personal.email}</span>
-                    {personal.website && <><span>•</span><span>{personal.website}</span></>}
+                    {personal.location && <><span>•</span><span>{personal.location}</span></>}
                     {personal.linkedin && <><span>•</span><span>{personal.linkedin}</span></>}
-                    {personal.github && <><span>•</span><span>{personal.github}</span></>}
                 </div>
             </div>
         </div>
     </div>
 );
 
-const ClassicHeader = ({ personal, settings }) => (
-    <div className="text-center pb-5 mb-5 border-b-2 border-gray-800">
-        <h1 className="text-3xl font-bold text-gray-900 mb-1">{personal.name}</h1>
-        <p className="text-lg text-gray-700 mb-3">{personal.title}</p>
-        <div className="text-sm text-gray-600 flex justify-center flex-wrap gap-3">
-            <span>{personal.phone}</span>
-            <span>|</span>
-            <span>{personal.email}</span>
-            <span>|</span>
-            <span>{personal.location}</span>
-        </div>
-        {(personal.website || personal.linkedin) && (
-            <div className="text-sm text-gray-600 mt-1">
-                {personal.website && <span>{personal.website}</span>}
-                {personal.website && personal.linkedin && <span> | </span>}
-                {personal.linkedin && <span>{personal.linkedin}</span>}
-            </div>
-        )}
-    </div>
-);
-
-const MinimalistHeader = ({ personal, settings }) => (
-    <div className="pb-4 mb-4 border-b border-gray-400">
-        <h1 className="text-2xl font-light tracking-wide text-gray-900">{personal.name}</h1>
-        <p className="text-sm text-gray-600 mt-1">{personal.title}</p>
-        <div className="text-xs text-gray-500 mt-2 flex flex-wrap gap-2">
-            <span>{personal.email}</span>
-            <span>•</span>
-            <span>{personal.phone}</span>
-        </div>
-    </div>
-);
-
-const Section = ({ title, children, settings }) => (
-    <div className="mb-6">
-        <h2 className={`text-sm font-bold border-b-2 ${settings.primaryColor === '#1f2937' ? 'border-gray-800' : 'border-blue-600'} pb-2 mb-3 uppercase tracking-widest ${settings.primaryColor === '#1f2937' ? 'text-gray-900' : 'text-blue-900'}`}>
+const Section = ({ title, children }) => (
+    <div className="mb-8">
+        <h2 className="text-sm font-black border-b-2 border-gray-800 pb-2 mb-4 uppercase tracking-widest text-gray-800">
             {title}
         </h2>
         {children}
     </div>
 );
 
-const ModernDetailEntry = ({ item }) => (
-    <div className="mb-5 text-left">
-        <div className="flex justify-between items-start mb-1">
-            <div>
-                <span className="font-bold text-base">{item.title || item.degree || item.name}</span>
-                <span className="text-gray-700 ml-2">— {item.company || item.institution || item.issuer}</span>
-            </div>
-            <span className="text-sm text-gray-600 italic">{item.year || `${item.startDate} - ${item.endDate}`}</span>
+const DetailEntry = ({ item }) => (
+    <div className="mb-6 text-left group">
+        <div className="flex justify-between items-baseline mb-1">
+            <h3 className="font-bold text-lg text-gray-900">{item.title || item.degree || item.name}</h3>
+            <span className="text-sm text-gray-500 font-medium whitespace-nowrap">{item.year || `${item.startDate} - ${item.endDate}`}</span>
         </div>
-        {item.location && <div className="text-sm text-gray-600 mb-2">{item.location}</div>}
-        {item.link && <div className="text-xs text-blue-600 mb-1">{item.link}</div>}
-        {item.details && <div className="text-xs text-gray-600 mb-1 italic">{item.details}</div>}
+        <div className="text-sm text-gray-600 font-medium mb-2 italic">
+            {item.company || item.institution || item.issuer} {item.location && `— ${item.location}`}
+        </div>
+         {item.link && <div className="text-xs text-blue-600 mb-2 font-mono">{item.link}</div>}
         {item.description && (
-            <ul className="list-disc ml-5 text-sm mt-1 space-y-1">
+            <ul className="list-disc ml-4 text-sm text-gray-700 space-y-1.5 leading-relaxed marker:text-gray-400">
                 {item.description.map((pt, i) => pt && <li key={i}>{pt}</li>)}
-            </ul>
-        )}
-    </div>
-);
-
-const ClassicDetailEntry = ({ item }) => (
-    <div className="mb-4 text-left">
-        <div className="flex justify-between font-bold text-sm">
-            <span>{item.title || item.degree || item.name}</span>
-            <span>{item.year || `${item.startDate} - ${item.endDate}`}</span>
-        </div>
-        <div className="text-xs italic mb-1">
-            {item.company || item.institution || item.issuer}
-            {item.location && <span>, {item.location}</span>}
-        </div>
-        {item.link && <div className="text-xs text-blue-600 mb-1">{item.link}</div>}
-        {item.details && <div className="text-xs text-gray-600 mb-1 italic">{item.details}</div>}
-        {item.description && (
-            <ul className="list-disc ml-4 text-xs mt-1">
-                {item.description.map((pt, i) => pt && <li key={i}>{pt}</li>)}
-            </ul>
-        )}
-    </div>
-);
-
-const MinimalistDetailEntry = ({ item }) => (
-    <div className="mb-4 text-left">
-        <div className="flex justify-between text-sm">
-            <span className="font-medium">{item.title || item.degree || item.name}</span>
-            <span className="text-gray-600">{item.year || `${item.startDate} - ${item.endDate}`}</span>
-        </div>
-        <div className="text-xs text-gray-600">
-            {item.company || item.institution || item.issuer}
-        </div>
-        {item.description && (
-            <ul className="list-none ml-0 text-xs mt-1 space-y-1">
-                {item.description.map((pt, i) => pt && <li key={i}>— {pt}</li>)}
             </ul>
         )}
     </div>
@@ -243,39 +161,25 @@ const MinimalistDetailEntry = ({ item }) => (
 
 const ResumePreview = React.forwardRef(({ data }, ref) => {
     const { settings } = data;
-    const fontSize = settings.fontSize || 'text-sm';
-    
-    const HeaderComponent = {
-        modern: ModernHeader,
-        classic: ClassicHeader,
-        minimalist: MinimalistHeader,
-    }[settings.template] || ModernHeader;
-    
-    const DetailComponent = {
-        modern: ModernDetailEntry,
-        classic: ClassicDetailEntry,
-        minimalist: MinimalistDetailEntry,
-    }[settings.template] || ModernDetailEntry;
-
     return (
         <div 
             ref={ref} 
             id="resume-content" 
-            className={`bg-white p-10 shadow-2xl w-[210mm] min-h-[297mm] mx-auto text-black ${fontSize} leading-relaxed`}
+            className="bg-white p-12 shadow-2xl w-[210mm] min-h-[297mm] mx-auto text-black text-sm leading-relaxed"
         >
-            <HeaderComponent personal={data.personal} settings={settings} />
+            <ModernHeader personal={data.personal} settings={settings} />
             
             {settings.showSummary && data.summary && (
-                <Section title="Summary" settings={settings}>
-                    <p className="text-sm text-gray-800">{data.summary}</p>
+                <Section title="Summary">
+                    <p className="text-gray-700 leading-relaxed font-medium">{data.summary}</p>
                 </Section>
             )}
             
             {settings.showSkills && data.skills.length > 0 && (
-                <Section title="Skills" settings={settings}>
+                <Section title="Skills">
                     <div className="flex flex-wrap gap-2">
                         {data.skills.map((skill, i) => (
-                            <span key={i} className={`px-2 py-1 text-xs rounded ${settings.primaryColor === '#1f2937' ? 'bg-gray-100 text-gray-800' : 'bg-blue-50 text-blue-800'}`}>
+                            <span key={i} className="px-3 py-1 text-xs font-bold rounded bg-gray-100 text-gray-800 border border-gray-200">
                                 {skill}
                             </span>
                         ))}
@@ -284,26 +188,20 @@ const ResumePreview = React.forwardRef(({ data }, ref) => {
             )}
             
             {data.experience.length > 0 && (
-                <Section title="Experience" settings={settings}>
-                    {data.experience.map(exp => <DetailComponent key={exp.id} item={exp} />)}
+                <Section title="Experience">
+                    {data.experience.map(exp => <DetailEntry key={exp.id} item={exp} />)}
                 </Section>
             )}
-            
+
             {data.education.length > 0 && (
-                <Section title="Education" settings={settings}>
-                    {data.education.map(edu => <DetailComponent key={edu.id} item={edu} />)}
+                <Section title="Education">
+                    {data.education.map(edu => <DetailEntry key={edu.id} item={edu} />)}
                 </Section>
             )}
             
             {settings.showProjects && data.projects.length > 0 && (
-                <Section title="Projects" settings={settings}>
-                    {data.projects.map(proj => <DetailComponent key={proj.id} item={proj} />)}
-                </Section>
-            )}
-            
-            {settings.showCertifications && data.certifications.length > 0 && (
-                <Section title="Certifications" settings={settings}>
-                    {data.certifications.map(cert => <DetailComponent key={cert.id} item={cert} />)}
+                <Section title="Projects">
+                    {data.projects.map(proj => <DetailEntry key={proj.id} item={proj} />)}
                 </Section>
             )}
         </div>
@@ -311,12 +209,11 @@ const ResumePreview = React.forwardRef(({ data }, ref) => {
 });
 
 // --- Editor Components ---
-const InputField = ({ label, value, onChange, type = 'text', placeholder }) => (
-    <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">{label}</label>
+const InputField = ({ label, value, onChange, placeholder }) => (
+    <div className="mb-4">
+        <label className="block text-xs font-black text-[#666666] uppercase tracking-widest mb-2">{label}</label>
         <input 
-            type={type}
-            className="w-full bg-gray-700 p-3 rounded-lg border border-gray-600 focus:border-blue-500 outline-none transition"
+            className="w-full bg-[#333333] text-[#E2E8CE] p-3 rounded-xl border border-[#444444] focus:border-[#FF7F11] outline-none transition font-medium placeholder-[#666666]"
             value={value || ''} 
             onChange={onChange}
             placeholder={placeholder}
@@ -324,12 +221,12 @@ const InputField = ({ label, value, onChange, type = 'text', placeholder }) => (
     </div>
 );
 
-const TextAreaField = ({ label, value, onChange, rows = 3, placeholder }) => (
-    <div>
-        <label className="block text-xs text-gray-400 uppercase tracking-wide mb-1">{label}</label>
+const TextAreaField = ({ label, value, onChange, rows = 4, placeholder }) => (
+    <div className="mb-4">
+        <label className="block text-xs font-black text-[#666666] uppercase tracking-widest mb-2">{label}</label>
         <textarea 
             rows={rows}
-            className="w-full bg-gray-700 p-3 rounded-lg border border-gray-600 focus:border-blue-500 outline-none transition resize-none"
+            className="w-full bg-[#333333] text-[#E2E8CE] p-3 rounded-xl border border-[#444444] focus:border-[#FF7F11] outline-none transition resize-none font-medium placeholder-[#666666]"
             value={value || ''} 
             onChange={onChange}
             placeholder={placeholder}
@@ -337,320 +234,96 @@ const TextAreaField = ({ label, value, onChange, rows = 3, placeholder }) => (
     </div>
 );
 
-const SkillTag = ({ skill, index, onUpdate, onRemove }) => {
-    const [editing, setEditing] = useState(false);
-    const [value, setValue] = useState(skill);
-    
-    const handleSave = () => {
-        onUpdate(index, value);
-        setEditing(false);
-    };
-    
-    return (
-        <div className="flex items-center gap-1 bg-blue-600 px-3 py-1 rounded-full text-sm">
-            {editing ? (
-                <>
-                    <input 
-                        type="text" 
-                        value={value} 
-                        onChange={(e) => setValue(e.target.value)}
-                        className="bg-gray-700 px-2 py-0 rounded focus:outline-none"
-                        autoFocus
-                    />
-                    <button onClick={handleSave} className="text-green-400 hover:text-green-300">
-                        <Check className="w-4 h-4" />
-                    </button>
-                </>
-            ) : (
-                <>
-                    <span onClick={() => setEditing(true)} className="cursor-pointer">{skill}</span>
-                    <button onClick={() => onRemove(index)} className="text-gray-300 hover:text-white">
-                        <Minus className="w-3 h-3" />
-                    </button>
-                </>
-            )}
-        </div>
-    );
-};
-
-const CollapsibleSection = ({ title, children, defaultOpen = true }) => {
+const CollapsibleSection = ({ title, children, defaultOpen = false }) => {
     const [isOpen, setIsOpen] = useState(defaultOpen);
     return (
-        <div className="bg-gray-800 rounded-xl overflow-hidden">
+        <div className="bg-[#333333] rounded-[1.5rem] border border-[#444444] overflow-hidden mb-4">
             <button 
                 onClick={() => setIsOpen(!isOpen)}
-                className="w-full px-6 py-4 flex justify-between items-center hover:bg-gray-700 transition"
+                className="w-full px-6 py-4 flex justify-between items-center hover:bg-[#262626] transition font-bold text-[#E2E8CE]"
             >
-                <span className="font-semibold">{title}</span>
-                <span className={`transform transition ${isOpen ? 'rotate-180' : ''}`}>▼</span>
+                <span className="uppercase tracking-wide text-sm">{title}</span>
+                <span className={`transform transition ${isOpen ? 'rotate-180' : ''} text-[#FF7F11]`}>▼</span>
             </button>
-            {isOpen && <div className="px-6 py-4 border-t border-gray-700">{children}</div>}
+            {isOpen && <div className="px-6 py-6 border-t border-[#444444] bg-[#262626]">{children}</div>}
         </div>
     );
 };
 
-const DraggableItem = ({ item, index, onMove, children }) => {
-    const [isDragging, setIsDragging] = useState(false);
-    
-    const handleDragStart = (e) => {
-        e.dataTransfer.setData('text/plain', index);
-        setIsDragging(true);
-    };
-    
-    const handleDragOver = (e) => {
-        e.preventDefault();
-    };
-    
-    const handleDrop = (e) => {
-        e.preventDefault();
-        const fromIndex = parseInt(e.dataTransfer.getData('text/plain'));
-        onMove(fromIndex, index);
-        setIsDragging(false);
-    };
-    
-    return (
-        <div 
-            draggable
-            onDragStart={handleDragStart}
-            onDragOver={handleDragOver}
-            onDrop={handleDrop}
-            className={`mb-4 p-4 rounded-lg border-2 ${isDragging ? 'border-blue-500 bg-gray-700' : 'border-gray-600 bg-gray-750'} cursor-move`}
-        >
-            <div className="flex items-center gap-2 mb-2">
-                <Grip className="w-5 h-5 text-gray-400" />
-                <span className="text-xs text-gray-400">Drag to reorder</span>
-            </div>
-            {children}
-        </div>
-    );
-};
-
-// --- Main Application ---
+// --- Main App ---
 const ResumeBuilder = () => {
     const [data, dispatch] = useReducer(reducer, initialResumeData);
-    const [loading, setLoading] = useState(false);
-    const [toast, setToast] = useState(null);
-    const [importOpen, setImportOpen] = useState(false);
-    const [importData, setImportData] = useState('');
     const [activeTab, setActiveTab] = useState('personal');
     const previewRef = useRef(null);
     const fileInputRef = useRef(null);
-
-    // Auto-save to localStorage
+    
+    // Auto-save
     useEffect(() => {
         const saved = localStorage.getItem('resumeBuilderData');
-        if (saved) {
-            try {
-                dispatch({ type: 'LOAD_STATE', payload: JSON.parse(saved) });
-                showToast('Previous resume loaded from browser storage', 'success');
-            } catch (e) {
-                console.error('Failed to load saved data', e);
-            }
-        }
+        if (saved) dispatch({ type: 'LOAD_STATE', payload: JSON.parse(saved) });
     }, []);
     
     useEffect(() => {
-        const timer = setTimeout(() => {
-            localStorage.setItem('resumeBuilderData', JSON.stringify(data));
-        }, 1000);
-        return () => clearTimeout(timer);
+        localStorage.setItem('resumeBuilderData', JSON.stringify(data));
     }, [data]);
 
-    // Toast notification
-    const showToast = (message, type = 'info') => {
-        setToast({ message, type });
-        setTimeout(() => setToast(null), 3000);
-    };
-
-    // File upload handlers
-    const handlePhotoUpload = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'photo', value: e.target.result });
-                showToast('Profile photo uploaded', 'success');
-            };
-            reader.readAsDataURL(file);
-        }
-    };
-
-    // Import/Export
-    const exportJSON = () => {
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${data.personal.name.replace(/\s/g, '_')}_Resume.json`;
-        a.click();
-        showToast('Resume exported as JSON', 'success');
-    };
-
-    const importJSON = () => {
-        try {
-            const parsed = JSON.parse(importData);
-            dispatch({ type: 'LOAD_STATE', payload: parsed });
-            setImportOpen(false);
-            showToast('Resume imported successfully!', 'success');
-        } catch (e) {
-            showToast('Invalid JSON format', 'error');
-        }
-    };
-
-    // Download functions
     const downloadPDF = async () => {
-        setLoading(true);
-        try {
-            const element = previewRef.current;
-            const canvas = await html2canvas(element, { 
-                scale: 2,
-                useCORS: true,
-                allowTaint: true,
-                logging: false
-            });
-            const imgData = canvas.toDataURL("image/png");
-            const pdf = new jsPDF("p", "mm", "a4");
-            const imgProps = pdf.getImageProperties(imgData);
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-            
-            let heightLeft = pdfHeight;
-            let position = 0;
-            
-            pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-            heightLeft -= pdf.internal.pageSize.getHeight();
-            
-            while (heightLeft >= 0) {
-                position = heightLeft - pdfHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, "PNG", 0, position, pdfWidth, pdfHeight);
-                heightLeft -= pdf.internal.pageSize.getHeight();
-            }
-            
-            pdf.save(`${data.personal.name.replace(/\s/g, '_')}_Resume.pdf`);
-            showToast('PDF downloaded successfully!', 'success');
-        } catch (error) {
-            showToast('Error generating PDF', 'error');
-        } finally {
-            setLoading(false);
-        }
+        const element = previewRef.current;
+        const canvas = await html2canvas(element, { scale: 2 });
+        const imgData = canvas.toDataURL("image/png");
+        const pdf = new jsPDF("p", "mm", "a4");
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+        pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+        pdf.save(`${data.personal.name.replace(/\s/g, '_')}_Resume.pdf`);
     };
 
-    const downloadWord = () => {
-        const content = previewRef.current.innerHTML;
-        const html = `
-            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
-            <head><meta charset="utf-8"><title>Resume</title></head>
-            <body>${content}</body>
-            </html>
-        `;
-        const blob = new Blob(['\ufeff', html], { type: 'application/msword' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${data.personal.name.replace(/\s/g, '_')}_Resume.doc`;
-        a.click();
-        showToast('Word document downloaded (HTML format)', 'success');
-    };
-
-    // Add item handlers
-    const addItem = (section, payload) => {
-        dispatch({ type: 'ADD_ITEM', section, payload });
-        showToast(`New ${section.slice(0, -1)} added`, 'success');
-    };
-
-    // Score calculation
     const score = useMemo(() => calculateResumeScore(data), [data]);
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white p-6">
-            <style jsx global>{`
-                @media print { 
-                    body { background: white !important; }
-                    .no-print { display: none !important; } 
-                }
-                .custom-scrollbar::-webkit-scrollbar { width: 8px; }
-                .custom-scrollbar::-webkit-scrollbar-track { background: #1f2937; border-radius: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb { background: #374151; border-radius: 4px; }
-                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #4b5563; }
-            `}</style>
+        <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] p-6 lg:p-10 relative">
             
-            {/* Toast Notification */}
-            {toast && (
-                <div className={`fixed top-6 right-6 z-50 px-6 py-3 rounded-lg shadow-lg flex items-center gap-2 ${
-                    toast.type === 'success' ? 'bg-green-600' : toast.type === 'error' ? 'bg-red-600' : 'bg-blue-600'
-                }`}>
-                    {toast.type === 'success' ? <Check /> : <AlertCircle />}
-                    <span>{toast.message}</span>
-                </div>
-            )}
+            {/* Background Ambience */}
+            <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+                 <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
+                 <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+            </div>
 
-            <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Editor Panel */}
-                <div className="no-print space-y-6">
-                    {/* Header */}
-                    <div className="bg-gray-800 rounded-xl p-6">
-                        <div className="flex justify-between items-center mb-4">
-                            <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-                                Resume Builder Pro
-                            </h2>
-                            <div className="text-sm bg-gray-700 px-3 py-1 rounded-full">
-                                Score: <span className={`font-bold ${score >= 80 ? 'text-green-400' : score >= 60 ? 'text-yellow-400' : 'text-red-400'}`}>{score}/100</span>
-                            </div>
-                        </div>
-                        
-                        {/* Action Buttons */}
-                        <div className="flex flex-wrap gap-3">
-                            {/* <button onClick={downloadPDF} disabled={loading} className="bg-green-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-green-700 transition disabled:opacity-50">
-                                <Download className="w-5 h-5" /> {loading ? 'Generating...' : 'PDF'}
-                            </button> */}
-                            <button onClick={downloadWord} className="bg-blue-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-blue-700 transition">
-                                <Upload className="w-5 h-5 rotate-180" /> Word
-                            </button>
-                            <button onClick={exportJSON} className="bg-purple-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-purple-700 transition">
-                                <Code className="w-5 h-5" /> Export JSON
-                            </button>
-                            <button onClick={() => setImportOpen(true)} className="bg-yellow-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-yellow-700 transition">
-                                <Upload className="w-5 h-5" /> Import
-                            </button>
-                            <button onClick={() => window.print()} className="bg-gray-600 px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-gray-700 transition">
-                                <Download className="w-5 h-5 rotate-180" /> Print
-                            </button>
-                        </div>
-
-                        {/* Import Modal */}
-                        {importOpen && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-40 no-print">
-                                <div className="bg-gray-800 p-6 rounded-xl max-w-md w-full mx-4">
-                                    <h3 className="text-xl font-bold mb-4">Import Resume Data</h3>
-                                    <textarea 
-                                        rows="8"
-                                        className="w-full bg-gray-700 p-3 rounded border border-gray-600 text-white"
-                                        placeholder="Paste JSON data here..."
-                                        value={importData}
-                                        onChange={(e) => setImportData(e.target.value)}
-                                    />
-                                    <div className="flex gap-3 mt-4">
-                                        <button onClick={importJSON} className="bg-green-600 px-4 py-2 rounded hover:bg-green-700 transition flex-1">
-                                            Import
-                                        </button>
-                                        <button onClick={() => setImportOpen(false)} className="bg-gray-600 px-4 py-2 rounded hover:bg-gray-700 transition flex-1">
-                                            Cancel
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
+            {/* Header */}
+            <div className="max-w-[1920px] mx-auto mb-10 relative z-10 flex flex-col lg:flex-row justify-between items-center gap-6">
+                <div>
+                     <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-4 shadow-md">
+                        Beta v2.0
                     </div>
+                    <h1 className="text-4xl font-black text-[#E2E8CE] tracking-tighter">Resume <span className="text-[#FF7F11]">Architect</span></h1>
+                    <p className="text-[#ACBFA4] font-medium mt-1">Build professional, ATS-friendly resumes in minutes.</p>
+                </div>
 
-                    {/* Tabs */}
-                    <div className="bg-gray-800 rounded-xl p-2 flex gap-2 overflow-x-auto">
-                        {['personal', 'summary', 'skills', 'experience', 'education', 'projects', 'certifications', 'settings'].map(tab => (
+                <div className="flex items-center gap-4 bg-[#333333] p-2 rounded-2xl border border-[#444444] shadow-xl">
+                     <div className="px-6 py-2 rounded-xl bg-[#262626] border border-[#444444]">
+                        <span className="text-[#666666] text-xs font-black uppercase tracking-widest mr-2">Score</span>
+                        <span className={`text-xl font-black ${score >= 80 ? 'text-[#FF7F11]' : 'text-[#ACBFA4]'}`}>{score}</span>
+                     </div>
+                     <button onClick={downloadPDF} className="flex items-center gap-2 px-6 py-3 bg-[#FF7F11] text-[#262626] rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition active:scale-95 shadow-md">
+                        <Download className="w-4 h-4" /> Export PDF
+                     </button>
+                </div>
+            </div>
+
+            <div className="max-w-[1920px] mx-auto grid grid-cols-1 xl:grid-cols-2 gap-10 relative z-10">
+                {/* Editor Column */}
+                <div className="space-y-6 max-h-[calc(100vh-200px)] overflow-y-auto pr-4 custom-scrollbar">
+                    
+                    {/* Navigation Tabs */}
+                    <div className="sticky top-0 z-20 bg-[#262626]/90 backdrop-blur-md py-4 border-b border-[#444444] mb-6 flex overflow-x-auto gap-2 no-scrollbar">
+                        {['personal', 'summary', 'experience', 'education', 'skills', 'projects'].map(tab => (
                             <button 
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-4 py-2 rounded-lg capitalize whitespace-nowrap transition ${
-                                    activeTab === tab ? 'bg-blue-600 text-white' : 'hover:bg-gray-700'
+                                className={`px-6 py-2 rounded-full text-xs font-black uppercase tracking-widest transition-all whitespace-nowrap border ${
+                                    activeTab === tab 
+                                    ? 'bg-[#E2E8CE] text-[#262626] border-[#E2E8CE]' 
+                                    : 'bg-[#333333] text-[#ACBFA4] border-[#444444] hover:bg-[#444444] hover:text-[#E2E8CE]'
                                 }`}
                             >
                                 {tab}
@@ -658,363 +331,117 @@ const ResumeBuilder = () => {
                         ))}
                     </div>
 
-                    {/* Personal Tab */}
+                    {/* Forms */}
+                     <div className="pb-20">
                     {activeTab === 'personal' && (
-                        <CollapsibleSection title="Personal Information">
-                            <div className="space-y-4">
+                        <div className="bg-[#333333] p-8 rounded-[2rem] border border-[#444444] shadow-xl">
+                            <h2 className="text-xl font-black mb-6 text-[#E2E8CE] flex items-center gap-3"> <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span> Personal Details</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <InputField label="Full Name" value={data.personal.name} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'name', value: e.target.value })} />
-                                <InputField label="Professional Title" value={data.personal.title} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'title', value: e.target.value })} />
-                                <InputField label="Email" type="email" value={data.personal.email} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'email', value: e.target.value })} />
+                                <InputField label="Job Title" value={data.personal.title} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'title', value: e.target.value })} />
+                                <InputField label="Email" value={data.personal.email} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'email', value: e.target.value })} />
                                 <InputField label="Phone" value={data.personal.phone} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'phone', value: e.target.value })} />
                                 <InputField label="Location" value={data.personal.location} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'location', value: e.target.value })} />
-                                <InputField label="Website" value={data.personal.website} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'website', value: e.target.value })} />
                                 <InputField label="LinkedIn" value={data.personal.linkedin} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'linkedin', value: e.target.value })} />
-                                <InputField label="GitHub" value={data.personal.github} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'github', value: e.target.value })} />
-                                
-                                <div>
-                                    <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Profile Photo</label>
-                                    <div className="flex gap-4 items-center">
-                                        {data.personal.photo ? (
-                                            <img src={data.personal.photo} alt="Preview" className="w-24 h-24 rounded-full object-cover" />
-                                        ) : (
-                                            <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center">
-                                                <Image className="w-10 h-10 text-gray-500" />
-                                            </div>
-                                        )}
-                                        <div>
-                                            <input 
-                                                ref={fileInputRef}
-                                                type="file" 
-                                                accept="image/*" 
-                                                onChange={handlePhotoUpload}
-                                                className="hidden"
-                                            />
-                                            <button 
-                                                onClick={() => fileInputRef.current.click()}
-                                                className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition"
-                                            >
-                                                Upload Photo
-                                            </button>
-                                            <p className="text-xs text-gray-400 mt-1">Optional: Adds professional touch</p>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
-                        </CollapsibleSection>
+                            
+                             <div className="mt-6 pt-6 border-t border-[#444444] flex items-center gap-6">
+                                <div className="w-20 h-20 rounded-full bg-[#262626] flex items-center justify-center border border-[#444444] overflow-hidden">
+                                    {data.personal.photo ? <img src={data.personal.photo} className="w-full h-full object-cover" /> : <ImageIcon className="text-[#666666]" />}
+                                </div>
+                                <button onClick={() => fileInputRef.current.click()} className="text-xs font-black uppercase tracking-widest text-[#FF7F11] hover:underline">
+                                    Upload Photo
+                                </button>
+                                <input ref={fileInputRef} type="file" hidden accept="image/*" onChange={(e) => {
+                                    if(e.target.files[0]) {
+                                        const reader = new FileReader();
+                                        reader.onload = (ev) => dispatch({ type: 'UPDATE_FIELD', section: 'personal', field: 'photo', value: ev.target.result });
+                                        reader.readAsDataURL(e.target.files[0]);
+                                    }
+                                }}/>
+                            </div>
+                        </div>
                     )}
 
-                    {/* Summary Tab */}
                     {activeTab === 'summary' && (
-                        <CollapsibleSection title="Professional Summary">
-                            <TextAreaField 
-                                label="Summary" 
-                                value={data.summary} 
-                                onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'summary', value: e.target.value })}
-                                rows={6}
-                                placeholder="Write a compelling summary of your professional background..."
-                            />
-                            <div className="text-xs text-gray-400 mt-2">
-                                Tips: Keep it 3-5 sentences. Focus on achievements and value proposition.
-                            </div>
-                        </CollapsibleSection>
+                        <div className="bg-[#333333] p-8 rounded-[2rem] border border-[#444444] shadow-xl">
+                             <h2 className="text-xl font-black mb-6 text-[#E2E8CE] flex items-center gap-3"> <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span> Executive Summary</h2>
+                             <TextAreaField label="Bio" value={data.summary} onChange={(e) => dispatch({ type: 'UPDATE_FIELD', section: 'summary', value: e.target.value })} placeholder="Summarize your professional journey..." rows={6} />
+                        </div>
                     )}
 
-                    {/* Skills Tab */}
-                    {activeTab === 'skills' && (
-                        <CollapsibleSection title="Skills">
-                            <div className="mb-4">
-                                <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Manage Skills</label>
-                                <div className="flex flex-wrap gap-2 mb-3">
-                                    {data.skills.map((skill, index) => (
-                                        <SkillTag 
-                                            key={index}
-                                            skill={skill}
-                                            index={index}
-                                            onUpdate={(i, val) => dispatch({ type: 'UPDATE_SKILL', index: i, payload: val })}
-                                            onRemove={(i) => dispatch({ type: 'REMOVE_SKILL', index: i })}
-                                        />
-                                    ))}
-                                </div>
-                                <button 
-                                    onClick={() => dispatch({ type: 'ADD_SKILL', payload: 'New Skill' })}
-                                    className="bg-green-600 px-3 py-1 rounded-lg text-sm hover:bg-green-700 transition flex items-center gap-1"
-                                >
-                                    <Plus className="w-4 h-4" /> Add Skill
-                                </button>
-                            </div>
-                        </CollapsibleSection>
-                    )}
-
-                    {/* Experience Tab */}
                     {activeTab === 'experience' && (
-                        <CollapsibleSection title="Work Experience">
-                            <div className="space-y-4">
-                                {data.experience.map((item, index) => (
-                                    <DraggableItem key={item.id} item={item} index={index} onMove={(from, to) => dispatch({ type: 'MOVE_ITEM', section: 'experience', fromIndex: from, toIndex: to })}>
-                                        <InputField label="Job Title" value={item.title} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { title: e.target.value } })} />
+                        <div>
+                             <h2 className="text-xl font-black mb-6 text-[#E2E8CE] flex items-center gap-3"> <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span> Work History</h2>
+                            {data.experience.map((item, idx) => (
+                                <CollapsibleSection key={item.id} title={`${item.title} at ${item.company}`} defaultOpen={idx===0}>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <InputField label="Role" value={item.title} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { title: e.target.value } })} />
                                         <InputField label="Company" value={item.company} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { company: e.target.value } })} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <InputField label="Location" value={item.location} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { location: e.target.value } })} />
-                                            <InputField label="Year/Date" value={item.year || `${item.startDate} - ${item.endDate}`} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { year: e.target.value } })} />
-                                        </div>
-                                        <div className="mt-3">
-                                            <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Key Achievements</label>
-                                            {item.description.map((point, i) => (
-                                                <div key={i} className="flex gap-2 mb-2">
-                                                    <textarea 
-                                                        rows="2"
-                                                        className="flex-1 bg-gray-700 p-2 rounded border border-gray-600 focus:border-blue-500 outline-none text-sm"
-                                                        value={point}
-                                                        onChange={(e) => dispatch({ type: 'UPDATE_BULLET_POINT', section: 'experience', id: item.id, index: i, value: e.target.value })}
-                                                        placeholder="Describe a key achievement..."
-                                                    />
-                                                    <button onClick={() => dispatch({ type: 'REMOVE_BULLET_POINT', section: 'experience', id: item.id, index: i })} className="text-red-400 hover:text-red-300">
-                                                        <Trash className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button onClick={() => dispatch({ type: 'ADD_BULLET_POINT', section: 'experience', id: item.id })} className="text-blue-400 text-sm hover:text-blue-300 flex items-center gap-1">
-                                                <Plus className="w-4 h-4" /> Add Achievement
-                                            </button>
-                                        </div>
-                                        <button onClick={() => dispatch({ type: 'REMOVE_ITEM', section: 'experience', id: item.id })} className="text-red-400 hover:text-red-300 text-sm mt-2 flex items-center gap-1">
-                                            <Trash className="w-4 h-4" /> Remove Position
-                                        </button>
-                                    </DraggableItem>
-                                ))}
-                                <button 
-                                    onClick={() => addItem('experience', { 
-                                        title: 'New Position', 
-                                        company: 'Company Name', 
-                                        location: 'City, State', 
-                                        year: 'Start Date - End Date', 
-                                        description: ['Describe your role and achievements...'] 
-                                    })}
-                                    className="w-full bg-green-600 px-4 py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <Plus className="w-5 h-5" /> Add Experience
-                                </button>
-                            </div>
-                        </CollapsibleSection>
-                    )}
-
-                    {/* Education Tab */}
-                    {activeTab === 'education' && (
-                        <CollapsibleSection title="Education">
-                            <div className="space-y-4">
-                                {data.education.map((item, index) => (
-                                    <DraggableItem key={item.id} item={item} index={index} onMove={(from, to) => dispatch({ type: 'MOVE_ITEM', section: 'education', fromIndex: from, toIndex: to })}>
-                                        <InputField label="Degree" value={item.degree} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'education', id: item.id, payload: { degree: e.target.value } })} />
-                                        <InputField label="Institution" value={item.institution} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'education', id: item.id, payload: { institution: e.target.value } })} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <InputField label="Location" value={item.location} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'education', id: item.id, payload: { location: e.target.value } })} />
-                                            <InputField label="Year" value={item.year} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'education', id: item.id, payload: { year: e.target.value } })} />
-                                        </div>
-                                        <TextAreaField 
-                                            label="Details (GPA, Honors, etc.)" 
-                                            value={item.details}
-                                            onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'education', id: item.id, payload: { details: e.target.value } })}
-                                            rows={2}
-                                        />
-                                        <button onClick={() => dispatch({ type: 'REMOVE_ITEM', section: 'education', id: item.id })} className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1">
-                                            <Trash className="w-4 h-4" /> Remove Education
-                                        </button>
-                                    </DraggableItem>
-                                ))}
-                                <button 
-                                    onClick={() => addItem('education', { 
-                                        degree: 'Degree Name', 
-                                        institution: 'University Name', 
-                                        location: 'City, State', 
-                                        year: 'Year', 
-                                        details: 'GPA, Honors, Relevant Coursework' 
-                                    })}
-                                    className="w-full bg-green-600 px-4 py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <Plus className="w-5 h-5" /> Add Education
-                                </button>
-                            </div>
-                        </CollapsibleSection>
-                    )}
-
-                    {/* Projects Tab */}
-                    {activeTab === 'projects' && (
-                        <CollapsibleSection title="Projects">
-                            <div className="space-y-4">
-                                {data.projects.map((item, index) => (
-                                    <DraggableItem key={item.id} item={item} index={index} onMove={(from, to) => dispatch({ type: 'MOVE_ITEM', section: 'projects', fromIndex: from, toIndex: to })}>
-                                        <InputField label="Project Title" value={item.title} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'projects', id: item.id, payload: { title: e.target.value } })} />
-                                        <InputField label="Link (GitHub, Live Demo)" value={item.link} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'projects', id: item.id, payload: { link: e.target.value } })} />
-                                        <InputField label="Year" value={item.year} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'projects', id: item.id, payload: { year: e.target.value } })} />
-                                        <div className="mt-3">
-                                            <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Project Details</label>
-                                            {item.description.map((point, i) => (
-                                                <div key={i} className="flex gap-2 mb-2">
-                                                    <textarea 
-                                                        rows="2"
-                                                        className="flex-1 bg-gray-700 p-2 rounded border border-gray-600 focus:border-blue-500 outline-none text-sm"
-                                                        value={point}
-                                                        onChange={(e) => dispatch({ type: 'UPDATE_BULLET_POINT', section: 'projects', id: item.id, index: i, value: e.target.value })}
-                                                        placeholder="Describe the project..."
-                                                    />
-                                                    <button onClick={() => dispatch({ type: 'REMOVE_BULLET_POINT', section: 'projects', id: item.id, index: i })} className="text-red-400 hover:text-red-300">
-                                                        <Trash className="w-4 h-4" />
-                                                    </button>
-                                                </div>
-                                            ))}
-                                            <button onClick={() => dispatch({ type: 'ADD_BULLET_POINT', section: 'projects', id: item.id })} className="text-blue-400 text-sm hover:text-blue-300 flex items-center gap-1">
-                                                <Plus className="w-4 h-4" /> Add Detail
-                                            </button>
-                                        </div>
-                                        <button onClick={() => dispatch({ type: 'REMOVE_ITEM', section: 'projects', id: item.id })} className="text-red-400 hover:text-red-300 text-sm mt-2 flex items-center gap-1">
-                                            <Trash className="w-4 h-4" /> Remove Project
-                                        </button>
-                                    </DraggableItem>
-                                ))}
-                                <button 
-                                    onClick={() => addItem('projects', { 
-                                        title: 'Project Name', 
-                                        link: 'github.com/yourproject', 
-                                        year: '2024', 
-                                        description: ['Built something amazing...'] 
-                                    })}
-                                    className="w-full bg-green-600 px-4 py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <Plus className="w-5 h-5" /> Add Project
-                                </button>
-                            </div>
-                        </CollapsibleSection>
-                    )}
-
-                    {/* Certifications Tab */}
-                    {activeTab === 'certifications' && (
-                        <CollapsibleSection title="Certifications">
-                            <div className="space-y-4">
-                                {data.certifications.map((item, index) => (
-                                    <DraggableItem key={item.id} item={item} index={index} onMove={(from, to) => dispatch({ type: 'MOVE_ITEM', section: 'certifications', fromIndex: from, toIndex: to })}>
-                                        <InputField label="Certification Name" value={item.name} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'certifications', id: item.id, payload: { name: e.target.value } })} />
-                                        <InputField label="Issuing Organization" value={item.issuer} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'certifications', id: item.id, payload: { issuer: e.target.value } })} />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <InputField label="Year" value={item.year} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'certifications', id: item.id, payload: { year: e.target.value } })} />
-                                            <InputField label="Credential ID (Optional)" value={item.credentialId} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'certifications', id: item.id, payload: { credentialId: e.target.value } })} />
-                                        </div>
-                                        <TextAreaField 
-                                            label="Details" 
-                                            value={item.details}
-                                            onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'certifications', id: item.id, payload: { details: e.target.value } })}
-                                            rows={2}
-                                        />
-                                        <button onClick={() => dispatch({ type: 'REMOVE_ITEM', section: 'certifications', id: item.id })} className="text-red-400 hover:text-red-300 text-sm flex items-center gap-1">
-                                            <Trash className="w-4 h-4" /> Remove Certification
-                                        </button>
-                                    </DraggableItem>
-                                ))}
-                                <button 
-                                    onClick={() => addItem('certifications', { 
-                                        name: 'Certification Name', 
-                                        issuer: 'Issuing Organization', 
-                                        year: '2024', 
-                                        details: 'Key skills demonstrated' 
-                                    })}
-                                    className="w-full bg-green-600 px-4 py-3 rounded-lg hover:bg-green-700 transition flex items-center justify-center gap-2 font-semibold"
-                                >
-                                    <Plus className="w-5 h-5" /> Add Certification
-                                </button>
-                            </div>
-                        </CollapsibleSection>
-                    )}
-
-                    {/* Settings Tab */}
-                    {activeTab === 'settings' && (
-                        <CollapsibleSection title="Resume Settings">
-                            <div className="space-y-4">
-                                <div>
-                                    <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Template Style</label>
-                                    <div className="grid grid-cols-3 gap-3">
-                                        {['modern', 'classic', 'minimalist'].map(template => (
-                                            <button 
-                                                key={template}
-                                                onClick={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { template } })}
-                                                className={`p-3 rounded-lg border-2 capitalize ${
-                                                    data.settings.template === template 
-                                                        ? 'border-blue-500 bg-gray-700' 
-                                                        : 'border-gray-600 hover:border-gray-500'
-                                                }`}
-                                            >
-                                                {template}
-                                            </button>
-                                        ))}
                                     </div>
-                                </div>
-                                
-                                <div>
-                                    <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Primary Color</label>
-                                    <div className="flex gap-3">
-                                        {['#1f2937', '#2563eb', '#dc2626', '#059669', '#7c3aed'].map(color => (
-                                            <button 
-                                                key={color}
-                                                onClick={() => dispatch({ type: 'UPDATE_SETTINGS', payload: { primaryColor: color } })}
-                                                className={`w-10 h-10 rounded-lg border-2 ${
-                                                    data.settings.primaryColor === color ? 'border-white' : 'border-gray-600'
-                                                }`}
-                                                style={{ backgroundColor: color }}
-                                            />
-                                        ))}
+                                    <div className="grid grid-cols-2 gap-4">
+                                         <InputField label="Dates" value={item.startDate} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { startDate: e.target.value } })} />
+                                         <InputField label="Location" value={item.location} onChange={(e) => dispatch({ type: 'UPDATE_ITEM', section: 'experience', id: item.id, payload: { location: e.target.value } })} />
                                     </div>
-                                </div>
-
-                                <div>
-                                    <label className="block text-xs text-gray-400 uppercase tracking-wide mb-2">Font Size</label>
-                                    <select 
-                                        value={data.settings.fontSize}
-                                        onChange={(e) => dispatch({ type: 'UPDATE_SETTINGS', payload: { fontSize: e.target.value } })}
-                                        className="w-full bg-gray-700 p-3 rounded border border-gray-600"
-                                    >
-                                        <option value="text-xs">Small</option>
-                                        <option value="text-sm">Medium</option>
-                                        <option value="text-base">Large</option>
-                                    </select>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <label className="block text-xs text-gray-400 uppercase tracking-wide">Section Visibility</label>
-                                    {['showPhoto', 'showProjects', 'showCertifications', 'showSummary', 'showSkills'].map(setting => (
-                                        <label key={setting} className="flex items-center gap-3">
-                                            <input 
-                                                type="checkbox" 
-                                                checked={data.settings[setting]}
-                                                onChange={(e) => dispatch({ type: 'UPDATE_SETTINGS', payload: { [setting]: e.target.checked } })}
-                                                className="w-4 h-4"
-                                            />
-                                            <span className="capitalize text-sm">{setting.replace('show', '')}</span>
-                                        </label>
-                                    ))}
-                                </div>
-
-                                <div className="bg-gray-700 p-4 rounded-lg">
-                                    <p className="text-xs text-gray-300">
-                                        <strong>Pro Tip:</strong> Use the "Classic" template for traditional industries, 
-                                        "Modern" for tech/creative roles, and "Minimalist" for clean, scannable resumes.
-                                    </p>
-                                </div>
-                            </div>
-                        </CollapsibleSection>
+                                    <div className="mt-4">
+                                        <label className="block text-xs font-black text-[#666666] uppercase tracking-widest mb-2">Key Achievements</label>
+                                        {item.description.map((pt, i) => (
+                                            <div key={i} className="flex gap-2 mb-2">
+                                                <input className="flex-1 bg-[#333333] border border-[#444444] rounded-lg px-3 py-2 text-sm text-[#E2E8CE] focus:border-[#FF7F11] outline-none" value={pt} onChange={(e) => dispatch({ type: 'UPDATE_BULLET_POINT', section: 'experience', id: item.id, index: i, value: e.target.value })} />
+                                                <button onClick={() => dispatch({ type: 'REMOVE_BULLET_POINT', section: 'experience', id: item.id, index: i })} className="text-[#666666] hover:text-[#FF7F11]"><Trash className="w-4 h-4" /></button>
+                                            </div>
+                                        ))}
+                                        <button onClick={() => dispatch({ type: 'ADD_BULLET_POINT', section: 'experience', id: item.id })} className="mt-2 text-xs font-bold uppercase tracking-wide text-[#FF7F11] flex items-center gap-1">+ Add Point</button>
+                                    </div>
+                                </CollapsibleSection>
+                            ))}
+                            <button onClick={() => dispatch({ type: 'ADD_ITEM', section: 'experience', payload: { title: 'New Role', company: 'Company', description: [''] } })} className="w-full py-4 rounded-xl border border-dashed border-[#444444] text-[#ACBFA4] font-bold uppercase tracking-widest hover:border-[#FF7F11] hover:text-[#FF7F11] transition flex items-center justify-center gap-2">
+                                <Plus className="w-4 h-4" /> Add Position
+                            </button>
+                        </div>
                     )}
+
+                    {activeTab === 'skills' && (
+                        <div className="bg-[#333333] p-8 rounded-[2rem] border border-[#444444] shadow-xl">
+                            <h2 className="text-xl font-black mb-6 text-[#E2E8CE] flex items-center gap-3"> <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span> Skill Set</h2>
+                            <div className="flex flex-wrap gap-3 mb-6">
+                                {data.skills.map((skill, i) => (
+                                    <div key={i} className="bg-[#262626] border border-[#444444] px-4 py-2 rounded-xl flex items-center gap-2 group">
+                                        <input 
+                                            value={skill} 
+                                            onChange={(e) => dispatch({ type: 'UPDATE_SKILL', index: i, payload: e.target.value })}
+                                            className="bg-transparent text-[#E2E8CE] font-bold text-sm w-full outline-none"
+                                        />
+                                        <button onClick={() => dispatch({ type: 'REMOVE_SKILL', index: i })} className="text-[#666666] group-hover:text-[#FF7F11]"><Minus className="w-3 h-3" /></button>
+                                    </div>
+                                ))}
+                            </div>
+                            <button onClick={() => dispatch({ type: 'ADD_SKILL', payload: 'New Skill' })} className="text-xs font-black uppercase tracking-widest text-[#FF7F11] flex items-center gap-2 hover:bg-[#262626] px-4 py-2 rounded-lg w-fit transition">
+                                <Plus className="w-4 h-4" /> Add Skill
+                            </button>
+                        </div>
+                    )}
+                    </div>
                 </div>
 
-                {/* Preview Panel */}
-                <div className="lg:col-span-1">
-                    <div className="sticky top-6">
-                        <div className="bg-gray-800 rounded-xl p-4 mb-4 flex justify-between items-center">
-                            <h3 className="text-lg font-semibold">Live Preview</h3>
-                            <span className="text-xs text-gray-400">A4 Format</span>
-                        </div>
-                        <div className="overflow-auto max-h-screen custom-scrollbar bg-gray-900 p-4 rounded-xl">
-                            <ResumePreview data={data} ref={previewRef} />
-                        </div>
+                {/* Preview Column */}
+                <div className="bg-[#1a1a1a] p-8 rounded-[2.5rem] border border-[#333333] shadow-inner flex flex-col items-center justify-center overflow-hidden relative">
+                    <div className="absolute top-4 right-6 text-[#666666] font-bold text-xs uppercase tracking-widest flex items-center gap-2">
+                        <Eye className="w-4 h-4" /> Live Preview
+                    </div>
+                    <div className="scale-[0.55] sm:scale-[0.65] lg:scale-[0.75] xl:scale-[0.8] origin-top shadow-2xl transition-transform duration-500 hover:scale-[0.85]">
+                         <ResumePreview ref={previewRef} data={data} />
                     </div>
                 </div>
             </div>
+
+            <style>{`
+                .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+                .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                .custom-scrollbar::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #FF7F11; }
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+            `}</style>
         </div>
     );
 };

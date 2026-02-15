@@ -1,19 +1,13 @@
-import React, { useState, useMemo, useCallback } from "react";
-// Added BsSortUp and BsFilter for the new controls
-import { BsStar, BsStarFill, BsPlus, BsDownload, BsFilter, BsSortDown, BsSortUp } from "react-icons/bs";
-
-// NOTE: For the downloadPDF function to work in a real application, you would need
-// to include the external libraries html2canvas and jspdf.
-// For this single-file environment, we mock them to prevent immediate errors.
-const html2canvas = window.html2canvas || ((element) => Promise.resolve({ toDataURL: () => 'data:image/png;base64,mock', height: 100, width: 100 }));
-const jsPDF = window.jsPDF ? window.jsPDF.jsPDF : class MockJsPDF { addImage() {} save() { console.log("PDF Download Mock: Save called."); } };
-
+// CompanyReview.jsx - Earthy Theme with Functional Backend Integration
+import React, { useState, useMemo, useCallback, useEffect } from "react";
+import { BsStar, BsStarFill, BsPlus, BsFilter, BsSortDown, BsSortUp } from "react-icons/bs";
+import { Loader } from "lucide-react";
 
 const CompanyReview = () => {
-    // ---- Dummy data - expanded with 3 more entries ----
+    // ---- Dummy data (Fallback) ----
     const initialReviews = [
         {
-            id: 1,
+            _id: 1,
             company: "Google",
             logo: "https://logo.clearbit.com/google.com",
             role: "Software Engineer",
@@ -26,7 +20,7 @@ const CompanyReview = () => {
             date: "2025-06-20",
         },
         {
-            id: 2,
+            _id: 2,
             company: "Amazon",
             logo: "https://logo.clearbit.com/amazon.com",
             role: "SDE-1",
@@ -38,65 +32,43 @@ const CompanyReview = () => {
             interview: "OA → phone → 4 on-site (LP focus) → offer",
             date: "2025-06-18",
         },
-        // NEW REVIEW DATA
-        {
-            id: 3,
-            company: "Microsoft",
-            logo: "https://logo.clearbit.com/microsoft.com",
-            role: "Product Manager",
-            location: "Redmond, WA",
-            overall: 4, workLife: 4, culture: 4, salary: 4, benefits: 5,
-            recommend: true,
-            pros: "Solid work-life balance, huge product scope, very stable company, great benefits.",
-            cons: "Legacy systems, slower pace of innovation in some departments.",
-            interview: "3 rounds of behavioral and product design questions.",
-            date: "2025-05-10",
-        },
-        {
-            id: 4,
-            company: "Meta",
-            logo: "https://logo.clearbit.com/meta.com",
-            role: "Data Scientist",
-            location: "Menlo Park, CA",
-            overall: 3, workLife: 2, culture: 3, salary: 5, benefits: 4,
-            recommend: false,
-            pros: "Top-tier compensation, cutting-edge data problems, high impact.",
-            cons: "Intense pressure, culture can be chaotic, frequent reorgs.",
-            interview: "2 statistics rounds → 2 coding/product sense rounds.",
-            date: "2025-04-01",
-        },
-        {
-            id: 5,
-            company: "Apple",
-            logo: "https://logo.clearbit.com/apple.com",
-            role: "Hardware Engineer",
-            location: "Cupertino, CA",
-            overall: 5, workLife: 4, culture: 5, salary: 4, benefits: 5,
-            recommend: true,
-            pros: "Working on globally recognizable products, deep sense of mission, great leadership.",
-            cons: "Extreme secrecy, siloed teams, high barrier to entry.",
-            interview: "5 technical interviews focusing on domain knowledge.",
-            date: "2025-03-25",
-        },
     ];
 
-    const [reviews, setReviews] = useState(initialReviews);
-
-    // ---- Filtering and Sorting State ----
+    const [reviews, setReviews] = useState([]);
+    const [loading, setLoading] = useState(true);
     const [showForm, setShowForm] = useState(false);
-    const [sortBy, setSortBy] = useState("date"); // 'date', 'overall'
-    const [sortOrder, setSortOrder] = useState("desc"); // 'asc', 'desc'
-    const [filterRecommend, setFilterRecommend] = useState("all"); // 'all', 'yes', 'no'
+    const [sortBy, setSortBy] = useState("date"); 
+    const [sortOrder, setSortOrder] = useState("desc");
+    const [filterRecommend, setFilterRecommend] = useState("all");
     const [searchQuery, setSearchQuery] = useState("");
+    const [submitting, setSubmitting] = useState(false);
 
-    // ---- Form state ----
     const [form, setForm] = useState({
         company: "", logo: "", role: "", location: "",
         overall: 0, workLife: 0, culture: 0, salary: 0, benefits: 0,
         recommend: true, pros: "", cons: "", interview: "",
     });
 
-    // ---- Star rating component ----
+    useEffect(() => {
+        const fetchReviews = async () => {
+            try {
+                const res = await fetch("http://localhost:5001/api/v1/company-reviews");
+                const data = await res.json();
+                if (res.ok && Array.isArray(data.data)) {
+                    setReviews(data.data.length > 0 ? data.data : initialReviews);
+                } else {
+                    setReviews(initialReviews);
+                }
+            } catch (error) {
+                console.error("Failed to fetch reviews:", error);
+                setReviews(initialReviews);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchReviews();
+    }, []);
+
     const StarRating = ({ value, setValue, readonly = false, size = "text-xl" }) => (
         <div className="flex gap-1">
             {[1, 2, 3, 4, 5].map((i) => (
@@ -104,7 +76,7 @@ const CompanyReview = () => {
                     key={i}
                     type="button"
                     onClick={() => !readonly && setValue(i)}
-                    className={`${size} ${i <= value ? "text-yellow-400" : "text-slate-600"} ${!readonly && "hover:scale-110 transition"} transition`}
+                    className={`${size} ${i <= value ? "text-[#FF7F11]" : "text-[#444444]"} ${!readonly && "hover:scale-110 transition"} transition`}
                     disabled={readonly}
                 >
                     {i <= value ? <BsStarFill /> : <BsStar />}
@@ -113,11 +85,9 @@ const CompanyReview = () => {
         </div>
     );
 
-    // ---- Data Processing: Filter, Sort, and Summarize (using useMemo for performance) ----
     const filteredAndSortedReviews = useMemo(() => {
         let sorted = [...reviews];
 
-        // 1. Search Filter
         if (searchQuery) {
             const query = searchQuery.toLowerCase();
             sorted = sorted.filter(r =>
@@ -128,37 +98,35 @@ const CompanyReview = () => {
             );
         }
 
-        // 2. Recommendation Filter
         if (filterRecommend !== "all") {
             const rec = filterRecommend === "yes";
             sorted = sorted.filter(r => r.recommend === rec);
         }
 
-        // 3. Sorting
         sorted.sort((a, b) => {
             let comparison = 0;
+            // Use createdAt or date depending on data source (mock vs api)
+            const dateA = new Date(a.createdAt || a.date);
+            const dateB = new Date(b.createdAt || b.date);
+            
             if (sortBy === "overall") {
                 comparison = a.overall - b.overall;
             } else if (sortBy === "date") {
-                comparison = new Date(a.date) - new Date(b.date);
+                comparison = dateA - dateB;
             }
-
             return sortOrder === "asc" ? comparison : comparison * -1;
         });
 
         return sorted;
     }, [reviews, sortBy, sortOrder, filterRecommend, searchQuery]);
 
-    // Summary calculation
     const summary = useMemo(() => {
         if (reviews.length === 0) return null;
-
         const categories = ["overall", "workLife", "culture", "salary", "benefits"];
         const totals = {};
         let recommendedCount = 0;
 
         categories.forEach(cat => totals[cat] = 0);
-
         reviews.forEach(r => {
             categories.forEach(cat => totals[cat] += r[cat]);
             if (r.recommend) recommendedCount++;
@@ -174,285 +142,216 @@ const CompanyReview = () => {
         };
     }, [reviews]);
 
-
-    // ---- Handle form ----
     const handleChange = (e) => {
         const { name, value, type, checked } = e.target;
         setForm((f) => ({ ...f, [name]: type === "checkbox" ? checked : value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Check for rating existence
-        if (form.overall === 0 || form.workLife === 0 || form.culture === 0 || form.salary === 0 || form.benefits === 0) {
-            console.error("Please ensure all rating categories (Overall, Work-Life, Culture, Salary, Benefits) are rated 1-5.");
+        if (form.overall === 0) {
+            alert("Please provide an overall rating.");
             return;
         }
-
-        const newReview = { ...form, id: Date.now(), date: new Date().toISOString().slice(0, 10) };
-        setReviews([newReview, ...reviews]);
-        setForm({
-            company: "", logo: "", role: "", location: "",
-            overall: 0, workLife: 0, culture: 0, salary: 0, benefits: 0,
-            recommend: true, pros: "", cons: "", interview: "",
-        });
-        setShowForm(false);
-    };
-
-    // ---- Download PDF (requires external libs) ----
-    const downloadPDF = async () => {
+        setSubmitting(true);
+        
         try {
-            const ele = document.getElementById("reviews-list");
-            // Temporarily hide filter/sort controls for clean PDF
-            const controls = document.getElementById("review-controls");
-            if (controls) controls.style.display = 'none';
-
-            // html2canvas is async
-            const canvas = await html2canvas(ele, { backgroundColor: "#0f172a" });
-            const imgData = canvas.toDataURL("image/png");
-
-            // Restore controls
-            if (controls) controls.style.display = 'flex';
-
-            const pdf = new jsPDF("p", "mm", "a4");
-            const w = 210;
-            const h = (canvas.height * w) / canvas.width;
+            const token = localStorage.getItem("authToken");
+            const res = await fetch("http://localhost:5001/api/v1/company-reviews", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${token}`
+                },
+                body: JSON.stringify(form)
+            });
+            const data = await res.json();
             
-            // Multi-page PDF logic
-            let position = 0;
-            const pageHeight = 297; // A4 height in mm
-
-            if (h > pageHeight) {
-                for (let i = 0; i < Math.ceil(h/pageHeight); i++) {
-                    if (i > 0) pdf.addPage();
-                    pdf.addImage(imgData, "PNG", 0, -(i * pageHeight), w, h);
-                }
+            if (res.ok) {
+                setReviews([data.data, ...reviews]);
+                setShowForm(false);
+                setForm({
+                    company: "", logo: "", role: "", location: "",
+                    overall: 0, workLife: 0, culture: 0, salary: 0, benefits: 0,
+                    recommend: true, pros: "", cons: "", interview: "",
+                });
             } else {
-                 pdf.addImage(imgData, "PNG", 0, 0, w, h);
+                alert(data.message || "Failed to submit review.");
             }
-
-            pdf.save("Career-Reviews.pdf");
         } catch (error) {
-            console.error("PDF generation failed. Ensure html2canvas and jspdf scripts are loaded.", error);
+            console.error(error);
+            alert("An error occurred. Please try again.");
+        } finally {
+            setSubmitting(false);
         }
     };
 
-    // Tailwind component styles
-    const inputClasses = "w-full px-3 py-2 rounded-lg bg-slate-800 border border-slate-700 text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-cyan-500";
-    
-    // Sort control helper
     const handleSortChange = (newSortBy) => {
         if (sortBy === newSortBy) {
             setSortOrder(sortOrder === "asc" ? "desc" : "asc");
         } else {
             setSortBy(newSortBy);
-            setSortOrder("desc"); // Default to descending when changing category
+            setSortOrder("desc");
         }
     };
 
     const SortIcon = useCallback((field) => {
-        if (sortBy !== field) return <BsSortDown className="w-4 h-4 text-slate-500" />;
+        if (sortBy !== field) return <BsSortDown className="w-4 h-4 text-[#666666]" />;
         return sortOrder === "desc" 
-            ? <BsSortDown className="w-4 h-4 text-cyan-400" />
-            : <BsSortUp className="w-4 h-4 text-cyan-400" />;
+            ? <BsSortDown className="w-4 h-4 text-[#FF7F11]" />
+            : <BsSortUp className="w-4 h-4 text-[#FF7F11]" />;
     }, [sortBy, sortOrder]);
 
+    const inputClasses = "w-full px-5 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:outline-none focus:ring-1 focus:ring-[#FF7F11] font-bold shadow-inner";
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-900 via-blue-900 to-slate-900 text-white py-10 px-6 font-sans">
-            <style jsx>{`
-                .input { ${inputClasses} }
-            `}</style>
-            <div className="max-w-5xl mx-auto">
+        <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-16 px-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
+            
+            <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="flex items-center justify-between flex-wrap gap-4 mb-8">
+                <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16 border-b border-[#333333] pb-8">
                     <div>
-                        <h2 className="text-4xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400">Career Reviews</h2>
-                        <p className="text-slate-300 mt-1">Honest reviews from real employees – {reviews.length} total reviews.</p>
+                        <h2 className="text-4xl md:text-5xl font-black text-[#E2E8CE] tracking-tight mb-2">
+                             Company <span className="text-[#FF7F11]">Reviews</span>
+                        </h2>
+                        <p className="text-[#ACBFA4] font-medium text-lg">Real employee insights. Unfiltered.</p>
                     </div>
-                    <div className="flex gap-3">
-                        <button
-                            onClick={() => setShowForm((s) => !s)}
-                            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-semibold transition shadow-lg shadow-cyan-900/50"
-                        >
-                            <BsPlus /> {showForm ? "Hide Form" : "Add Review"}
-                        </button>
-                    </div>
+                    <button
+                        onClick={() => setShowForm((s) => !s)}
+                        className="flex items-center gap-2 px-8 py-3 rounded-full bg-[#FF7F11] text-[#262626] font-black uppercase tracking-widest text-sm hover:bg-[#e06c09] transition-all shadow-lg shadow-orange-500/20 active:translate-y-0.5"
+                    >
+                        <BsPlus className="text-xl" /> {showForm ? "Close Form" : "Add Review"}
+                    </button>
                 </div>
 
-                {/* Overall Summary Card (NEW) */}
+                {/* Summary Card */}
                 {summary && (
-                    <div className="bg-white/10 border border-white/20 rounded-2xl p-6 mb-8 shadow-xl">
-                        <h3 className="text-xl font-bold text-cyan-300 mb-4">Overall Averages ({summary.totalReviews} Reviews)</h3>
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-4">
+                    <div className="bg-[#333333] border border-[#444444] rounded-[2rem] p-8 mb-12 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#ACBFA4]/5 rounded-full blur-[80px] pointer-events-none"></div>
+                        <h3 className="text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-6 border-b border-[#444444] pb-2">Market Overview</h3>
+                        <div className="grid grid-cols-2 md:grid-cols-6 gap-6 relative z-10">
                             {Object.entries(summary).filter(([key]) => key !== 'totalReviews' && key !== 'recommendationRate').map(([key, value]) => (
-                                <div key={key} className="text-center p-3 rounded-xl bg-slate-800 border border-slate-700">
-                                    <div className="text-slate-400 text-sm capitalize mb-1">
-                                        {key === 'workLife' ? "W/L Balance" : key}
+                                <div key={key} className="text-center p-4 rounded-2xl bg-[#262626] border border-[#444444] shadow-md">
+                                    <div className="text-[#666666] text-xs font-bold uppercase mb-2">
+                                        {key === 'workLife' ? "Work/Life" : key}
                                     </div>
-                                    <div className="text-3xl font-bold text-white">
+                                    <div className="text-4xl font-black text-[#E2E8CE]">
                                         {value}
                                     </div>
                                 </div>
                             ))}
-                            <div className="text-center p-3 rounded-xl bg-slate-800 border border-slate-700">
-                                <div className="text-slate-400 text-sm mb-1">Recommended</div>
-                                <div className="text-3xl font-bold text-green-400">{summary.recommendationRate}</div>
+                            <div className="text-center p-4 rounded-2xl bg-[#262626] border border-[#444444] shadow-md">
+                                <div className="text-[#666666] text-xs font-bold uppercase mb-2">Approval</div>
+                                <div className="text-4xl font-black text-[#FF7F11]">{summary.recommendationRate}</div>
                             </div>
                         </div>
                     </div>
                 )}
 
-                {/* Add Review Form */}
+                {/* Form */}
                 {showForm && (
-                    <div className="p-6 rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md mb-8 shadow-xl">
-                        <h3 className="text-xl font-semibold mb-4 text-white">Write a Review</h3>
-                        <form onSubmit={handleSubmit} className="grid gap-4 md:grid-cols-2">
-                            <input name="company" value={form.company} onChange={handleChange} placeholder="Company Name" required className="input" />
-                            <input name="logo" value={form.logo} onChange={handleChange} placeholder="Company Logo URL (optional)" className="input" />
-                            <input name="role" value={form.role} onChange={handleChange} placeholder="Your Role (e.g., SDE, PM)" required className="input" />
-                            <input name="location" value={form.location} onChange={handleChange} placeholder="Office Location (e.g., Seattle, WA)" required className="input" />
+                     <div className="p-10 rounded-[2rem] bg-[#333333] border border-[#444444] shadow-2xl mb-12 animate-fade-in relative z-20">
+                        <h3 className="text-2xl font-black mb-8 text-[#E2E8CE] tracking-tight">Submit Feedback</h3>
+                        <form onSubmit={handleSubmit} className="grid gap-6 md:grid-cols-2">
+                            <input name="company" value={form.company} onChange={handleChange} placeholder="Company Name" required className={inputClasses} />
+                            <input name="role" value={form.role} onChange={handleChange} placeholder="Role Title" required className={inputClasses} />
+                            <input name="location" value={form.location} onChange={handleChange} placeholder="Location" required className={inputClasses} />
+                            <input name="logo" value={form.logo} onChange={handleChange} placeholder="Logo URL (Optional)" className={inputClasses} />
 
-                            {/* Ratings */}
-                            {["overall", "workLife", "culture", "salary", "benefits"].map((cat) => (
-                                <div key={cat} className="flex items-center justify-between bg-slate-800 p-3 rounded-lg md:col-span-1 border border-slate-700">
-                                    <label className="capitalize text-sm text-slate-300">{cat === "workLife" ? "Work-Life Balance" : cat}</label>
-                                    <StarRating 
-                                        value={form[cat]} 
-                                        setValue={(v) => setForm((f) => ({ ...f, [cat]: v }))} 
-                                        size="text-2xl" 
-                                    />
-                                </div>
-                            ))}
-                            
-                            <div className="flex items-center gap-4 bg-slate-800 p-3 rounded-lg border border-slate-700">
-                                <input id="rec" type="checkbox" name="recommend" checked={form.recommend} onChange={handleChange} className="w-5 h-5 accent-cyan-500" />
-                                <label htmlFor="rec" className="text-sm text-slate-300 font-medium">I recommend this company</label>
+                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#262626] p-6 rounded-2xl border border-[#444444]">
+                                {["overall", "workLife", "culture", "salary", "benefits"].map((cat) => (
+                                    <div key={cat} className="text-center">
+                                        <label className="block text-xs font-bold text-[#ACBFA4] uppercase mb-2">{cat}</label>
+                                        <div className="flex justify-center"><StarRating value={form[cat]} setValue={(v) => setForm((f) => ({ ...f, [cat]: v }))} /></div>
+                                    </div>
+                                ))}
                             </div>
 
-                            <textarea name="pros" value={form.pros} onChange={handleChange} placeholder="Pros (What do you love?)" required className="input md:col-span-2" rows={2} />
-                            <textarea name="cons" value={form.cons} onChange={handleChange} placeholder="Cons (What are the downsides?)" required className="input md:col-span-2" rows={2} />
-                            <textarea name="interview" value={form.interview} onChange={handleChange} placeholder="Interview Process (e.g. OA → Phone → On-site, what they focused on)" required className="input md:col-span-2" rows={2} />
+                            <textarea name="pros" value={form.pros} onChange={handleChange} placeholder="Pros..." required className={`${inputClasses} md:col-span-2 resize-none h-24`} />
+                            <textarea name="cons" value={form.cons} onChange={handleChange} placeholder="Cons..." required className={`${inputClasses} md:col-span-2 resize-none h-24`} />
+                            
+                            <div className="md:col-span-2 flex items-center gap-4 bg-[#262626] p-4 rounded-xl border border-[#444444] w-fit">
+                                <input id="rec" type="checkbox" name="recommend" checked={form.recommend} onChange={handleChange} className="w-5 h-5 accent-[#FF7F11] cursor-pointer" />
+                                <label htmlFor="rec" className="text-sm font-bold text-[#E2E8CE] cursor-pointer uppercase tracking-wide">Recommend to a friend?</label>
+                            </div>
 
-                            <button type="submit" className="md:col-span-2 mt-2 px-6 py-2 rounded-lg bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-semibold hover:scale-105 transition shadow-lg shadow-blue-900/50">
-                                Submit Review
+                            <button disabled={submitting} type="submit" className="md:col-span-2 py-4 rounded-xl bg-[#FF7F11] text-[#262626] font-black text-lg uppercase tracking-widest hover:bg-[#e06c09] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
+                                {submitting ? <Loader className="w-5 h-5 animate-spin"/> : "Publish Review"}
                             </button>
                         </form>
                     </div>
                 )}
 
-                {/* Reviews Controls (Filter/Sort/Search) (NEW) */}
-                <div id="review-controls" className="flex flex-wrap gap-3 items-center mb-6 p-4 rounded-xl bg-slate-800 border border-slate-700">
-                    <BsFilter className="w-5 h-5 text-cyan-400 flex-shrink-0" />
-                    
-                    {/* Search */}
+                {/* Controls */}
+                <div className="flex flex-wrap gap-4 items-center mb-10 p-6 rounded-2xl bg-[#333333] border border-[#444444]">
+                    <BsFilter className="text-[#FF7F11] text-xl" />
                     <input 
-                        type="text"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search by company, role, or keywords..."
-                        className="input max-w-xs flex-grow"
+                        placeholder="Search reviews..."
+                        className="bg-[#262626] border border-[#444444] rounded-xl px-4 py-2 text-[#E2E8CE] font-bold text-sm focus:outline-none focus:border-[#FF7F11] flex-grow shadow-inner"
                     />
-
-                    {/* Filter */}
-                    <select
+                     <select
                         value={filterRecommend}
                         onChange={(e) => setFilterRecommend(e.target.value)}
-                        className="input max-w-[150px] bg-slate-700 flex-shrink-0"
+                        className="bg-[#262626] border border-[#444444] rounded-xl px-4 py-2 text-[#ACBFA4] font-bold text-sm focus:outline-none cursor-pointer"
                     >
-                        <option value="all">All Recommendations</option>
-                        <option value="yes">Recommended (Yes)</option>
-                        <option value="no">Not Recommended (No)</option>
+                        <option value="all">All Status</option>
+                        <option value="yes">Recommended</option>
+                        <option value="no">Not Recommended</option>
                     </select>
-
-                    {/* Sort By */}
-                    <div className="flex flex-wrap gap-2 ml-auto">
-                        <button
-                            onClick={() => handleSortChange('overall')}
-                            className="flex items-center gap-1 px-3 py-1 text-sm rounded bg-slate-700 hover:bg-slate-600 border border-slate-600 transition"
-                        >
-                            Rating {SortIcon('overall')}
-                        </button>
-                        <button
-                            onClick={() => handleSortChange('date')}
-                            className="flex items-center gap-1 px-3 py-1 text-sm rounded bg-slate-700 hover:bg-slate-600 border border-slate-600 transition"
-                        >
-                            Date {SortIcon('date')}
-                        </button>
-                    </div>
                 </div>
 
+                {/* List */}
+                <div className="grid gap-8">
+                    {loading ? (
+                         <div className="text-center py-20"><div className="animate-spin w-12 h-12 border-4 border-[#333333] border-t-[#FF7F11] rounded-full mx-auto"></div></div>
+                    ) : (
+                    filteredAndSortedReviews.map((r) => (
+                        <div key={r._id || r.id} className="group bg-[#333333] border border-[#444444] rounded-[2.5rem] p-8 hover:border-[#FF7F11] transition-all duration-500 shadow-xl relative overflow-hidden">
+                            <div className="flex flex-wrap justify-between items-start gap-6 mb-8 relative z-10">
+                                <div className="flex items-center gap-6">
+                                     <div className="w-20 h-20 bg-white rounded-2xl p-2 flex items-center justify-center shadow-lg">
+                                        <img src={r.logo} alt={r.company} className="max-w-full max-h-full object-contain" onError={(e) => { e.target.onerror=null; e.target.style.display='none'}} />
+                                     </div>
+                                     <div>
+                                         <h3 className="text-3xl font-black text-[#E2E8CE] group-hover:text-[#FF7F11] transition-colors">{r.company}</h3>
+                                         <p className="text-[#ACBFA4] font-medium text-lg">{r.role}</p>
+                                         <p className="text-[#666666] text-sm font-bold uppercase tracking-wide mt-1">{r.location}</p>
+                                     </div>
+                                </div>
+                                <div className="text-right bg-[#262626] px-6 py-4 rounded-2xl border border-[#444444]">
+                                    <div className="text-5xl font-black text-[#FF7F11]">{r.overall}</div>
+                                    <div className="text-[10px] font-bold text-[#ACBFA4] uppercase tracking-widest mt-1">Overall</div>
+                                </div>
+                            </div>
 
-                {/* Reviews List */}
-                <div id="reviews-list" className="space-y-6">
-                    {filteredAndSortedReviews.length === 0 && (
-                        <div className="text-center py-10 bg-white/10 rounded-xl border border-white/20">
-                            <p className="text-2xl text-slate-400">No matching reviews found 😞</p>
-                            <p className="text-slate-500 mt-2">Try adjusting your filters or search query.</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
+                                <div className="bg-[#262626] p-6 rounded-2xl border border-[#444444]">
+                                    <span className="text-[#FF7F11] font-black uppercase text-xs tracking-widest block mb-2">Pros</span>
+                                    <p className="text-[#E2E8CE] leading-relaxed font-medium">{r.pros}</p>
+                                </div>
+                                <div className="bg-[#262626] p-6 rounded-2xl border border-[#444444]">
+                                    <span className="text-[#ACBFA4] font-black uppercase text-xs tracking-widest block mb-2">Cons</span>
+                                    <p className="text-[#E2E8CE]/80 leading-relaxed font-medium">{r.cons}</p>
+                                </div>
+                            </div>
+
+                            <div className="border-t border-[#444444] pt-6 flex justify-between items-center relative z-10">
+                                <div className="flex items-center gap-2">
+                                    <div className={`w-3 h-3 rounded-full ${r.recommend ? 'bg-[#FF7F11]' : 'bg-[#666666]'}`} />
+                                    <span className="text-xs font-bold uppercase tracking-widest text-[#ACBFA4]">
+                                        {r.recommend ? "Recommended" : "Not Recommended"}
+                                    </span>
+                                </div>
+                                <span className="text-[10px] font-bold text-[#666666] uppercase tracking-widest">{new Date(r.createdAt || r.date).toLocaleDateString()}</span>
+                            </div>
                         </div>
-                    )}
-
-                    {filteredAndSortedReviews.map((r) => (
-                        <div key={r.id} className="rounded-2xl bg-white/10 border border-white/20 backdrop-blur-md p-6 shadow-xl hover:shadow-cyan-500/10 transition">
-                            <div className="flex items-start justify-between flex-wrap gap-4 mb-4">
-                                <div className="flex items-center gap-4">
-                                    <img 
-                                        src={r.logo || `https://logo.clearbit.com/${r.company.toLowerCase().replace(/\s/g, "")}.com`} 
-                                        alt={r.company} 
-                                        className="w-16 h-16 rounded-xl object-cover bg-white p-1 flex-shrink-0" 
-                                        onError={(e) => e.target.src = `https://placehold.co/64x64/0f172a/94a3b8?text=${r.company.charAt(0)}`}
-                                    />
-                                    <div>
-                                        <h3 className="text-2xl font-bold text-cyan-300">{r.company}</h3>
-                                        <p className="text-slate-300">
-                                            {r.role} · {r.location}
-                                        </p>
-                                    </div>
-                                </div>
-                                <div className="text-right flex flex-col items-end">
-                                    <div className="text-4xl font-extrabold text-white">{r.overall}</div>
-                                    <div className="text-sm text-slate-400">Overall Rating</div>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-2 md:grid-cols-5 gap-4 py-4 border-y border-slate-700 mb-4">
-                                {["workLife", "culture", "salary", "benefits"].map((cat) => (
-                                    <div key={cat} className="text-center">
-                                        <div className="text-sm text-slate-400 mb-1">{cat === "workLife" ? "W-L Balance" : cat.charAt(0).toUpperCase() + cat.slice(1)}</div>
-                                        <StarRating value={r[cat]} readonly size="text-lg" />
-                                    </div>
-                                ))}
-                                <div className="text-center flex flex-col justify-center">
-                                    <div className="text-sm text-slate-400 mb-1">Recommended?</div>
-                                    <div className={`font-semibold text-lg ${r.recommend ? "text-green-400" : "text-rose-400"}`}>
-                                        {r.recommend ? "Yes" : "No"}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="space-y-3 text-base">
-                                <div className="rounded-lg border border-green-800/50 p-3 bg-green-900/20">
-                                    <span className="text-green-400 font-semibold block mb-1">Pros:</span>
-                                    <p className="text-slate-200">{r.pros}</p>
-                                </div>
-                                <div className="rounded-lg border border-rose-800/50 p-3 bg-rose-900/20">
-                                    <span className="text-rose-400 font-semibold block mb-1">Cons:</span>
-                                    <p className="text-slate-200">{r.cons}</p>
-                                </div>
-                                <div className="rounded-lg border border-cyan-800/50 p-3 bg-cyan-900/20">
-                                    <span className="text-cyan-400 font-semibold block mb-1">Interview Process:</span>
-                                    <p className="text-slate-200">{r.interview}</p>
-                                </div>
-                            </div>
-
-                            <div className="mt-4 text-right text-xs text-slate-400">Reviewed on {r.date}</div>
-                        </div>
-                    ))}
+                    )))}
                 </div>
             </div>
         </div>
     );
 }
 
-// Default export is mandatory for the file
 export default CompanyReview;

@@ -1,4 +1,6 @@
+// Quetions.jsx - Earthy Theme
 import React, { useEffect, useState } from "react";
+import { Search, Plus } from "lucide-react";
 
 /* ---------------------------------- Answer Submission Interface (AnswerBox) ---------------------------------- */
 function AnswerBox({ questionId, onAnswer }) {
@@ -16,43 +18,44 @@ function AnswerBox({ questionId, onAnswer }) {
     return (
       <button
         onClick={() => setShowForm(true)}
-        className="text-sm font-medium text-indigo-400 hover:text-indigo-300 transition-colors duration-200 mt-2"
+        className="w-full mt-6 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] font-bold text-xs uppercase tracking-widest hover:bg-[#FF7F11] hover:text-[#262626] transition-all flex items-center justify-center gap-2 group shadow-sm"
       >
-        + Provide a Response
+        <Plus className="w-4 h-4 text-[#FF7F11] group-hover:text-[#262626] transition-colors" />
+        Contribute Answer
       </button>
     );
   }
 
   return (
-    <div className="mt-6 pt-6 border-t border-gray-700/50 flex flex-col gap-4">
-      <h4 className="text-base font-medium text-gray-300">Formulate your response:</h4>
-      <div className="flex gap-4">
-        <input
-          type="text"
-          className="flex-1 rounded-lg bg-gray-800 text-white px-4 py-3"
-          placeholder="Enter your answer..."
+    <div className="mt-6 pt-6 border-t border-[#444444] flex flex-col gap-4 animate-fade-in">
+      <h4 className="text-xs font-black text-[#ACBFA4] uppercase tracking-widest mb-2">Your Insight</h4>
+      <div className="flex gap-4 items-start">
+        <textarea
+          className="flex-1 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] px-5 py-4 placeholder-[#666666] font-medium outline-none focus:border-[#FF7F11] shadow-inner resize-none h-24"
+          placeholder="Share your knowledge here..."
           value={answer}
           onChange={(e) => setAnswer(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleReply()}
+          onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleReply()}
         />
-        <button
-          onClick={handleReply}
-          className="px-6 py-3 bg-indigo-600 text-white rounded-lg"
-          disabled={!answer.trim()}
-        >
-          Submit
-        </button>
+        <div className="flex flex-col gap-2">
+            <button
+            onClick={handleReply}
+            className="px-6 py-3 bg-[#FF7F11] text-[#262626] rounded-xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition shadow-lg active:scale-95 h-full"
+            disabled={!answer.trim()}
+            >
+            Post
+            </button>
+            <button
+                onClick={() => {
+                setShowForm(false);
+                setAnswer("");
+                }}
+                className="px-6 py-2 text-[#666666] hover:text-[#E2E8CE] font-bold text-xs uppercase tracking-wider transition"
+            >
+                Cancel
+            </button>
+        </div>
       </div>
-
-      <button
-        onClick={() => {
-          setShowForm(false);
-          setAnswer("");
-        }}
-        className="text-xs text-gray-500 hover:text-gray-400"
-      >
-        Cancel
-      </button>
     </div>
   );
 }
@@ -60,28 +63,32 @@ function AnswerBox({ questionId, onAnswer }) {
 /* ---------------------------------- Question Card ---------------------------------- */
 function QuestionCard({ question, onAnswer }) {
   return (
-    <div className="bg-gray-800 rounded-xl shadow-lg p-6 border border-gray-700">
-      <div className="flex justify-between items-start mb-4">
-        <p className="text-xl font-bold text-gray-50">{question.question}</p>
-        <span className="text-xs px-3 py-1 bg-gray-700 text-indigo-400 rounded">
-          {question.answers.length} Responses
+    <div className="bg-[#333333] rounded-[2rem] shadow-xl border border-[#444444] p-8 hover:border-[#FF7F11] transition-all duration-300 relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/5 rounded-full blur-[60px] group-hover:bg-[#FF7F11]/10 transition-colors pointer-events-none"></div>
+
+      <div className="flex justify-between items-start mb-6 relative z-10">
+        <h3 className="text-xl font-bold text-[#E2E8CE] leading-snug">{question.question}</h3>
+        <span className="flex-shrink-0 ml-4 px-3 py-1 bg-[#262626] border border-[#444444] text-[#FF7F11] rounded-lg text-xs font-black uppercase tracking-widest shadow-inner">
+          {question.answers.length} Replies
         </span>
       </div>
 
-      <div className="mt-6 space-y-3 border-t border-gray-700 pt-5">
-        <h3 className="text-sm font-semibold text-gray-400 uppercase">Community Responses</h3>
+      <div className="mt-8 space-y-4 border-t border-[#444444] pt-6 relative z-10">
+        <h3 className="text-[10px] font-black text-[#666666] uppercase tracking-widest mb-4">Community Solutions</h3>
 
         {question.answers.length > 0 ? (
           question.answers.map((a, idx) => (
             <div
               key={idx}
-              className="text-base text-gray-300 bg-gray-700/50 rounded p-4 border-l-4 border-indigo-500"
+              className="bg-[#262626] rounded-xl p-5 border-l-4 border-[#FF7F11] shadow-md"
             >
-              <p>{a.text}</p>
+              <p className="text-[#ACBFA4] font-medium leading-relaxed text-sm">{a.text}</p>
             </div>
           ))
         ) : (
-          <p className="text-gray-500 italic text-sm">No responses yet.</p>
+          <div className="text-center py-6 bg-[#262626]/50 rounded-xl border border-[#444444] border-dashed">
+             <p className="text-[#666666] font-bold text-xs uppercase tracking-wide">No responses yet. Be the first!</p>
+          </div>
         )}
       </div>
 
@@ -96,15 +103,12 @@ export default function QandABoard() {
   const [questionText, setQuestionText] = useState("");
   const [loading, setLoading] = useState(true);
 
-  const API_BASE_URL = "https://edumedia-hub-1-bgw0.onrender.com/api/qna";
+  const API_BASE_URL = "http://localhost:5001/api/qna";
 
-  /* 🚀 Fetch All Questions */
   const fetchQuestions = async () => {
     try {
       const res = await fetch(`${API_BASE_URL}/getQuestions`);
       const data = await res.json();
-
-      // FIXED: Backend returns { success, questions: [] }
       setQuestions(data.questions || []);
     } catch (err) {
       console.error("Error retrieving questions:", err);
@@ -117,7 +121,6 @@ export default function QandABoard() {
     fetchQuestions();
   }, []);
 
-  /* 🚀 Add Question */
   const addQuestion = async () => {
     if (!questionText.trim()) return;
 
@@ -129,17 +132,13 @@ export default function QandABoard() {
       });
 
       const data = await res.json();
-
-      // FIXED: backend returns { success, question }
       setQuestions([data.question, ...questions]);
-
       setQuestionText("");
     } catch (err) {
       console.error("Error submitting question:", err);
     }
   };
 
-  /* 🚀 Add Answer */
   const addAnswer = async (qId, answerText) => {
     try {
       const res = await fetch(`${API_BASE_URL}/${qId}/answer`, {
@@ -149,8 +148,6 @@ export default function QandABoard() {
       });
 
       const updated = await res.json();
-
-      // FIXED: backend returns { success, question: updatedQuestion }
       setQuestions((prev) =>
         prev.map((q) => (q._id === qId ? updated.question : q))
       );
@@ -160,57 +157,83 @@ export default function QandABoard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-950 text-gray-100 py-16 px-8">
-      <div className="max-w-7xl mx-auto">
+    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-20 px-8 font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative">
+      
+      {/* Ambient Backgound */}
+      <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+      </div>
+
+      <div className="max-w-5xl mx-auto relative z-10">
 
         {/* HEADER */}
-        <header className="text-center mb-16">
-          <h1 className="text-5xl font-extrabold mb-3 text-indigo-400">
-            Technical Knowledge Repository
+        <div className="text-center mb-16">
+          <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+             Knowledge Base
+          </div>
+          <h1 className="text-5xl md:text-6xl font-black mb-6 text-[#E2E8CE] tracking-tighter drop-shadow-xl">
+            Tech <span className="text-[#FF7F11]">Repository</span>
           </h1>
-          <p className="text-lg text-gray-400">
-            Ask questions. Share knowledge. Learn together.
+          <p className="text-xl text-[#ACBFA4] max-w-2xl mx-auto font-medium">
+            Ask questions. Share knowledge. Grow together.
           </p>
-        </header>
+        </div>
 
         {/* ASK QUESTION */}
-        <div className="bg-gray-900 rounded-xl p-8 mb-16 border border-gray-700">
-          <label className="text-xl font-semibold text-indigo-400 mb-4 block">
-            Submit a Question
+        <div className="bg-[#333333] rounded-[2.5rem] p-10 mb-20 border border-[#444444] shadow-2xl relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#ACBFA4]/5 rounded-full blur-[80px] pointer-events-none"></div>
+
+          <label className="text-2xl font-black text-[#E2E8CE] mb-6 block tracking-tight relative z-10">
+            Submit a Query
           </label>
 
-          <textarea
-            className="w-full bg-gray-800 text-white p-4 rounded-lg"
-            rows="5"
-            placeholder="Type your technical question..."
-            value={questionText}
-            onChange={(e) => setQuestionText(e.target.value)}
-          />
+          <div className="relative z-10">
+            <textarea
+                className="w-full bg-[#262626] text-[#E2E8CE] p-6 rounded-2xl border border-[#444444] placeholder-[#666666] font-medium outline-none focus:border-[#FF7F11] shadow-inner transition-all resize-none h-40 mb-6"
+                placeholder="What technical challenge are you facing today?"
+                value={questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+            />
 
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={addQuestion}
-              className="px-8 py-3 bg-indigo-600 text-white rounded-lg"
-              disabled={!questionText.trim()}
-            >
-              Submit
-            </button>
+            <div className="flex justify-end">
+                <button
+                onClick={addQuestion}
+                className="px-10 py-4 bg-[#FF7F11] text-[#262626] rounded-full font-black uppercase tracking-widest text-sm hover:bg-[#e06c09] transition shadow-lg active:scale-95 hover:-translate-y-1"
+                disabled={!questionText.trim()}
+                >
+                Publish Question
+                </button>
+            </div>
           </div>
         </div>
 
         {/* QUESTIONS LIST */}
-        <h2 className="text-3xl font-bold mb-8 border-b border-gray-800 pb-2">
-          All Questions
-        </h2>
+        <div className="flex items-center gap-4 mb-10 border-b border-[#444444] pb-4">
+            <h2 className="text-3xl font-black text-[#E2E8CE] tracking-tight">
+            Latest <span className="text-[#FF7F11]">Discussions</span>
+            </h2>
+            <div className="flex-1 h-px bg-[#444444]"></div>
+             <div className="text-[#666666] font-bold text-xs uppercase tracking-widest">
+                {questions.length} Topics
+            </div>
+        </div>
 
         <div className="space-y-8">
           {loading && (
-            <div className="text-center p-8 text-indigo-400">Loading...</div>
+            <div className="text-center p-20">
+                <div className="w-12 h-12 border-4 border-[#333333] border-t-[#FF7F11] rounded-full animate-spin mx-auto mb-4"></div>
+                <p className="text-[#ACBFA4] font-bold text-xs uppercase tracking-widest">Loading Repository...</p>
+            </div>
           )}
 
           {!loading && questions.length === 0 && (
-            <div className="text-center p-12 bg-gray-900 rounded-xl">
-              <p className="text-gray-500 text-xl">No questions yet.</p>
+            <div className="text-center p-20 bg-[#333333] rounded-[2rem] border border-[#444444] border-dashed">
+              <div className="w-20 h-20 bg-[#262626] rounded-full mx-auto mb-6 flex items-center justify-center border border-[#444444]">
+                   <Search className="w-8 h-8 text-[#ACBFA4]" />
+              </div>
+              <p className="text-[#E2E8CE] text-xl font-bold mb-2">No discussions found.</p>
+              <p className="text-[#666666] font-medium">Be the first to start a conversation!</p>
             </div>
           )}
 
@@ -220,6 +243,11 @@ export default function QandABoard() {
             ))}
         </div>
       </div>
+
+      <style jsx global>{`
+        @keyframes fade-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+      `}</style>
     </div>
   );
 }

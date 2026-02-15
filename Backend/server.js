@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cors from "cors";
 import path from "path";
 import http from "http";
+import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import connectDB from "./config/db.js";
 
@@ -13,6 +14,7 @@ import uploadRoutes from "./routes/upload.routes.js";
 import BlogRoute from "./routes/Blog.routes.js";
 import qnaRoutes from "./routes/qnaRoutes.js";
 import userProfile from "./routes/userProfile.routes.js";
+import reviewRoutes from "./routes/Review.routes.js";
 import { socketController } from "./controllers/socket.controller.js";
 
 dotenv.config();
@@ -22,38 +24,38 @@ const app = express();
 connectDB();
 
 /* ---------------- CORS SETUP ---------------- */
-// IMPORTANT: Ensure these URLs do NOT have trailing slashes
 const allowedOrigins = [
   "http://localhost:5173",
+  "http://localhost:5174",
   "https://edumedia-hub-2.onrender.com",
   "https://edumedia-hub-1-bgw0.onrender.com",
 ];
 
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      // Allow requests with no origin (like mobile apps or curl)
-      if (!origin) return callback(null, true);
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
 
-      if (allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.log("Blocked by CORS:", origin);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
-  })
-);
+    const cleanOrigin = origin.endsWith("/") ? origin.slice(0, -1) : origin;
 
-// Explicitly handle OPTIONS (Preflight) requests for all routes
-app.options("*", cors());
+    if (allowedOrigins.includes(cleanOrigin)) {
+      callback(null, true);
+    } else {
+      console.log("Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization", "Accept", "X-Requested-With"],
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
 
 /* ---------------- MIDDLEWARE ---------------- */
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 /* ---------------- LOGGING ---------------- */
 app.use((req, res, next) => {
@@ -67,6 +69,7 @@ app.use("/api/v1", uploadRoutes);
 app.use("/api/v1", BlogRoute);
 app.use("/api/qna", qnaRoutes);
 app.use("/api/v1/user", userProfile);
+app.use("/api/v1", reviewRoutes);
 
 /* ---------------- ROOMS ---------------- */
 app.get("/api/v1/rooms", async (req, res) => {

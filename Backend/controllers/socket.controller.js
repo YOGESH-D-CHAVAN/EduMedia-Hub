@@ -5,9 +5,19 @@ export const socketController = (io) => {
   io.on("connection", (socket) => {
 
     socket.on("joinRoom", async (roomId) => {
+      // 1. Leave all other rooms first to avoid "ghost" listening
+      // socket.rooms is a Set. Convert to array and filter out the socket's own ID
+      const currentRooms = Array.from(socket.rooms);
+      currentRooms.forEach((room) => {
+        if (room !== socket.id) {
+          socket.leave(room);
+        }
+      });
+
+      // 2. Join the new room
       socket.join(roomId);
       
-      // FETCH HISTORY: Load last 50 messages for this specific room
+      // FETCH HISTORY
       const history = await Message.find({ roomId }).sort({ createdAt: 1 }).limit(50);
       socket.emit("loadMessages", history);
     });

@@ -1,30 +1,29 @@
+// PlacementGuidance.jsx - Earthy Theme
 import React, { useState, useEffect } from "react";
-// Using lucide-react for modern icons
 import { Zap, BookOpen, MessageSquare, Code, Users, Map, X } from 'lucide-react'; 
 
-// Data structure for the guidance cards
 const guidanceCards = [
   {
     title: "Resume Building",
     description: "Craft a standout resume that passes ATS filters and impresses recruiters.",
     icon: BookOpen,
-    color: "cyan",
+    color: "#ff8c00",
     action: "Redirecting to Resume Builder...",
     link: "https://novoresume.com/resume-builder" 
   },
   {
-    title: "Interview Preparation",
+    title: "Interview Prep",
     description: "Practice mock interviews, common questions, and body-language tips.",
     icon: MessageSquare,
-    color: "lime",
+    color: "#a3b18a",
     action: "Launching Interview Simulator...",
     link: "https://www.pramp.com"
   },
   {
-    title: "Aptitude & Reasoning",
+    title: "Aptitude & Logic",
     description: "Sharpen quantitative, logical, and verbal skills with timed quizzes.",
     icon: Zap,
-    color: "fuchsia",
+    color: "#d4a373", 
     action: "Starting Aptitude Quiz...",
     link: "https://www.indiabix.com/aptitude/questions-and-answers/"
   },
@@ -32,7 +31,7 @@ const guidanceCards = [
     title: "Coding Practice",
     description: "Solve top interview problems and optimize time complexity.",
     icon: Code,
-    color: "red",
+    color: "#ff7f11",
     action: "Opening Coding Environment...",
     link: "https://leetcode.com"
   },
@@ -40,7 +39,7 @@ const guidanceCards = [
     title: "Group Discussion",
     description: "Master GD etiquette, current affairs, and effective communication skills.",
     icon: Users,
-    color: "amber",
+    color: "#acbfa4",
     action: "Joining Group Discussion Session...",
     link: "https://gdtopics.com"
   },
@@ -48,24 +47,23 @@ const guidanceCards = [
     title: "Career Mapping",
     description: "Discover roles that fit your skills and set a clear professional roadmap.",
     icon: Map,
-    color: "blue",
+    color: "#e2e8ce",
     action: "Accessing Career Explorer...",
     link: "https://www.careerexplorer.com/careers/"
   },
 ];
 
-// Reusable Notification component
 const Notification = ({ message, onClose }) => {
   if (!message) return null;
 
   return (
     <div className="fixed top-5 left-1/2 transform -translate-x-1/2 z-50">
-      <div className="bg-gray-700 text-white px-6 py-3 rounded-xl shadow-2xl flex items-center space-x-3 animate-slide-down border border-gray-600">
-        <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-lime-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-        </svg>
-        <span>{message}</span>
-        <button onClick={onClose} className="text-gray-400 hover:text-white ml-4">
+      <div className="bg-[#333333] text-[#E2E8CE] px-8 py-4 rounded-full shadow-2xl flex items-center gap-4 animate-slide-down border border-[#444444]">
+        <div className="w-8 h-8 rounded-full bg-[#ACFA4] flex items-center justify-center text-[#262626]">
+           <Zap className="w-4 h-4 text-[#FF7F11]" fill="currentColor" />
+        </div>
+        <span className="font-bold text-sm uppercase tracking-wide">{message}</span>
+        <button onClick={onClose} className="text-[#666666] hover:text-[#FF7F11] transition">
           <X className="w-4 h-4" />
         </button>
       </div>
@@ -73,83 +71,66 @@ const Notification = ({ message, onClose }) => {
   );
 };
 
-// Detail Modal Component for Expanded Content
 const DetailModal = ({ card, onClose, triggerNotification }) => {
   if (!card) return null;
 
   const DetailIcon = card.icon;
-  // Mock detailed content for demonstration
   const mockDetails = {
     "Resume Building": "This comprehensive guide provides step-by-step templates, keyword optimization tips, and a powerful list of action verbs to create an ATS-friendly resume. Focus on quantifiable achievements and tailoring your content for specific job descriptions.",
-    "Interview Preparation": "Access a massive library of behavioral, technical, and system design interview questions. Includes video tutorials on confident body language, handling stress, and effective salary negotiation tactics.",
-    "Aptitude & Reasoning": "Practice hundreds of mock tests covering quantitative aptitude, logical reasoning, and verbal ability, all timed to simulate real exam conditions. Get real-time scoring and detailed solution analysis to track your improvement.",
+    "Interview Prep": "Access a massive library of behavioral, technical, and system design interview questions. Includes video tutorials on confident body language, handling stress, and effective salary negotiation tactics.",
+    "Aptitude & Logic": "Practice hundreds of mock tests covering quantitative aptitude, logical reasoning, and verbal ability, all timed to simulate real exam conditions. Get real-time scoring and detailed solution analysis to track your improvement.",
     "Coding Practice": "A curated, structured learning path of Data Structures and Algorithms problems categorized by complexity (Easy, Medium, Hard). Supports popular languages (Python, Java, C++) and features an integrated debugger.",
     "Group Discussion": "Learn key strategies for contributing effectively in a Group Discussion. Topics cover current affairs, business ethics, and social issues, with tips on leadership, active listening, and conflict resolution.",
     "Career Mapping": "An interactive tool to match your skills, interests, and academic background with potential career tracks (e.g., Software Engineer, Data Scientist, Product Manager). Includes required skill checklists and personalized learning roadmaps.",
   };
 
-  // Determine button text based on card title
-  const buttonText = card.title.includes('Quiz') || card.title.includes('Solve') || card.title.includes('Join') ? 'Start Session' : 'Go to Resource';
+  const buttonText = card.title.includes('Quiz') || card.title.includes('Solve') || card.title.includes('Join') ? 'Start Now' : 'Open Resource';
   
-  // Tailwind classes for dark mode contrast
-  const colorClasses = {
-      'cyan': { background: 'bg-cyan-900/30', border: 'border-cyan-500', text: 'text-cyan-400', button: 'bg-cyan-600 hover:bg-cyan-500' },
-      'lime': { background: 'bg-lime-900/30', border: 'border-lime-500', text: 'text-lime-400', button: 'bg-lime-600 hover:bg-lime-500' },
-      'fuchsia': { background: 'bg-fuchsia-900/30', border: 'border-fuchsia-500', text: 'text-fuchsia-400', button: 'bg-fuchsia-600 hover:bg-fuchsia-500' },
-      'red': { background: 'bg-red-900/30', border: 'border-red-500', text: 'text-red-400', button: 'bg-red-600 hover:bg-red-500' },
-      'amber': { background: 'bg-amber-900/30', border: 'border-amber-500', text: 'text-amber-400', button: 'bg-amber-600 hover:bg-amber-500' },
-      'blue': { background: 'bg-blue-900/30', border: 'border-blue-500', text: 'text-blue-400', button: 'bg-blue-600 hover:bg-blue-500' },
-  }
-
-  const currentColors = colorClasses[card.color] || colorClasses['cyan'];
-  
-  // New handler for the modal's primary button
   const handlePrimaryAction = () => {
     onClose(); 
     triggerNotification(card.action);
-    if (card.link) {
-      window.open(card.link, "_blank"); // Open in new tab
-    }
+    if (card.link) window.open(card.link, "_blank");
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4 backdrop-blur-sm transition-opacity duration-300 animate-fade-in" onClick={onClose}>
+    <div className="fixed inset-0 bg-[#262626]/90 z-50 flex items-center justify-center p-6 backdrop-blur-sm transition-opacity duration-300 animate-fade-in" onClick={onClose}>
       <div 
-        className="bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-xl lg:max-w-2xl transform transition-all duration-300 overflow-hidden border border-gray-700 animate-zoom-in" 
+        className="bg-[#333333] rounded-[2.5rem] shadow-2xl w-full max-w-2xl transform transition-all duration-300 overflow-hidden border border-[#444444] animate-zoom-in relative" 
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Modal Header */}
-        <div className={`p-6 md:p-8 ${currentColors.background} border-b-4 ${currentColors.border} flex items-center`}>
-          <DetailIcon className={`w-8 h-8 md:w-10 md:h-10 ${currentColors.text} mr-4`} />
-          <h2 className="text-2xl md:text-3xl font-bold text-gray-50">{card.title}</h2>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF7F11]/5 rounded-full blur-[80px] pointer-events-none"></div>
+
+        <div className="p-10 border-b border-[#444444] flex items-center gap-6 relative z-10">
+          <div className="w-16 h-16 rounded-2xl bg-[#262626] border border-[#444444] flex items-center justify-center text-[#FF7F11] shadow-inner">
+             <DetailIcon className="w-8 h-8" />
+          </div>
+          <h2 className="text-3xl font-black text-[#E2E8CE] tracking-tight">{card.title}</h2>
         </div>
         
-        {/* Modal Content */}
-        <div className="p-6 md:p-8">
-          <p className="text-gray-300 mb-6 leading-relaxed text-base">
-            {mockDetails[card.title] || "Detailed information for this guide is currently unavailable."}
+        <div className="p-10 relative z-10">
+          <p className="text-[#ACBFA4] mb-8 leading-relaxed font-medium text-lg">
+            {mockDetails[card.title] || "Detailed information unavailable."}
           </p>
           
-          <p className="font-semibold text-gray-100 mb-4 text-lg">Next Step:</p>
+          <p className="font-bold text-[#E2E8CE] text-xs uppercase tracking-widest mb-4">Action Required:</p>
           
-          <div className="p-4 bg-gray-900 rounded-lg text-sm text-gray-400 italic border border-gray-700">
-            {card.action}
+          <div className="p-5 bg-[#262626] rounded-xl text-sm text-[#ACBFA4] border border-[#444444] font-mono shadow-inner">
+            {`> ${card.action}`}
           </div>
         </div>
         
-        {/* Modal Footer (Actions) */}
-        <div className="p-6 md:p-8 flex justify-between bg-gray-900 border-t border-gray-700">
+        <div className="p-8 flex justify-between bg-[#262626] border-t border-[#444444] relative z-10">
           <button
             onClick={onClose}
-            className="text-gray-400 font-semibold px-4 py-2 rounded-lg border border-gray-600 hover:bg-gray-700 transition duration-300"
+            className="text-[#666666] font-bold px-6 py-3 rounded-xl border border-[#444444] hover:bg-[#333333] hover:text-[#E2E8CE] transition uppercase tracking-widest text-xs"
           >
-            Close
+            Cancel
           </button>
           <button
             onClick={handlePrimaryAction} 
-            className={`text-white px-6 py-3 rounded-lg font-semibold transition duration-300 shadow-lg ${currentColors.button}`}
+            className="text-[#262626] bg-[#FF7F11] px-8 py-3 rounded-xl font-black uppercase tracking-widest text-sm hover:bg-[#e06c09] transition shadow-lg hover:-translate-y-1 active:scale-[0.98]"
           >
-            {buttonText} →
+            {buttonText}
           </button>
         </div>
       </div>
@@ -157,104 +138,91 @@ const DetailModal = ({ card, onClose, triggerNotification }) => {
   );
 };
 
-// Main Component
 const PlacementGuide = () => {
   const [notification, setNotification] = useState('');
   const [selectedCard, setSelectedCard] = useState(null); 
 
-  // Effect to hide the notification automatically
   useEffect(() => {
     if (notification) {
-      const timer = setTimeout(() => {
-        setNotification('');
-      }, 3000); 
+      const timer = setTimeout(() => setNotification(''), 3000); 
       return () => clearTimeout(timer);
     }
   }, [notification]);
 
-  // Generic handler for all card actions
-  const handleCardAction = (card) => {
-    setSelectedCard(card); // Open the detail modal
-  };
-
-  // Handler for the main CTA button
-  const handleCtaAction = () => {
-    setNotification("Booking session... Please check your email for confirmation!");
-  };
-
   return (
-    <div className="min-h-screen bg-gray-950 py-10 px-4 font-sans relative">
+    <div className="min-h-screen bg-[#262626] py-20 px-6 font-sans relative selection:bg-[#FF7F11] selection:text-[#262626]">
+       
+       {/* Ambient Backgound */}
+       <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+         <div className="absolute top-[-10%] left-[-10%] w-[50rem] h-[50rem] bg-[#FF7F11]/5 rounded-full blur-[120px]"></div>
+         <div className="absolute bottom-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+      </div>
+
       <style jsx global>{`
         @keyframes slide-down {
           0% { transform: translate(-50%, -100%); opacity: 0; }
           100% { transform: translate(-50%, 0); opacity: 1; }
         }
-        .animate-slide-down { animation: slide-down 0.3s ease-out forwards; }
+        .animate-slide-down { animation: slide-down 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         @keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
-        .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
+        .animate-fade-in { animation: fade-in 0.4s ease-out forwards; }
         @keyframes zoom-in { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-        .animate-zoom-in { animation: zoom-in 0.3s ease-out forwards; }
-        @keyframes card-fade-up { to { opacity: 1; transform: translateY(0); } }
-        .card-enter-animation { opacity: 0; transform: translateY(20px); animation: card-fade-up 0.5s ease-out forwards; }
-        .card-1 { animation-delay: 0.1s; }
-        .card-2 { animation-delay: 0.2s; }
-        .card-3 { animation-delay: 0.3s; }
-        .card-4 { animation-delay: 0.4s; }
-        .card-5 { animation-delay: 0.5s; }
-        .card-6 { animation-delay: 0.6s; }
+        .animate-zoom-in { animation: zoom-in 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
       `}</style>
       
       <Notification message={notification} onClose={() => setNotification('')} />
       <DetailModal card={selectedCard} onClose={() => setSelectedCard(null)} triggerNotification={setNotification} />
 
-      <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-6xl font-extrabold text-white tracking-tighter drop-shadow-lg animate-fade-in">
-            PLACEMENT <span className="text-fuchsia-500">ACCELERATOR</span>
+      <div className="max-w-7xl mx-auto relative z-10">
+        <div className="text-center mb-24">
+          <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+             Career Launchpad
+          </div>
+          <h1 className="text-5xl md:text-7xl font-black text-[#E2E8CE] tracking-tighter mb-8 drop-shadow-xl">
+            PLACEMENT <span className="text-[#FF7F11] relative inline-block">
+              ACCELERATOR
+              <svg className="absolute w-full h-3 -bottom-2 left-0 text-[#ACBFA4] opacity-40" viewBox="0 0 100 10" preserveAspectRatio="none">
+                 <path d="M0 5 Q 50 15 100 5" stroke="currentColor" strokeWidth="4" fill="none" />
+              </svg>
+            </span>
           </h1>
-          <p className="mt-4 text-lg text-gray-400 max-w-3xl mx-auto">
-            Structured, clear, and actionable steps to help you land your dream tech job.
+          <p className="text-xl text-[#ACBFA4] max-w-3xl mx-auto font-medium leading-relaxed">
+            Your structured roadmap to cracking top-tier tech roles.
           </p>
         </div>
 
-        {/* Cards Grid */}
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {guidanceCards.map((card, index) => {
-            const iconClasses = `text-${card.color}-400`;
-            const buttonClasses = `text-${card.color}-400 font-medium text-sm hover:text-${card.color}-300 transition duration-200`;
-
-            return (
+          {guidanceCards.map((card, index) => (
               <div
                 key={index}
-                className={`bg-gray-900 rounded-xl shadow-2xl hover:shadow-fuchsia-900/40 transition-all duration-300 p-6 border-t border-l border-gray-700/50 hover:scale-[1.03] hover:-translate-y-1 card-enter-animation card-${index + 1}`}
-                style={{ animationDelay: `${index * 0.1}s` }}
+                onClick={() => setSelectedCard(card)}
+                className="group bg-[#333333] rounded-[2rem] border border-[#444444] p-8 hover:border-[#FF7F11] transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl hover:shadow-orange-500/10 cursor-pointer relative overflow-hidden"
               >
-                <div className={`${iconClasses} mb-4`}>
-                  <card.icon className="w-10 h-10" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/5 rounded-full blur-[60px] group-hover:bg-[#FF7F11]/10 transition-colors pointer-events-none"></div>
+
+                <div className="w-16 h-16 rounded-2xl bg-[#262626] border border-[#444444] flex items-center justify-center text-[#FF7F11] mb-8 shadow-inner group-hover:scale-110 transition-transform duration-500">
+                  <card.icon className="w-8 h-8" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-50 mb-2">
+                
+                <h3 className="text-2xl font-black text-[#E2E8CE] mb-4 tracking-tight group-hover:text-[#FF7F11] transition-colors">
                   {card.title}
                 </h3>
-                <p className="text-gray-400 text-sm mb-4">
+                
+                <p className="text-[#ACBFA4] text-lg font-medium leading-relaxed mb-8">
                   {card.description}
                 </p>
-                <button 
-                  onClick={() => handleCardAction(card)} 
-                  className={buttonClasses}
-                >
-                  {card.title.includes('Quiz') || card.title.includes('Solve') || card.title.includes('Join') ? 'Start Now →' : 'Learn More →'}
-                </button>
+                
+                <div className="flex items-center gap-2 text-xs font-black uppercase tracking-widest text-[#666666] group-hover:text-[#FF7F11] transition-colors">
+                  <span>Explore Module</span>
+                  <svg className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                </div>
               </div>
-            );
-          })}
+          ))}
         </div>
 
-        {/* CTA */}
-        <div className="mt-20 text-center">
-          
-          <p className="mt-6 text-sm text-gray-500">
-            Click here to connect with a placement expert and map your career path today.
+        <div className="mt-24 text-center border-t border-[#444444] pt-12">
+          <p className="text-[#666666] font-bold text-sm uppercase tracking-widest">
+            Expert guidance provided by <span className="text-[#E2E8CE]">EduMedia Tech</span>
           </p>
         </div>
       </div>

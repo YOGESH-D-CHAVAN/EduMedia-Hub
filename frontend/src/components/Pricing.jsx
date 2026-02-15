@@ -1,126 +1,135 @@
-// Pricing.jsx
+// Pricing.jsx - Earthy Theme
 import React, { useState } from "react";
+import { Check } from "lucide-react";
 
 export default function Pricing() {
   const [annual, setAnnual] = useState(false);
 
   const plans = [
     {
-      name: "Starter",
+      name: "Student",
       price: { monthly: 0, yearly: 0 },
-      description: "Perfect for students exploring the platform.",
+      description: "Start your learning journey.",
       features: [
-        "1 GB Cloudinary storage",
-        "JWT authentication",
-        "Student role only",
-        "Community support",
+        "1 GB Project Storage",
+        "Secure User Auth",
+        "Student Community",
+        "Basic Resources",
       ],
-      cta: "Start for free",
+      cta: "Join For Free",
       popular: false,
     },
     {
       name: "Creator",
       price: { monthly: 12, yearly: 8 },
-      description: "For educators publishing rich content.",
+      description: "Publish & monetize content.",
       features: [
-        "25 GB Cloudinary storage",
-        "Unlimited uploads",
-        "Student & Teacher roles",
-        "Detailed analytics",
-        "Priority support",
+        "25 GB Project Storage",
+        "Unlimited Uploads",
+        "Detailed Analytics",
+        "Priority Support",
+        "Custom Branding",
       ],
-      cta: "Start 14-day trial",
+      cta: "Start 14-day Trial",
       popular: true,
     },
     {
-      name: "Institution",
+      name: "Campus",
       price: { monthly: 39, yearly: 200 },
-      description: "Scale across departments and campuses.",
+      description: "Scale across departments.",
       features: [
-        "100 GB Cloudinary storage",
-        "All roles + Admin dashboard",
-        "SSO & custom branding",
-        "Advanced analytics",
-        "24×7 phone & email support",
+        "100 GB Project Storage",
+        "Admin Dashboard",
+        "SSO Integration",
+        "24/7 Dedicated Support",
+        "Bulk User Management",
       ],
-      cta: "Contact sales",
+      cta: "Contact Sales",
       popular: false,
     },
   ];
 
   return (
-    <section id="pricing" className="bg-gray-50 py-20">
-      <div className="container mx-auto px-6">
+    <section id="pricing" className="bg-[#262626] py-24 font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative overflow-hidden">
+      
+       {/* Ambient Backgound */}
+      <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
+         <div className="absolute top-[-10%] left-1/2 w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px] -translate-x-1/2"></div>
+      </div>
+
+      <div className="container mx-auto px-6 relative z-10">
         {/* Heading */}
-        <div className="text-center mb-12">
-          <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-purple-600">
-            Simple, transparent pricing
+        <div className="text-center mb-20">
+          <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+             Transparent Pricing
+          </div>
+          <h2 className="text-5xl font-black text-[#E2E8CE] tracking-tighter mb-6 relative inline-block">
+            Invest in your <span className="text-[#FF7F11]">future</span>.
           </h2>
-          <p className="mt-4 text-gray-600">
-            Choose the plan that fits your teaching or learning needs.
+          <p className="mt-4 text-[#ACBFA4] max-w-2xl mx-auto text-xl font-medium">
+            Plans designed for every stage of your educational journey.
           </p>
 
           {/* Toggle */}
-          <div className="mt-6 inline-flex items-center gap-3 bg-white rounded-full p-1 shadow">
+          <div className="mt-10 inline-flex items-center gap-1 bg-[#333333] rounded-full p-2 border border-[#444444] shadow-lg">
             <button
               onClick={() => setAnnual(false)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                !annual ? "bg-indigo-600 text-white" : "text-gray-600"
+              className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                !annual ? "bg-[#FF7F11] text-[#262626] shadow-md" : "text-[#ACBFA4] hover:text-[#E2E8CE]"
               }`}
             >
               Monthly
             </button>
             <button
               onClick={() => setAnnual(true)}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition ${
-                annual ? "bg-indigo-600 text-white" : "text-gray-600"
+              className={`px-8 py-3 rounded-full text-xs font-black uppercase tracking-widest transition-all ${
+                annual ? "bg-[#FF7F11] text-[#262626] shadow-md" : "text-[#ACBFA4] hover:text-[#E2E8CE]"
               }`}
             >
               Yearly
-              <span className="ml-1.5 px-2 py-0.5 text-xs bg-green-100 text-green-700 rounded-full">
-                Save 33%
+              <span className="ml-2 px-2 py-0.5 text-[10px] bg-[#ACBFA4] text-[#262626] rounded-full font-bold">
+                -33%
               </span>
             </button>
           </div>
         </div>
 
         {/* Plans */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {plans.map((p) => (
             <div
               key={p.name}
-              className={`relative rounded-2xl ${
-                p.popular ? "border-2 border-indigo-500 shadow-xl" : "border border-gray-200 bg-white"
-              } p-6 flex flex-col`}
+              className={`relative rounded-[2.5rem] p-8 flex flex-col transition-all duration-300 ${
+                p.popular 
+                ? "bg-[#333333] border-2 border-[#FF7F11] shadow-2xl shadow-orange-500/10 scale-105 z-10" 
+                : "bg-[#262626] border border-[#444444] hover:border-[#ACBFA4] hover:bg-[#333333]"
+              }`}
             >
               {p.popular && (
-                <span className="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 bg-indigo-600 text-white text-xs font-semibold rounded-full">
-                  Most popular
-                </span>
+                <div className="absolute -top-5 left-1/2 -translate-x-1/2 px-6 py-2 bg-[#FF7F11] text-[#262626] text-xs font-black uppercase tracking-widest rounded-full shadow-lg">
+                  Most Popular
+                </div>
               )}
 
-              {/* Price */}
-              <div className="mb-4">
-                <h3 className="text-xl font-bold text-gray-800">{p.name}</h3>
-                <p className="text-sm text-gray-600 mt-1">{p.description}</p>
-                <div className="mt-4 flex items-baseline gap-1">
-                  <span className="text-4xl font-extrabold text-gray-900">
+              {/* Header */}
+              <div className="mb-8 text-center pb-8 border-b border-[#444444]">
+                <h3 className="text-2xl font-black text-[#E2E8CE] mb-2 tracking-tight">{p.name}</h3>
+                <p className="text-[#ACBFA4] text-sm font-medium mb-6">{p.description}</p>
+                <div className="flex items-baseline justify-center gap-1">
+                  <span className="text-6xl font-black text-[#E2E8CE] tracking-tighter">
                     ${annual ? p.price.yearly : p.price.monthly}
                   </span>
-                  <span className="text-gray-500">/ {annual ? "yr" : "mo"}</span>
+                  <span className="text-[#666666] font-bold text-lg uppercase tracking-wide">/ {annual ? "yr" : "mo"}</span>
                 </div>
-                {p.price.monthly > 0 && annual && (
-                  <p className="text-xs text-green-600 mt-1">Billed yearly</p>
-                )}
               </div>
 
               {/* Features */}
-              <ul className="space-y-3 text-sm text-gray-600 mb-6 flex-grow">
+              <ul className="space-y-4 mb-10 flex-grow">
                 {p.features.map((f) => (
-                  <li key={f} className="flex items-start gap-2">
-                    <svg className="w-5 h-5 text-green-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
+                  <li key={f} className="flex items-center gap-4 text-[#ACBFA4] font-medium text-sm">
+                    <div className={`w-6 h-6 rounded-full flex items-center justify-center shrink-0 ${p.popular ? "bg-[#FF7F11]" : "bg-[#333333] border border-[#444444]"}`}>
+                        <Check className={`w-3 h-3 ${p.popular ? "text-[#262626]" : "text-[#ACBFA4]"}`} strokeWidth={4} />
+                    </div>
                     {f}
                   </li>
                 ))}
@@ -128,11 +137,11 @@ export default function Pricing() {
 
               {/* CTA */}
               <a
-                href={p.name === "Institution" ? "/contact" : "/register"}
-                className={`w-full text-center rounded-lg px-4 py-2.5 font-medium transition ${
+                href={p.name === "Campus" ? "/contact" : "/register"}
+                className={`w-full text-center rounded-2xl py-4 font-black text-sm uppercase tracking-widest transition-all shadow-lg hover:-translate-y-1 ${
                   p.popular
-                    ? "bg-indigo-600 text-white hover:bg-indigo-700"
-                    : "bg-indigo-50 text-indigo-600 hover:bg-indigo-100"
+                    ? "bg-[#FF7F11] text-[#262626] hover:bg-[#e06c09]"
+                    : "bg-[#333333] text-[#E2E8CE] border border-[#444444] hover:bg-[#E2E8CE] hover:text-[#262626]"
                 }`}
               >
                 {p.cta}
@@ -142,8 +151,8 @@ export default function Pricing() {
         </div>
 
         {/* Bottom note */}
-        <p className="mt-10 text-center text-xs text-gray-500">
-          All prices in USD. Cancel anytime. No hidden fees.
+        <p className="mt-16 text-center text-xs font-bold uppercase tracking-widest text-[#666666]">
+          Secure payments via Stripe • Cancel anytime • 14-day money-back guarantee
         </p>
       </div>
     </section>

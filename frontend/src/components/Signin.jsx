@@ -23,21 +23,19 @@ export default function SignIn() {
     setLoading(true);
 
     try {
-      // Inside SignIn.jsx - handleSubmit function
       const res = await fetch(
-        "https://edumedia-hub-1-bgw0.onrender.com/api/v1/users/loginUser",
+        "http://localhost:5001/api/v1/users/loginUser",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(form),
-          credentials: "omit", // Change from "include" to "omit"
-        },
+          credentials: "include", 
+        }
       );
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Login failed");
 
-      // ✅ MATCH BACKEND RESPONSE
       const token = data.data?.accessToken;
       const role = data.data?.user?.role;
 
@@ -54,58 +52,68 @@ export default function SignIn() {
       else if (role === "admin") navigate("/admin");
       else navigate("/unauthorized");
     } catch (err) {
-      alert("❌ " + err.message);
+      alert("⚠️ " + err.message);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="bg-black text-white flex items-center justify-center px-6 py-12">
-      <div className="w-full max-w-md bg-neutral-900 rounded-2xl p-8 border border-neutral-800 my-10 mb-28 shadow-2xl shadow-cyan-400/10">
+    <div className="bg-[#262626] text-[#E2E8CE] flex items-center justify-center min-h-screen px-6 py-12 font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
+      
+      {/* Background Ambience */}
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
+         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]" />
+         <div className="absolute bottom-[-10%] left-[-10%] w-[35rem] h-[35rem] bg-[#ACBFA4]/5 rounded-full blur-[80px]" />
+      </div>
+
+      <div className="w-full max-w-md bg-[#333333] rounded-[2rem] p-10 border border-[#444444] shadow-2xl relative z-10 animate-fade-in">
+        
         {/* Header */}
-        <div className="mb-6 text-center">
-          <h2 className="text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
-            Welcome back
+        <div className="mb-8 text-center">
+          <div className="w-16 h-16 bg-[#262626] rounded-2xl mx-auto mb-6 flex items-center justify-center border border-[#444444] shadow-inner">
+             <div className="w-8 h-8 rounded-full bg-[#FF7F11]" />
+          </div>
+          <h2 className="text-3xl font-black text-[#E2E8CE] tracking-tight">
+            Welcome <span className="text-[#FF7F11]">Back</span>
           </h2>
-          <p className="mt-2 text-sm text-neutral-400">
-            Sign in to your EduMedia Tech account.
+          <p className="mt-2 text-sm text-[#ACBFA4] font-medium">
+            Sign in to access your dashboard.
           </p>
         </div>
 
         {/* GOOGLE LOGIN BUTTON */}
-        <div className="flex justify-center mb-3">
-          <GoogleLogin
-            onSuccess={(response) => {
-              const user = jwtDecode(response.credential);
-
-              // Save Google user info
-              localStorage.setItem("googleUser", JSON.stringify(user));
-              localStorage.setItem("authToken", response.credential);
-              localStorage.setItem("userRole", "student"); // default role
-              window.dispatchEvent(new Event("authStatusChange"));
-
-              navigate("/student");
-            }}
-            onError={() => {
-              alert("Google Login Failed");
-            }}
-          />
+        <div className="flex justify-center mb-6">
+          <div className="overflow-hidden rounded-lg bg-white p-0.5">
+            <GoogleLogin
+              onSuccess={(response) => {
+                const user = jwtDecode(response.credential);
+                localStorage.setItem("googleUser", JSON.stringify(user));
+                localStorage.setItem("authToken", response.credential);
+                localStorage.setItem("userRole", "student"); 
+                window.dispatchEvent(new Event("authStatusChange"));
+                navigate("/student");
+              }}
+              onError={() => {
+                alert("Google Login Failed");
+              }}
+              theme="filled_black"
+              shape="pill"
+            />
+          </div>
         </div>
 
-        {/* Note about Google login role */}
-        <p className="text-center text-xs text-neutral-400 mb-4">
-          Note: If you choose "Login with Google", you will be signed in as a
-          student.
-        </p>
-
-        <div className="text-center text-neutral-500 text-sm my-3">— OR —</div>
+        <div className="relative mb-8 text-center">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-[#444444]"></div></div>
+            <div className="relative text-xs uppercase font-bold text-[#666666] bg-[#333333] px-3 inline-block tracking-widest">Or continue with</div>
+        </div>
 
         {/* Normal Email/Password Login Form */}
-        <form onSubmit={handleSubmit} className="space-y-5">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1">
+            <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-2 pl-1">
               Email Address
             </label>
             <input
@@ -116,14 +124,14 @@ export default function SignIn() {
               value={form.email}
               onChange={handleChange}
               placeholder="you@example.com"
-              className="w-full rounded-lg bg-neutral-800 border border-neutral-700 px-4 py-2 text-white placeholder-neutral-500 focus:ring-2 focus:ring-cyan-400 outline-none transition"
+              className="w-full rounded-xl bg-[#262626] border border-[#444444] px-5 py-4 text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] outline-none transition-all font-medium shadow-inner"
             />
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-1">
-              Password
+            <label className="block text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-2 pl-1">
+              Secret Key
             </label>
             <div className="relative">
               <input
@@ -134,104 +142,62 @@ export default function SignIn() {
                 value={form.password}
                 onChange={handleChange}
                 placeholder="••••••••"
-                className="w-full rounded-lg bg-neutral-800 border border-neutral-700 px-4 py-2 pr-10 text-white placeholder-neutral-500 focus:ring-2 focus:ring-cyan-400 outline-none transition"
+                className="w-full rounded-xl bg-[#262626] border border-[#444444] px-5 py-4 pr-12 text-[#E2E8CE] placeholder-[#666666] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] outline-none transition-all font-medium shadow-inner"
               />
               <button
                 type="button"
                 onClick={() => setShowPass((s) => !s)}
-                className="absolute inset-y-0 right-0 px-3 flex items-center text-neutral-400 hover:text-cyan-300 transition"
+                className="absolute inset-y-0 right-0 px-4 flex items-center text-[#ACBFA4] hover:text-[#FF7F11] transition text-xs font-bold uppercase tracking-wider"
               >
-                {showPass ? (
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"
-                    />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-5 h-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
-                )}
+                {showPass ? "Hide" : "Show"}
               </button>
             </div>
           </div>
 
           {/* Role Selection */}
-          <div>
-            <label className="block text-sm font-medium text-neutral-300 mb-3">
-              I am a...
-            </label>
-            <div className="flex gap-2 bg-neutral-800 rounded-xl border border-neutral-700 p-1">
-              {/* Student */}
+          <div className="bg-[#262626] rounded-xl p-1.5 border border-[#444444] flex gap-2">
               <button
                 type="button"
                 onClick={() => setForm({ ...form, role: "student" })}
-                className={`flex-1 flex items-center justify-center gap-3 py-3 px-5 rounded-lg transition-all ${
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${
                   form.role === "student"
-                    ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-black shadow-md"
-                    : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50"
+                    ? "bg-[#FF7F11] text-[#262626] shadow-md"
+                    : "text-[#666666] hover:text-[#E2E8CE]"
                 }`}
               >
-                <span className="text-base">Student</span>
+                Student
               </button>
-
-              {/* Teacher */}
               <button
                 type="button"
                 onClick={() => setForm({ ...form, role: "teacher" })}
-                className={`flex-1 flex items-center justify-center gap-3 py-3 px-5 rounded-lg transition-all ${
+                className={`flex-1 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wide transition-all ${
                   form.role === "teacher"
-                    ? "bg-gradient-to-r from-cyan-500 to-purple-500 text-black shadow-md"
-                    : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-700/50"
+                    ? "bg-[#ACBFA4] text-[#262626] shadow-md"
+                    : "text-[#666666] hover:text-[#E2E8CE]"
                 }`}
               >
-                <span className="text-base">Teacher</span>
+                Teacher
               </button>
-            </div>
           </div>
 
           {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full flex justify-center items-center gap-2 rounded-lg bg-gradient-to-r from-cyan-500 to-purple-500 text-black py-2.5 font-semibold hover:scale-[1.02] transition disabled:opacity-60"
+            className="w-full py-4 rounded-xl bg-[#FF7F11] hover:bg-[#e06c09] text-[#262626] font-black text-lg shadow-xl shadow-orange-500/20 active:scale-[0.98] transition-all uppercase tracking-widest disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "Loading..." : "Sign in"}
+            {loading ? "Verifying..." : "Authenticate"}
           </button>
         </form>
 
         {/* Footer */}
-        <p className="mt-6 text-center text-xs text-neutral-400">
-          Don’t have an account?{" "}
+        <p className="mt-8 text-center text-xs text-[#666666] font-bold uppercase tracking-widest">
+          New here?{" "}
           <a
             href="/register"
-            className="font-medium text-cyan-400 hover:underline"
+            className="text-[#FF7F11] hover:text-[#E2E8CE] transition-colors underline decoration-2 underline-offset-4"
           >
-            Sign up
+            Create Account
           </a>
         </p>
       </div>

@@ -1,3 +1,4 @@
+// SalaryInsighs.jsx - Earthy Theme
 import React, { useState, useMemo, useRef } from "react";
 import {
   Chart as ChartJS,
@@ -8,55 +9,47 @@ import {
   PointElement,
   Tooltip,
   Legend,
-  ArcElement // Added for Pie Chart
+  ArcElement
 } from "chart.js";
 import { Bar, Line, Pie } from "react-chartjs-2";
-
-// Icons from lucide-react
-import { 
-    Search, Download, TrendingUp, DollarSign, Briefcase, MapPin, Gauge, Target, Sigma, Lightbulb, Zap, Users, Code 
-} from "lucide-react";
+import { Search, Download, TrendingUp, DollarSign, Briefcase, MapPin, Gauge, Target, Sigma, Lightbulb, Zap, Users, Code, Table as TableIcon } from "lucide-react";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, LineElement, PointElement, Tooltip, Legend, ArcElement);
 
-// Configuration for Chart.js
+// --- Chart Options ---
 const chartOptions = {
     responsive: true,
     maintainAspectRatio: false,
     plugins: {
         legend: {
-            labels: { color: "rgb(156 163 175)", boxWidth: 10, padding: 20 }
+            labels: { color: "#ACBFA4", boxWidth: 10, padding: 20, font: { weight: 'bold', size: 10 } }
         },
         tooltip: {
-            backgroundColor: 'rgba(51, 65, 85, 0.95)',
-            titleColor: '#fff',
-            bodyColor: 'rgb(203 213 225)',
+            backgroundColor: 'rgba(38, 38, 38, 0.95)',
+            titleColor: '#FF7F11',
+            bodyColor: '#E2E8CE',
             borderWidth: 1,
-            borderColor: 'rgb(100 116 139)'
+            borderColor: '#444444',
+            padding: 12,
+            cornerRadius: 8,
+            titleFont: { size: 13, weight: 'bold' },
+            bodyFont: { size: 12 }
         }
     },
     scales: {
         x: { 
-            ticks: { color: "rgb(156 163 175)" },
-            grid: { color: "rgba(100, 116, 139, 0.1)", drawBorder: true }
+            ticks: { color: "#666666", font: { weight: 'bold' } },
+            grid: { color: "rgba(68, 68, 68, 0.3)", drawBorder: false }
         },
         y: { 
-            ticks: { color: "rgb(156 163 175)" },
-            grid: { color: "rgba(100, 116, 139, 0.1)", drawBorder: true }
+            ticks: { color: "#666666", font: { weight: 'bold' } },
+            grid: { color: "rgba(68, 68, 68, 0.3)", drawBorder: false }
         }
     }
 };
 
-// Career Tips Data (New Feature)
-const careerTips = [
-    { title: "Research is Key", icon: Search, text: "Always know the average compensation range for your role and location before entering negotiations." },
-    { title: "Highlight Impact", icon: Zap, text: "Focus your pitch on the quantifiable impact you've had, not just your duties." },
-    { title: "Beyond Base Salary", icon: DollarSign, text: "Evaluate the entire package: stock options, bonuses, healthcare, and flexible work arrangements." },
-    { title: "Continuous Learning", icon: Code, text: "Salaries for roles requiring specialized, in-demand skills (AI/ML, DevOps) are often higher." },
-];
-
-
-// ----  dummy data  ----
 const salaryDb = [
   { company: "Google", role: "SWE", industry: "Tech", yoe: 0, loc: "India", base: 22, stock: 15, bonus: 3 },
   { company: "Google", role: "SWE", industry: "Tech", yoe: 2, loc: "India", base: 32, stock: 20, bonus: 5 },
@@ -72,361 +65,213 @@ const salaryDb = [
   { company: "Meta", role: "SWE", industry: "Social Media", yoe: 2, loc: "USA", base: 140, stock: 100, bonus: 25 },
 ];
 
+const FilterInput = ({ icon: Icon, k, placeholder, filters, setFilters }) => (
+    <div className="relative group">
+      <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <Icon className="h-5 w-5 text-[#666666] group-focus-within:text-[#FF7F11] transition-colors" />
+      </div>
+      <input
+        type="text"
+        value={filters[k]}
+        onChange={(e) => setFilters((f) => ({ ...f, [k]: e.target.value }))}
+        className="block w-full pl-10 pr-3 py-3 border border-[#444444] rounded-xl leading-5 bg-[#333333] text-[#E2E8CE] placeholder-[#666666] focus:outline-none focus:bg-[#262626] focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] sm:text-sm transition-all shadow-inner font-medium"
+        placeholder={placeholder}
+      />
+    </div>
+);
+
 const SalaryInsights = () => {
   const [filters, setFilters] = useState({ company: "", role: "", yoe: "", loc: "", industry: "" });
   const chartRef = useRef(null);
-  
-  // Custom filter for YOE to handle ranges
-  const filterByYoe = (record) => {
-    if (!filters.yoe) return true;
-    const yoeFilter = parseInt(filters.yoe, 10);
-    // Simple logic: returns true if record's YOE is >= filter YOE
-    return record.yoe >= yoeFilter;
-  };
 
-  // ----  filter logic  ----
   const filtered = useMemo(() => {
     return salaryDb.filter((r) =>
-      // Check all string/exact filters
       ['company', 'role', 'loc', 'industry'].every((k) => 
         !filters[k] || r[k].toString().toLowerCase().includes(filters[k].toLowerCase())
-      ) && filterByYoe(r) // Apply YOE filter separately
+      ) && (!filters.yoe || r.yoe >= parseInt(filters.yoe, 10))
     );
   }, [filters]);
 
-  // ----  computed stats  ----
   const stats = useMemo(() => {
     if (!filtered.length) return null;
     const tc = filtered.map((r) => r.base + r.stock + r.bonus);
-    
-    // Determine the unit dynamically
-    const unit = filtered.some(r => r.loc.toLowerCase().includes('india')) ? 'LPA' : 'k USD';
-    const unitSymbol = unit === 'LPA' ? 'L' : 'K';
-
+    const unit = filtered.some(r => r.loc.toLowerCase().includes('india')) ? 'LPA' : 'k $';
     const sortedTc = [...tc].sort((a, b) => a - b);
-    const medianIndex = Math.floor(sortedTc.length / 2);
-    const medianValue = sortedTc.length % 2 === 0 
-        ? (sortedTc[medianIndex - 1] + sortedTc[medianIndex]) / 2 
-        : sortedTc[medianIndex];
-
-    // Note: formatValue returns a string with the unit symbol appended (e.g., "150.0K")
-    const formatValue = (value) => value.toFixed(1) + unitSymbol;
-
+    const median = sortedTc.length % 2 === 0 ? (sortedTc[sortedTc.length/2 - 1] + sortedTc[sortedTc.length/2]) / 2 : sortedTc[Math.floor(sortedTc.length/2)];
+    
     return {
-      avg: formatValue(tc.reduce((a, b) => a + b, 0) / tc.length),
-      median: formatValue(medianValue),
-      min: formatValue(Math.min(...tc)),
-      max: formatValue(Math.max(...tc)),
-      unit: unit,
-      count: filtered.length
+      avg: (tc.reduce((a, b) => a + b, 0) / tc.length).toFixed(1) + unit,
+      median: median.toFixed(1) + unit,
+      min: Math.min(...tc).toFixed(1) + unit,
+      max: Math.max(...tc).toFixed(1) + unit,
+      count: filtered.length,
+      unit
     };
-  }, [filtered, filters.loc]);
+  }, [filtered]);
 
-  // ----  chart data - Grouped by Role for Bar Chart  ----
   const barChartData = useMemo(() => {
     const grouped = filtered.reduce((acc, r) => {
         const key = r.role;
-        if (!acc[key]) {
-            acc[key] = { base: [], stock: [], bonus: [] };
-        }
+        if (!acc[key]) acc[key] = { base: [], stock: [], bonus: [] };
         acc[key].base.push(r.base);
         acc[key].stock.push(r.stock);
         acc[key].bonus.push(r.bonus);
         return acc;
     }, {});
-
     const labels = Object.keys(grouped);
-    const getAvg = (arr) => arr.length > 0 ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : 0;
+    const getAvg = (arr) => arr.length ? (arr.reduce((a, b) => a + b, 0) / arr.length).toFixed(1) : 0;
 
     return {
-      labels: labels,
+      labels,
       datasets: [
-        {
-          label: "Avg Base",
-          data: labels.map(l => getAvg(grouped[l].base)),
-          backgroundColor: "rgba(16, 185, 129, 0.9)", // Emerald
-          borderRadius: 6,
-        },
-        {
-          label: "Avg Stock",
-          data: labels.map(l => getAvg(grouped[l].stock)),
-          backgroundColor: "rgba(59, 130, 246, 0.8)", // Blue
-          borderRadius: 6,
-        },
-        {
-          label: "Avg Bonus",
-          data: labels.map(l => getAvg(grouped[l].bonus)),
-          backgroundColor: "rgba(251, 191, 36, 0.9)", // Amber/Yellow
-          borderRadius: 6,
-        },
+        { label: "Base", data: labels.map(l => getAvg(grouped[l].base)), backgroundColor: "#ACBFA4", borderRadius: 4 },
+        { label: "Stock", data: labels.map(l => getAvg(grouped[l].stock)), backgroundColor: "#FF7F11", borderRadius: 4 },
+        { label: "Bonus", data: labels.map(l => getAvg(grouped[l].bonus)), backgroundColor: "#E2E8CE", borderRadius: 4 },
       ],
     };
   }, [filtered]);
 
-  // ----  chart data - Salary Distribution (Pie Chart)  ----
-  const pieChartData = useMemo(() => {
-      const industryCounts = filtered.reduce((acc, r) => {
-          acc[r.industry] = (acc[r.industry] || 0) + 1;
-          return acc;
-      }, {});
-
-      const labels = Object.keys(industryCounts);
-      const data = labels.map(l => industryCounts[l]);
-      
-      const backgroundColors = [
-        'rgba(16, 185, 129, 0.8)', // Emerald
-        'rgba(59, 130, 246, 0.8)', // Blue
-        'rgba(251, 191, 36, 0.8)', // Amber
-        'rgba(244, 63, 94, 0.8)', // Rose
-        'rgba(147, 51, 234, 0.8)', // Violet
-        'rgba(6, 182, 212, 0.8)' // Cyan
-      ];
-
-      return {
-          labels: labels,
-          datasets: [{
-              data: data,
-              backgroundColor: backgroundColors.slice(0, labels.length),
-              hoverBackgroundColor: backgroundColors.map(c => c.replace('0.8', '1')),
-              borderColor: '#0f172a', // slate-900 border
-              borderWidth: 2,
-          }]
-      };
-  }, [filtered]);
-
-  // ----  chart data - Salary Growth over Experience (Line Chart)  ----
-  const lineData = useMemo(() => {
-    const grouped = filtered.reduce((acc, r) => {
-        const totalComp = r.base + r.stock + r.bonus;
-        const key = r.yoe;
-        if (!acc[key]) {
-            acc[key] = { tc: [], count: 0 };
-        }
-        acc[key].tc.push(totalComp);
-        acc[key].count++;
-        return acc;
-    }, {});
-
-    // Get sorted years of experience (labels)
-    const labels = Object.keys(grouped).map(Number).sort((a, b) => a - b);
-
-    // Calculate average TC for each YOE
-    const data = labels.map(yoe => {
-        const group = grouped[yoe];
-        // Calculate average TC for this YOE group
-        return (group.tc.reduce((a, b) => a + b, 0) / group.count).toFixed(1);
-    });
-
-    return {
-      labels: labels,
-      datasets: [
-        {
-          label: `Avg Total Comp (${stats?.unit || 'Units'})`,
-          data: data,
-          borderColor: "rgb(251, 191, 36)", // Amber
-          backgroundColor: "rgba(251, 191, 36, 0.5)",
-          pointBackgroundColor: "rgb(251, 191, 36)",
-          pointBorderColor: "#fff",
-          tension: 0.3,
-          borderWidth: 3,
-        },
-      ],
-    };
-  }, [filtered, stats]);
-  // ------------------------------------------------------------------
-
-  // ----  PDF export  ----
   const downloadPDF = async () => {
-    if (typeof html2canvas === 'undefined' || typeof jsPDF === 'undefined') {
-        console.error("PDF libraries (html2canvas, jsPDF) are not available globally. Cannot export.");
-        return;
-    }
-
-    const ele = chartRef.current;
-    if (!ele) return;
-
-    const canvas = await html2canvas(ele, { 
-        scale: 2,
-        backgroundColor: "#0f172a" 
-    }); 
+    const element = chartRef.current;
+    if (!element) return;
+    const canvas = await html2canvas(element, { scale: 2, backgroundColor: "#262626" });
     const imgData = canvas.toDataURL("image/png");
-    const pdf = new jsPDF("p", "mm", "a4"); 
-    const w = 210;
-    const h = (canvas.height * w) / canvas.width;
-    pdf.addImage(imgData, "PNG", 0, 0, w, h);
-    pdf.save("Salary-Insights-Report.pdf");
+    const pdf = new jsPDF("p", "mm", "a4");
+    const pdfWidth = pdf.internal.pageSize.getWidth();
+    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+    pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
+    pdf.save("Salary_Insights.pdf");
   };
 
-  // --- Filter Input Component for reusability ---
-  const FilterInput = ({ icon: Icon, k, placeholder, type = 'text' }) => (
-    <div className="relative">
-      <Icon className="absolute left-3 top-1/2 -translate-y-1/2 text-emerald-400 w-5 h-5 opacity-70" />
-      <input
-        type={type}
-        value={filters[k]}
-        onChange={(e) => setFilters((f) => ({ ...f, [k]: e.target.value }))}
-        placeholder={placeholder}
-        className="w-full pl-10 pr-4 py-3 rounded-lg bg-slate-800/80 border border-slate-700/50 text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-all"
-      />
-    </div>
-  );
-
   return (
-    <div className="min-h-screen bg-slate-900 text-white py-12 px-4 sm:px-6 font-[Inter]">
-      <div className="max-w-7xl mx-auto">
-        
-        {/* Header and Download Button */}
-        <div className="flex flex-col sm:flex-row items-center justify-between mb-10 pb-6 border-b border-slate-800">
-          <div className="mb-4 sm:mb-0">
-            <h2 className="text-4xl sm:text-5xl font-extrabold bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-green-500">
-              Global Compensation Insights
-            </h2>
-            <p className="text-slate-400 mt-1">Compare earning potential across roles, industries, and experience levels.</p>
-          </div>
+    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] p-6 lg:p-12 relative">
+       
+        {/* Background Ambience */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
+             <div className="absolute top-[-20%] left-[20%] w-[50rem] h-[50rem] bg-[#FF7F11]/5 rounded-full blur-[120px]"></div>
+             <div className="absolute bottom-[-20%] right-[20%] w-[50rem] h-[50rem] bg-[#ACBFA4]/5 rounded-full blur-[120px]"></div>
         </div>
 
-
-        {/* Salary Overview (Stats Cards) */}
-        {stats ? (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-6 mb-12">
-            {[
-              { label: "Data Points", val: stats.count, color: "text-blue-400", Icon: TrendingUp, unit: "Records" },
-              { label: "Average TC", val: stats.avg, color: "text-emerald-400", Icon: Sigma, unit: stats.unit },
-              { label: "Median TC", val: stats.median, color: "text-yellow-400", Icon: DollarSign, unit: stats.unit },
-              { label: "Minimum TC", val: stats.min, color: "text-rose-400", Icon: DollarSign, unit: stats.unit },
-              { label: "Maximum TC", val: stats.max, color: "text-cyan-400", Icon: DollarSign, unit: stats.unit },
-            ].map((s, index) => {
-              // *** FIX: Ensure s.val is a string before calling string methods ***
-              const displayValue = String(s.val); 
-              // Extract numeric part (e.g., "150.0K" -> "150.0") or ("12" -> "12")
-              const numericPart = displayValue.replace(/[A-Za-z]/g, '');
-              // Extract unit part (e.g., "150.0K" -> "K") or ("12" -> "Records" from s.unit)
-              const unitPart = displayValue.match(/[A-Za-z]+$/) ? displayValue.match(/[A-Za-z]+$/)[0] : s.unit;
-
-              return (
-              <div 
-                key={s.label} 
-                className="p-5 rounded-xl bg-slate-800 border border-slate-700 shadow-xl transition-all hover:border-emerald-500/50 flex flex-col justify-between h-full"
-              >
-                  <div className="flex items-center justify-between mb-3">
-                      <span className="text-sm font-medium text-slate-400 uppercase tracking-wider">{s.label}</span>
-                      <s.Icon className={`w-5 h-5 ${s.color}`} />
-                  </div>
-                  <div className="flex items-end gap-1">
-                      {/* Display the numeric part */}
-                      <div className={`text-3xl font-extrabold ${s.color}`}>{numericPart}</div>
-                      {/* Display the unit part */}
-                      <span className="text-base text-slate-500 mb-0.5">{unitPart}</span>
-                  </div>
-              </div>
-            )})}
-          </div>
-        ) : (
-             <div className="p-10 rounded-2xl bg-slate-800/70 text-center text-slate-400 mb-12 border border-slate-700/50">
-                <Search className="w-8 h-8 mx-auto mb-3 text-emerald-500" />
-                No data points found matching your current filters.
-            </div>
-        )}
-
-        {/* Charts Container - Ref used for PDF export (Experience & Skill Impact) */}
-        <div ref={chartRef} className="space-y-8 p-6 sm:p-8 rounded-2xl bg-slate-800/70 border border-slate-700 shadow-2xl shadow-slate-900/50">
-          <h3 className="text-3xl font-bold text-emerald-300 border-b border-slate-700 pb-4 mb-4">Visual Data Analysis & Trends</h3>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Bar Chart: Salary by Role/Industry */}
-            <div className="lg:col-span-2 p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 h-96">
-              <h4 className="text-xl font-semibold mb-4 text-slate-200">Avg Compensation Breakdown by Role ({stats?.unit || 'Units'})</h4>
-              <Bar 
-                  data={barChartData} 
-                  options={{...chartOptions, scales: {...chartOptions.scales, x: {...chartOptions.scales.x, stacked: true}, y: {...chartOptions.scales.y, stacked: true}}}} 
-              />
-            </div>
-            
-            {/* Pie Chart: Salary Distribution by Industry */}
-            <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 h-96 flex flex-col items-center">
-              <h4 className="text-xl font-semibold mb-4 text-slate-200">Data Point Distribution by Industry</h4>
-              <div className="w-full max-w-xs flex-grow flex items-center justify-center">
-                <Pie data={pieChartData} options={{...chartOptions, scales: { x: { display: false }, y: { display: false }}}} />
-              </div>
-            </div>
-          </div>
-
-
-          {/* Line Chart: Salary Growth over Experience */}
-          <div className="p-4 rounded-xl bg-slate-900/50 border border-slate-700/50 h-96">
-            <h4 className="text-xl font-semibold mb-4 text-slate-200">Total Compensation vs. Experience Trend (Industry Average)</h4>
-            <Line data={lineData} options={{...chartOptions, scales: {...chartOptions.scales, y: {...chartOptions.scales.y, min: 0}}}} />
-          </div>
-        </div>
-
-        {/* Tips Section (New Feature) */}
-        <div className="mt-12">
-            <h3 className="text-3xl font-bold text-emerald-300 border-b border-slate-700 pb-4 mb-4">Career & Negotiation Tips</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {careerTips.map((tip, index) => (
-                    <div key={index} className="p-6 rounded-xl bg-slate-800/70 border border-slate-700 shadow-lg hover:shadow-emerald-500/20 transition-all">
-                        <div className="flex items-center gap-3 mb-3">
-                            <tip.icon className="w-6 h-6 text-emerald-400" />
-                            <h4 className="text-lg font-bold text-slate-200">{tip.title}</h4>
-                        </div>
-                        <p className="text-sm text-slate-400">{tip.text}</p>
+        <div className="max-w-7xl mx-auto relative z-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-end mb-12 border-b border-[#444444] pb-8 gap-6">
+                <div>
+                     <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-4 shadow-md">
+                        Market Intelligence
                     </div>
-                ))}
-            </div> 
-        </div>
-        
-        {/* Raw Table (Comparison Feature) */}
-        <div className="mt-12 overflow-x-auto rounded-xl border border-slate-700/50 shadow-2xl shadow-slate-950/50">
-          <table className="min-w-full text-sm">
-            <thead className="bg-slate-700/70 text-slate-300 uppercase tracking-wider sticky top-0">
-              <tr>
-                <th className="px-5 py-4 text-left whitespace-nowrap">Company</th>
-                <th className="px-5 py-4 text-left whitespace-nowrap">Role</th>
-                <th className="px-5 py-4 text-left whitespace-nowrap">Industry</th>
-                <th className="px-5 py-4 text-left whitespace-nowrap">YoE</th>
-                <th className="px-5 py-4 text-left whitespace-nowrap">Location</th>
-                <th className="px-5 py-4 text-right whitespace-nowrap">Base</th>
-                <th className="px-5 py-4 text-right whitespace-nowrap">Stock</th>
-                <th className="px-5 py-4 text-right whitespace-nowrap">Bonus</th>
-                <th className="px-5 py-4 text-right whitespace-nowrap">Total Comp ({stats?.unit || 'Units'})</th>
-              </tr>
-            </thead>
-            <tbody className="bg-slate-800/80">
-              {filtered.map((r, index) => {
-                const total = r.base + r.stock + r.bonus;
-                const isEven = index % 2 === 0;
-                return (
-                  <tr key={`${r.company}-${r.role}-${r.yoe}-${index}`} className={`border-b border-slate-700/50 transition-colors ${isEven ? 'bg-slate-800/70' : 'bg-slate-900/70'} hover:bg-slate-700/50`}>
-                    <td className="px-5 py-3 flex items-center gap-2 font-medium text-emerald-300">
-                      <img 
-                          src={`https://logo.clearbit.com/${r.company.toLowerCase().replace(/\s/g, "")}.com`} 
-                          alt={`${r.company} logo`} 
-                          className="w-6 h-6 rounded-full" 
-                          onError={(e) => { e.target.onerror = null; e.target.src = `https://placehold.co/24x24/10b981/ffffff?text=${r.company.charAt(0)}` }}
-                      />
-                      {r.company}
-                    </td>
-                    <td className="px-5 py-3 text-slate-300">{r.role}</td>
-                    <td className="px-5 py-3 text-slate-300">{r.industry}</td>
-                    <td className="px-5 py-3 text-slate-300">{r.yoe}</td>
-                    <td className="px-5 py-3 text-slate-300">{r.loc}</td>
-                    <td className="px-5 py-3 text-right text-yellow-300 font-mono">{r.base}</td>
-                    <td className="px-5 py-3 text-right text-blue-300 font-mono">{r.stock}</td>
-                    <td className="px-5 py-3 text-right text-rose-300 font-mono">{r.bonus}</td>
-                    <td className="px-5 py-3 text-right font-extrabold text-emerald-400">{total}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+                    <h1 className="text-5xl font-black text-[#E2E8CE] tracking-tighter mb-2">Compensation <span className="text-[#FF7F11]">Radar</span></h1>
+                    <p className="text-[#ACBFA4] font-medium text-lg">Real-time salary data to empower your negotiations.</p>
+                </div>
+                <button onClick={downloadPDF} className="flex items-center gap-2 px-6 py-3 bg-[#333333] border border-[#444444] text-[#E2E8CE] rounded-xl font-bold uppercase tracking-widest text-xs hover:border-[#FF7F11] hover:text-[#FF7F11] transition shadow-lg">
+                    <Download className="w-4 h-4" /> Export Report
+                </button>
+            </div>
 
-        {/* Footer CTA */}
-        
-      </div>
+            {/* Filters */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-10 p-6 bg-[#333333] rounded-[2rem] border border-[#444444] shadow-xl">
+                 <FilterInput icon={Briefcase} k="company" placeholder="Company (e.g. Google)" filters={filters} setFilters={setFilters} />
+                 <FilterInput icon={Code} k="role" placeholder="Role (e.g. SDE)" filters={filters} setFilters={setFilters} />
+                 <FilterInput icon={MapPin} k="loc" placeholder="Location (e.g. India)" filters={filters} setFilters={setFilters} />
+                 <FilterInput icon={Target} k="yoe" placeholder="Min YoE (e.g. 2)" filters={filters} setFilters={setFilters} />
+                 <FilterInput icon={FactoryIcon} k="industry" placeholder="Industry (e.g. Tech)" filters={filters} setFilters={setFilters} />
+            </div>
+
+            {/* Stats Grid */}
+            {stats ? (
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-6 mb-12">
+                     <StatCard label="Data Points" value={stats.count} icon={Users} color="text-[#ACBFA4]" />
+                     <StatCard label="Average TC" value={stats.avg} icon={Sigma} color="text-[#FF7F11]" />
+                     <StatCard label="Median TC" value={stats.median} icon={Target} color="text-[#E2E8CE]" />
+                     <StatCard label="Min TC" value={stats.min} icon={TrendingUp} color="text-[#666666]" />
+                     <StatCard label="Max TC" value={stats.max} icon={Zap} color="text-[#FF7F11]" />
+                </div>
+            ) : (
+                <div className="text-center py-20 border-2 border-dashed border-[#444444] rounded-[2rem] mb-12">
+                    <Search className="w-12 h-12 text-[#666666] mx-auto mb-4" />
+                    <p className="text-[#ACBFA4] font-bold text-lg">No data found matching criteria.</p>
+                </div>
+            )}
+
+            {/* Charts Section */}
+            <div ref={chartRef} className="grid lg:grid-cols-3 gap-8 mb-12">
+                <div className="lg:col-span-2 bg-[#333333] p-8 rounded-[2.5rem] border border-[#444444] shadow-xl h-[500px] flex flex-col">
+                    <h3 className="text-xl font-black text-[#E2E8CE] mb-6 flex items-center gap-2">
+                        <TrendingUp className="w-5 h-5 text-[#FF7F11]" /> Role Breakdown
+                    </h3>
+                    <div className="flex-1 relative">
+                        <Bar data={barChartData} options={chartOptions} />
+                    </div>
+                </div>
+                
+                <div className="bg-[#333333] p-8 rounded-[2.5rem] border border-[#444444] shadow-xl h-[500px] flex flex-col justify-center items-center relative overflow-hidden">
+                     <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/10 rounded-full blur-[60px] pointer-events-none"></div>
+                     <h3 className="text-xl font-black text-[#E2E8CE] mb-6 absolute top-8 left-8">Distribution</h3>
+                     <div className="w-full h-full flex items-center justify-center p-4">
+                        <Pie 
+                            data={{
+                                labels: Object.keys(salaryDb.reduce((a,r)=>({...a, [r.industry]: (a[r.industry]||0)+1}), {})),
+                                datasets: [{
+                                    data: Object.values(salaryDb.reduce((a,r)=>({...a, [r.industry]: (a[r.industry]||0)+1}), {})),
+                                    backgroundColor: ["#ACBFA4", "#FF7F11", "#E2E8CE", "#666666", "#333333"],
+                                    borderWidth: 0
+                                }]
+                            }} 
+                            options={{...chartOptions, plugins: { legend: { position: 'bottom', labels: { color: '#ACBFA4', font: { size: 10, weight: 'bold' }, padding: 20, boxWidth: 10 } } } }} 
+                        />
+                     </div>
+                </div>
+            </div>
+
+            {/* Data Table */}
+            <div className="bg-[#333333] rounded-[2.5rem] border border-[#444444] shadow-xl overflow-hidden">
+                <div className="p-8 border-b border-[#444444] flex items-center gap-3">
+                    <TableIcon className="w-6 h-6 text-[#FF7F11]" />
+                    <h3 className="text-xl font-black text-[#E2E8CE] tracking-tight">Raw Data</h3>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-[#ACBFA4]">
+                        <thead className="bg-[#262626] text-[#E2E8CE] uppercase tracking-wider font-black text-xs">
+                            <tr>
+                                <th className="px-8 py-5">Company</th>
+                                <th className="px-8 py-5">Role</th>
+                                <th className="px-8 py-5">Industry</th>
+                                <th className="px-8 py-5">YoE</th>
+                                <th className="px-8 py-5">Location</th>
+                                <th className="px-8 py-5 text-right">Total Comp</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-[#444444]">
+                            {filtered.map((r, i) => (
+                                <tr key={i} className="hover:bg-[#262626] transition-colors">
+                                    <td className="px-8 py-5 font-bold text-[#E2E8CE]">{r.company}</td>
+                                    <td className="px-8 py-5">{r.role}</td>
+                                    <td className="px-8 py-5">{r.industry}</td>
+                                    <td className="px-8 py-5">{r.yoe} y</td>
+                                    <td className="px-8 py-5">{r.loc}</td>
+                                    <td className="px-8 py-5 text-right font-black text-[#FF7F11]">{(r.base + r.stock + r.bonus).toFixed(1)} {stats.unit}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
     </div>
   );
 };
 
+const StatCard = ({ label, value, icon: Icon, color }) => (
+    <div className="bg-[#333333] p-6 rounded-[2rem] border border-[#444444] shadow-lg hover:border-[#FF7F11] transition-all group">
+        <div className="flex items-center justify-between mb-4">
+            <span className="text-xs font-black uppercase tracking-widest text-[#666666]">{label}</span>
+            <Icon className={`w-5 h-5 ${color} group-hover:scale-110 transition-transform`} />
+        </div>
+        <div className={`text-2xl font-black ${color} tracking-tight`}>{value}</div>
+    </div>
+);
+
+const FactoryIcon = (props) => (
+    <svg {...props} xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2Z"/><path d="M17 18h1"/><path d="M12 18h1"/><path d="M7 18h1"/></svg>
+)
+
 export default SalaryInsights;
- 
