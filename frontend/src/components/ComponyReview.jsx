@@ -76,7 +76,7 @@ const CompanyReview = () => {
                     key={i}
                     type="button"
                     onClick={() => !readonly && setValue(i)}
-                    className={`${size} ${i <= value ? "text-[#FF7F11]" : "text-[#444444]"} ${!readonly && "hover:scale-110 transition"} transition`}
+                    className={`${size} ${i <= value ? "text-[#2563EB]" : "text-[#E2E8F0]"} ${!readonly && "hover:scale-110 transition"} transition`}
                     disabled={readonly}
                 >
                     {i <= value ? <BsStarFill /> : <BsStar />}
@@ -216,29 +216,29 @@ const CompanyReview = () => {
     };
 
     const SortIcon = useCallback((field) => {
-        if (sortBy !== field) return <BsSortDown className="w-4 h-4 text-[#666666]" />;
+        if (sortBy !== field) return <BsSortDown className="w-4 h-4 text-[#64748B]" />;
         return sortOrder === "desc" 
-            ? <BsSortDown className="w-4 h-4 text-[#FF7F11]" />
-            : <BsSortUp className="w-4 h-4 text-[#FF7F11]" />;
+            ? <BsSortDown className="w-4 h-4 text-[#2563EB]" />
+            : <BsSortUp className="w-4 h-4 text-[#2563EB]" />;
     }, [sortBy, sortOrder]);
 
-    const inputClasses = "w-full px-5 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] focus:outline-none focus:ring-1 focus:ring-[#FF7F11] font-bold shadow-inner";
+    const inputClasses = "w-full px-5 py-3 rounded-xl bg-[#F0F9FF] border border-[#E2E8F0] text-[#1E3A8A] placeholder-[#64748B] focus:outline-none focus:ring-1 focus:ring-[#2563EB] font-bold shadow-inner";
 
     return (
-        <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-16 px-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
+        <div className="min-h-screen bg-[#F0F9FF] text-[#1E3A8A] py-16 px-6 font-sans selection:bg-[#2563EB] selection:text-[#F0F9FF]">
             
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
-                <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16 border-b border-[#333333] pb-8">
+                <div className="flex flex-col md:flex-row items-end justify-between gap-8 mb-16 border-b border-[#FFFFFF] pb-8">
                     <div>
-                        <h2 className="text-4xl md:text-5xl font-black text-[#E2E8CE] tracking-tight mb-2">
-                             Company <span className="text-[#FF7F11]">Reviews</span>
+                        <h2 className="text-4xl md:text-5xl font-black text-[#1E3A8A] tracking-tight mb-2">
+                             Company <span className="text-[#2563EB]">Reviews</span>
                         </h2>
-                        <p className="text-[#ACBFA4] font-medium text-lg">Real employee insights. Unfiltered.</p>
+                        <p className="text-[#475569] font-medium text-lg">Real employee insights. Unfiltered.</p>
                     </div>
                     <button
                         onClick={() => setShowForm((s) => !s)}
-                        className="flex items-center gap-2 px-8 py-3 rounded-full bg-[#FF7F11] text-[#262626] font-black uppercase tracking-widest text-sm hover:bg-[#e06c09] transition-all shadow-lg shadow-orange-500/20 active:translate-y-0.5"
+                        className="flex items-center gap-2 px-8 py-3 rounded-full bg-[#2563EB] text-[#F0F9FF] font-black uppercase tracking-widest text-sm hover:bg-[#1D4ED8] transition-all shadow-lg shadow-blue-500/20 active:translate-y-0.5"
                     >
                         <BsPlus className="text-xl" /> {showForm ? "Close Form" : "Add Review"}
                     </button>
@@ -246,23 +246,23 @@ const CompanyReview = () => {
 
                 {/* Summary Card */}
                 {summary && (
-                    <div className="bg-[#333333] border border-[#444444] rounded-[2rem] p-8 mb-12 shadow-2xl relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#ACBFA4]/5 rounded-full blur-[80px] pointer-events-none"></div>
-                        <h3 className="text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-6 border-b border-[#444444] pb-2">Market Overview</h3>
+                    <div className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[2rem] p-8 mb-12 shadow-2xl relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-64 h-64 bg-[#475569]/5 rounded-full blur-[80px] pointer-events-none"></div>
+                        <h3 className="text-xs font-bold text-[#475569] uppercase tracking-widest mb-6 border-b border-[#E2E8F0] pb-2">Market Overview</h3>
                         <div className="grid grid-cols-2 md:grid-cols-6 gap-6 relative z-10">
                             {Object.entries(summary).filter(([key]) => key !== 'totalReviews' && key !== 'recommendationRate').map(([key, value]) => (
-                                <div key={key} className="text-center p-4 rounded-2xl bg-[#262626] border border-[#444444] shadow-md">
-                                    <div className="text-[#666666] text-xs font-bold uppercase mb-2">
+                                <div key={key} className="text-center p-4 rounded-2xl bg-[#F0F9FF] border border-[#E2E8F0] shadow-md">
+                                    <div className="text-[#64748B] text-xs font-bold uppercase mb-2">
                                         {key === 'workLife' ? "Work/Life" : key}
                                     </div>
-                                    <div className="text-4xl font-black text-[#E2E8CE]">
+                                    <div className="text-4xl font-black text-[#1E3A8A]">
                                         {value}
                                     </div>
                                 </div>
                             ))}
-                            <div className="text-center p-4 rounded-2xl bg-[#262626] border border-[#444444] shadow-md">
-                                <div className="text-[#666666] text-xs font-bold uppercase mb-2">Approval</div>
-                                <div className="text-4xl font-black text-[#FF7F11]">{summary.recommendationRate}</div>
+                            <div className="text-center p-4 rounded-2xl bg-[#F0F9FF] border border-[#E2E8F0] shadow-md">
+                                <div className="text-[#64748B] text-xs font-bold uppercase mb-2">Approval</div>
+                                <div className="text-4xl font-black text-[#2563EB]">{summary.recommendationRate}</div>
                             </div>
                         </div>
                     </div>
@@ -270,18 +270,18 @@ const CompanyReview = () => {
 
                 {/* Form */}
                 {showForm && (
-                     <div className="p-10 rounded-[2rem] bg-[#333333] border border-[#444444] shadow-2xl mb-12 animate-fade-in relative z-20">
-                        <h3 className="text-2xl font-black mb-8 text-[#E2E8CE] tracking-tight">Submit Feedback</h3>
+                     <div className="p-10 rounded-[2rem] bg-[#FFFFFF] border border-[#E2E8F0] shadow-2xl mb-12 animate-fade-in relative z-20">
+                        <h3 className="text-2xl font-black mb-8 text-[#1E3A8A] tracking-tight">Submit Feedback</h3>
                         <form onSubmit={handleSubmit} className="grid gap-6 md:grid-cols-2">
                             <input name="company" value={form.company} onChange={handleChange} placeholder="Company Name" required className={inputClasses} />
                             <input name="role" value={form.role} onChange={handleChange} placeholder="Role Title" required className={inputClasses} />
                             <input name="location" value={form.location} onChange={handleChange} placeholder="Location" required className={inputClasses} />
                             <input name="logo" value={form.logo} onChange={handleChange} placeholder="Logo URL (Optional)" className={inputClasses} />
 
-                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#262626] p-6 rounded-2xl border border-[#444444]">
+                            <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-5 gap-4 bg-[#F0F9FF] p-6 rounded-2xl border border-[#E2E8F0]">
                                 {["overall", "workLife", "culture", "salary", "benefits"].map((cat) => (
                                     <div key={cat} className="text-center">
-                                        <label className="block text-xs font-bold text-[#ACBFA4] uppercase mb-2">{cat}</label>
+                                        <label className="block text-xs font-bold text-[#475569] uppercase mb-2">{cat}</label>
                                         <div className="flex justify-center"><StarRating value={form[cat]} setValue={(v) => setForm((f) => ({ ...f, [cat]: v }))} /></div>
                                     </div>
                                 ))}
@@ -290,12 +290,12 @@ const CompanyReview = () => {
                             <textarea name="pros" value={form.pros} onChange={handleChange} placeholder="Pros..." required className={`${inputClasses} md:col-span-2 resize-none h-24`} />
                             <textarea name="cons" value={form.cons} onChange={handleChange} placeholder="Cons..." required className={`${inputClasses} md:col-span-2 resize-none h-24`} />
                             
-                            <div className="md:col-span-2 flex items-center gap-4 bg-[#262626] p-4 rounded-xl border border-[#444444] w-fit">
-                                <input id="rec" type="checkbox" name="recommend" checked={form.recommend} onChange={handleChange} className="w-5 h-5 accent-[#FF7F11] cursor-pointer" />
-                                <label htmlFor="rec" className="text-sm font-bold text-[#E2E8CE] cursor-pointer uppercase tracking-wide">Recommend to a friend?</label>
+                            <div className="md:col-span-2 flex items-center gap-4 bg-[#F0F9FF] p-4 rounded-xl border border-[#E2E8F0] w-fit">
+                                <input id="rec" type="checkbox" name="recommend" checked={form.recommend} onChange={handleChange} className="w-5 h-5 accent-[#2563EB] cursor-pointer" />
+                                <label htmlFor="rec" className="text-sm font-bold text-[#1E3A8A] cursor-pointer uppercase tracking-wide">Recommend to a friend?</label>
                             </div>
 
-                            <button disabled={submitting} type="submit" className="md:col-span-2 py-4 rounded-xl bg-[#FF7F11] text-[#262626] font-black text-lg uppercase tracking-widest hover:bg-[#e06c09] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
+                            <button disabled={submitting} type="submit" className="md:col-span-2 py-4 rounded-xl bg-[#2563EB] text-[#F0F9FF] font-black text-lg uppercase tracking-widest hover:bg-[#1D4ED8] transition-all shadow-lg active:scale-[0.98] flex items-center justify-center gap-2">
                                 {submitting ? <Loader className="w-5 h-5 animate-spin"/> : "Publish Review"}
                             </button>
                         </form>
@@ -303,18 +303,18 @@ const CompanyReview = () => {
                 )}
 
                 {/* Controls */}
-                <div className="flex flex-wrap gap-4 items-center mb-10 p-6 rounded-2xl bg-[#333333] border border-[#444444]">
-                    <BsFilter className="text-[#FF7F11] text-xl" />
+                <div className="flex flex-wrap gap-4 items-center mb-10 p-6 rounded-2xl bg-[#FFFFFF] border border-[#E2E8F0]">
+                    <BsFilter className="text-[#2563EB] text-xl" />
                     <input 
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         placeholder="Search reviews..."
-                        className="bg-[#262626] border border-[#444444] rounded-xl px-4 py-2 text-[#E2E8CE] font-bold text-sm focus:outline-none focus:border-[#FF7F11] flex-grow shadow-inner"
+                        className="bg-[#F0F9FF] border border-[#E2E8F0] rounded-xl px-4 py-2 text-[#1E3A8A] font-bold text-sm focus:outline-none focus:border-[#2563EB] flex-grow shadow-inner"
                     />
                      <select
                         value={filterRecommend}
                         onChange={(e) => setFilterRecommend(e.target.value)}
-                        className="bg-[#262626] border border-[#444444] rounded-xl px-4 py-2 text-[#ACBFA4] font-bold text-sm focus:outline-none cursor-pointer"
+                        className="bg-[#F0F9FF] border border-[#E2E8F0] rounded-xl px-4 py-2 text-[#475569] font-bold text-sm focus:outline-none cursor-pointer"
                     >
                         <option value="all">All Status</option>
                         <option value="yes">Recommended</option>
@@ -325,48 +325,48 @@ const CompanyReview = () => {
                 {/* List */}
                 <div className="grid gap-8">
                     {loading ? (
-                         <div className="text-center py-20"><div className="animate-spin w-12 h-12 border-4 border-[#333333] border-t-[#FF7F11] rounded-full mx-auto"></div></div>
+                         <div className="text-center py-20"><div className="animate-spin w-12 h-12 border-4 border-[#FFFFFF] border-t-[#2563EB] rounded-full mx-auto"></div></div>
                     ) : (
                     filteredAndSortedReviews.map((r) => (
-                        <div key={r._id || r.id} className="group bg-[#333333] border border-[#444444] rounded-[2.5rem] p-8 hover:border-[#FF7F11] transition-all duration-500 shadow-xl relative overflow-hidden">
+                        <div key={r._id || r.id} className="group bg-[#FFFFFF] border border-[#E2E8F0] rounded-[2.5rem] p-8 hover:border-[#2563EB] transition-all duration-500 shadow-xl relative overflow-hidden">
                             <div className="flex flex-wrap justify-between items-start gap-6 mb-8 relative z-10">
                                 <div className="flex items-center gap-6">
                                      <div className="w-20 h-20 bg-white rounded-2xl p-2 flex items-center justify-center shadow-lg">
                                         <img src={r.logo} alt={r.company} className="max-w-full max-h-full object-contain" onError={(e) => { e.target.onerror=null; e.target.style.display='none'}} />
                                      </div>
                                      <div>
-                                         <h3 className="text-3xl font-black text-[#E2E8CE] group-hover:text-[#FF7F11] transition-colors">{r.company}</h3>
-                                         <p className="text-[#ACBFA4] font-medium text-lg">{r.role}</p>
-                                         <p className="text-[#666666] text-sm font-bold uppercase tracking-wide mt-1">{r.location}</p>
+                                         <h3 className="text-3xl font-black text-[#1E3A8A] group-hover:text-[#2563EB] transition-colors">{r.company}</h3>
+                                         <p className="text-[#475569] font-medium text-lg">{r.role}</p>
+                                         <p className="text-[#64748B] text-sm font-bold uppercase tracking-wide mt-1">{r.location}</p>
                                      </div>
                                 </div>
-                                <div className="text-right bg-[#262626] px-6 py-4 rounded-2xl border border-[#444444]">
-                                    <div className="text-5xl font-black text-[#FF7F11]">{r.overall}</div>
-                                    <div className="text-[10px] font-bold text-[#ACBFA4] uppercase tracking-widest mt-1">Overall</div>
+                                <div className="text-right bg-[#F0F9FF] px-6 py-4 rounded-2xl border border-[#E2E8F0]">
+                                    <div className="text-5xl font-black text-[#2563EB]">{r.overall}</div>
+                                    <div className="text-[10px] font-bold text-[#475569] uppercase tracking-widest mt-1">Overall</div>
                                 </div>
                             </div>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 relative z-10">
-                                <div className="bg-[#262626] p-6 rounded-2xl border border-[#444444]">
-                                    <span className="text-[#FF7F11] font-black uppercase text-xs tracking-widest block mb-2">Pros</span>
-                                    <p className="text-[#E2E8CE] leading-relaxed font-medium">{r.pros}</p>
+                                <div className="bg-[#F0F9FF] p-6 rounded-2xl border border-[#E2E8F0]">
+                                    <span className="text-[#2563EB] font-black uppercase text-xs tracking-widest block mb-2">Pros</span>
+                                    <p className="text-[#1E3A8A] leading-relaxed font-medium">{r.pros}</p>
                                 </div>
-                                <div className="bg-[#262626] p-6 rounded-2xl border border-[#444444]">
-                                    <span className="text-[#ACBFA4] font-black uppercase text-xs tracking-widest block mb-2">Cons</span>
-                                    <p className="text-[#E2E8CE]/80 leading-relaxed font-medium">{r.cons}</p>
+                                <div className="bg-[#F0F9FF] p-6 rounded-2xl border border-[#E2E8F0]">
+                                    <span className="text-[#475569] font-black uppercase text-xs tracking-widest block mb-2">Cons</span>
+                                    <p className="text-[#1E3A8A]/80 leading-relaxed font-medium">{r.cons}</p>
                                 </div>
                             </div>
 
-                            <div className="border-t border-[#444444] pt-6 flex justify-between items-center relative z-10">
+                            <div className="border-t border-[#E2E8F0] pt-6 flex justify-between items-center relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <div className={`w-3 h-3 rounded-full ${r.recommend ? 'bg-[#FF7F11]' : 'bg-[#666666]'}`} />
-                                    <span className="text-xs font-bold uppercase tracking-widest text-[#ACBFA4]">
+                                    <div className={`w-3 h-3 rounded-full ${r.recommend ? 'bg-[#2563EB]' : 'bg-[#64748B]'}`} />
+                                    <span className="text-xs font-bold uppercase tracking-widest text-[#475569]">
                                         {r.recommend ? "Recommended" : "Not Recommended"}
                                     </span>
                                 </div>
                                 <div className="flex items-center gap-4">
-                                     <span className="text-[10px] font-bold text-[#666666] uppercase tracking-widest">{new Date(r.createdAt || r.date).toLocaleDateString()}</span>
-                                     <button onClick={() => handleDelete(r._id)} className="text-[#666666] hover:text-red-500 transition" title="Delete Review">
+                                     <span className="text-[10px] font-bold text-[#64748B] uppercase tracking-widest">{new Date(r.createdAt || r.date).toLocaleDateString()}</span>
+                                     <button onClick={() => handleDelete(r._id)} className="text-[#64748B] hover:text-red-500 transition" title="Delete Review">
                                          <Trash2 className="w-4 h-4" />
                                      </button>
                                 </div>

@@ -2,17 +2,17 @@
 @import "tailwindcss";
 
 @theme {
-  /* New Color Palette */
-  --color-primary-brand: #FF7F11; /* Vibration Orange */
-  --color-secondary-brand: #ACBFA4; /* Sage Green */
-  --color-accent-brand: #E2E8CE; /* Pale Beige */
-  --color-dark-surface: #262626; /* Dark Grey */
+  /* New Blue & White Color Palette */
+  --color-primary-brand: #2563EB; /* Royal Blue */
+  --color-secondary-brand: #475569; /* Slate 600 */
+  --color-accent-brand: #1E3A8A; /* Dark Blue */
+  --color-dark-surface: #F0F9FF; /* Alice Blue / Sky 50 */
   
   /* Mapped for compatibility if using v4 theme vars */
-  --color-primary-500: #FF7F11;
-  --color-primary-600: #e06c09;
+  --color-primary-500: #3B82F6;
+  --color-primary-600: #2563EB;
   
-  --color-surface-card: #333333; /* Slightly lighter than bg */
+  --color-surface-card: #FFFFFF; /* White */
 }
 
 /* Base Styles */
@@ -27,7 +27,7 @@ body {
   background-color: var(--color-dark-surface); 
 }
 .bg-theme-card {
-  background-color: #333333;
+  background-color: #FFFFFF;
 }
 .text-theme-primary {
   color: var(--color-primary-brand);
@@ -41,9 +41,9 @@ body {
 
 /* Glassmorphism overrides for this theme */
 .glass {
-  background: rgba(38, 38, 38, 0.7);
+  background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(172, 191, 164, 0.1);
+  border: 1px solid rgba(226, 232, 240, 0.1);
 }
 
 /* Scrollbar */

@@ -231,24 +231,24 @@ const optionValues = [1, 2, 3, 4, 5];
 // LIST VIEW
 const QuizList = ({ onSelect }) => {
     return (
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 pb-20">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pb-20 px-4 md:px-0">
              {QUIZZES.map((quiz) => (
-                 <div key={quiz.id} onClick={() => onSelect(quiz)} className="bg-[#333333] border border-[#444444] rounded-[2rem] p-8 hover:border-[#FF7F11] cursor-pointer transition-all hover:translate-y-[-5px] shadow-lg group relative overflow-hidden">
-                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-[#FF7F11]/10 transition"></div>
+                 <div key={quiz.id} onClick={() => onSelect(quiz)} className="bg-[#FFFFFF] border border-[#E2E8F0] rounded-[1.5rem] md:rounded-[2rem] p-6 md:p-8 hover:border-[#2563EB] cursor-pointer transition-all hover:translate-y-[-5px] shadow-lg group relative overflow-hidden">
+                      <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/5 rounded-full blur-[50px] pointer-events-none group-hover:bg-[#2563EB]/10 transition"></div>
                       <div className="relative z-10">
-                          <h3 className="text-2xl font-black text-[#E2E8CE] mb-2">{quiz.title}</h3>
-                          <div className="flex items-center gap-4 text-xs font-bold text-[#ACBFA4] uppercase tracking-widest mb-6">
+                          <h3 className="text-xl md:text-2xl font-black text-[#1E3A8A] mb-2">{quiz.title}</h3>
+                          <div className="flex items-center gap-4 text-[10px] md:text-xs font-bold text-[#475569] uppercase tracking-widest mb-6">
                               <span className="flex items-center gap-1"><BsClock/> {Math.floor(quiz.duration / 60)} Mins</span>
                               <span>•</span>
                               <span>{quiz.questions.length} Questions</span>
                           </div>
                           
                           <div className="flex flex-wrap gap-2 mb-8">
-                               {quiz.categories.slice(0,3).map(c => <span key={c} className="px-2 py-1 bg-[#262626] rounded border border-[#444444] text-[10px] text-[#E2E8CE]">{c}</span>)}
-                               {quiz.categories.length > 3 && <span className="px-2 py-1 bg-[#262626] rounded border border-[#444444] text-[10px] text-[#E2E8CE]">+{quiz.categories.length - 3}</span>}
+                               {quiz.categories.slice(0,3).map(c => <span key={c} className="px-2 py-1 bg-[#F0F9FF] rounded border border-[#E2E8F0] text-[10px] text-[#1E3A8A]">{c}</span>)}
+                               {quiz.categories.length > 3 && <span className="px-2 py-1 bg-[#F0F9FF] rounded border border-[#E2E8F0] text-[10px] text-[#1E3A8A]">+{quiz.categories.length - 3}</span>}
                           </div>
 
-                          <div className="w-full py-3 bg-[#FF7F11] text-[#262626] text-center font-black rounded-xl uppercase tracking-widest text-xs group-hover:bg-[#e06c09] transition">
+                          <div className="w-full py-3 bg-[#2563EB] text-[#F0F9FF] text-center font-black rounded-xl uppercase tracking-widest text-[10px] md:text-xs group-hover:bg-[#1D4ED8] transition">
                               Start Assessment
                           </div>
                       </div>
@@ -291,7 +291,7 @@ const ActiveTest = ({ quiz, onBack }) => {
   );
 
   const downloadPDF = async () => {
-    const canvas = await html2canvas(cardRef.current, { backgroundColor: "#262626" });
+    const canvas = await html2canvas(cardRef.current, { backgroundColor: "#F0F9FF" });
     const imgData = canvas.toDataURL("image/png");
     const pdf = new jsPDF("p", "mm", "a4");
     const w = 210;
@@ -302,77 +302,81 @@ const ActiveTest = ({ quiz, onBack }) => {
 
   if (submitted) {
      return (
-        <div className="max-w-5xl mx-auto animate-fade-in">
-             <button onClick={onBack} className="mb-8 flex items-center gap-2 text-[#ACBFA4] hover:text-[#FF7F11] font-bold text-sm uppercase tracking-widest">
+        <div className="max-w-5xl mx-auto animate-fade-in px-4 md:px-6">
+             <button onClick={onBack} className="mb-4 md:mb-8 flex items-center gap-2 text-[#475569] hover:text-[#2563EB] font-bold text-xs md:text-sm uppercase tracking-widest">
                  <BsArrowLeft /> Back to Dashboard
              </button>
 
-            <div ref={cardRef} className="p-10 rounded-[2rem] bg-[#333333] border border-[#444444] shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF7F11]/5 rounded-full blur-[80px] pointer-events-none"></div>
+            <div ref={cardRef} className="p-6 md:p-10 rounded-[2rem] bg-[#FFFFFF] border border-[#E2E8F0] shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-[#2563EB]/5 rounded-full blur-[80px] pointer-events-none"></div>
 
-                <h2 className="text-4xl font-black text-center mb-2 text-[#E2E8CE] tracking-tight">{quiz.title} Report</h2>
-                <p className="text-center text-[#ACBFA4] mb-10 font-medium">Generated on {new Date().toLocaleString()}</p>
+                <h2 className="text-2xl md:text-4xl font-black text-center mb-2 text-[#1E3A8A] tracking-tight">{quiz.title} Report</h2>
+                <p className="text-center text-[#475569] mb-6 md:mb-10 font-medium text-xs md:text-sm">Generated on {new Date().toLocaleString()}</p>
 
-                <div className="grid md:grid-cols-2 gap-12 relative z-10">
-                <div className="bg-[#262626] p-8 rounded-2xl border border-[#444444]">
-                    <h3 className="text-xl font-bold mb-6 text-[#E2E8CE]">Overall Score</h3>
-                    <div className="text-7xl font-black text-[#FF7F11] mb-8">{totalScore}<span className="text-3xl text-[#ACBFA4]">/100</span></div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative z-10">
+                <div className="bg-[#F0F9FF] p-6 md:p-8 rounded-2xl border border-[#E2E8F0]">
+                    <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-[#1E3A8A]">Overall Score</h3>
+                    <div className="text-5xl md:text-7xl font-black text-[#2563EB] mb-6 md:mb-8">{totalScore}<span className="text-2xl md:text-3xl text-[#475569]">/100</span></div>
                     <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 scrollbar-hide">
                     {categoryScores.map((c) => (
                         <div key={c.cat}>
-                        <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-[#ACBFA4] mb-2">
+                        <div className="flex justify-between text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#475569] mb-2">
                             <span>{c.cat}</span>
                             <span>{c.score}%</span>
                         </div>
-                        <div className="w-full bg-[#111111] rounded-full h-3 border border-[#444444]">
-                            <div className="h-full rounded-full bg-[#FF7F11] transition-all duration-1000" style={{ width: `${c.score}%` }} />
+                        <div className="w-full bg-[#0F172A] rounded-full h-3 border border-[#E2E8F0]">
+                            <div className="h-full rounded-full bg-[#2563EB] transition-all duration-1000" style={{ width: `${c.score}%` }} />
                         </div>
                         </div>
                     ))}
                     </div>
                 </div>
 
-                <div className="bg-[#262626] p-8 rounded-2xl border border-[#444444] flex items-center justify-center">
-                    <Radar
-                    data={{
-                        labels: categoryScores.map((c) => c.cat),
-                        datasets: [
-                        {
-                            label: "Proficiency",
-                            data: categoryScores.map((c) => c.score),
-                            backgroundColor: "rgba(255, 127, 17, 0.2)",
-                            borderColor: "#FF7F11",
-                            pointBackgroundColor: "#FF7F11",
-                            pointBorderColor: "#fff",
-                        },
-                        ],
-                    }}
-                    options={{ 
-                        scales: { 
-                            r: { 
-                                beginAtZero: true, 
-                                max: 100,
-                                grid: { color: '#444' },
-                                pointLabels: { color: '#ACBFA4', font: { size: 10, weight: 'bold' } },
-                                ticks: { display: false, backdropColor: 'transparent' }
-                            } 
-                        },
-                        plugins: { legend: { display: false } }
-                    }}
-                    />
+                <div className="bg-[#F0F9FF] p-6 md:p-8 rounded-2xl border border-[#E2E8F0] flex items-center justify-center min-h-[300px]">
+                    <div className="w-full h-full relative">
+                        <Radar
+                        data={{
+                            labels: categoryScores.map((c) => c.cat),
+                            datasets: [
+                            {
+                                label: "Proficiency",
+                                data: categoryScores.map((c) => c.score),
+                                backgroundColor: "rgba(37, 99, 235, 0.2)",
+                                borderColor: "#2563EB",
+                                pointBackgroundColor: "#2563EB",
+                                pointBorderColor: "#fff",
+                            },
+                            ],
+                        }}
+                        options={{ 
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { 
+                                r: { 
+                                    beginAtZero: true, 
+                                    max: 100,
+                                    grid: { color: '#444' },
+                                    pointLabels: { color: '#475569', font: { size: 10, weight: 'bold' } },
+                                    ticks: { display: false, backdropColor: 'transparent' }
+                                } 
+                            },
+                            plugins: { legend: { display: false } }
+                        }}
+                        />
+                    </div>
                 </div>
                 </div>
 
-                <div className="mt-8 text-[#ACBFA4] text-xs font-bold uppercase tracking-widest text-center">
+                <div className="mt-8 text-[#475569] text-[10px] md:text-xs font-bold uppercase tracking-widest text-center">
                 80-100 Excellent • 60-79 Good • 40-59 Average • Below 40 Needs Work
                 </div>
             </div>
 
-            <div className="mt-8 flex flex-wrap gap-4 justify-center pb-20">
-                <button onClick={downloadPDF} className="flex items-center gap-2 px-8 py-3 rounded-full bg-[#FF7F11] text-[#262626] font-black uppercase tracking-widest text-sm hover:bg-[#e06c09] transition-all shadow-lg">
+            <div className="mt-8 flex flex-col sm:flex-row flex-wrap gap-4 justify-center pb-20 px-4">
+                <button onClick={downloadPDF} className="flex items-center justify-center gap-2 px-6 py-3 md:px-8 md:py-3 rounded-full bg-[#2563EB] text-[#F0F9FF] font-black uppercase tracking-widest text-xs md:text-sm hover:bg-[#1D4ED8] transition-all shadow-lg w-full sm:w-auto">
                 <BsDownload /> Download PDF
                 </button>
-                <button onClick={onBack} className="px-8 py-3 rounded-full bg-[#333333] text-[#ACBFA4] font-black uppercase tracking-widest text-sm hover:bg-[#444444] hover:text-[#E2E8CE] transition-all border border-[#444444]">
+                <button onClick={onBack} className="px-6 py-3 md:px-8 md:py-3 rounded-full bg-[#FFFFFF] text-[#475569] font-black uppercase tracking-widest text-xs md:text-sm hover:bg-[#E2E8F0] hover:text-[#1E3A8A] transition-all border border-[#E2E8F0] w-full sm:w-auto">
                    Take Another Test
                 </button>
             </div>
@@ -381,40 +385,40 @@ const ActiveTest = ({ quiz, onBack }) => {
   }
 
   return (
-      <div className="max-w-5xl mx-auto animate-fade-in relative z-10">
-         <div className="flex flex-col md:flex-row items-center justify-between mb-12 gap-6 sticky top-0 py-4 z-40 bg-[#262626]/90 backdrop-blur-md border-b border-[#333333]">
-           <button onClick={onBack} className="absolute -top-10 left-0 text-[#ACBFA4] text-xs font-bold uppercase hover:text-[#FF7F11] md:hidden">Back</button>
+      <div className="max-w-5xl mx-auto animate-fade-in relative z-10 px-4 md:px-6">
+         <div className="flex flex-col md:flex-row items-center justify-between mb-8 md:mb-12 gap-4 md:gap-6 sticky top-0 py-4 z-40 bg-[#F0F9FF]/90 backdrop-blur-md border-b border-[#FFFFFF]">
+           <button onClick={onBack} className="absolute top-2 left-0 text-[#475569] text-[10px] font-bold uppercase hover:text-[#2563EB] md:hidden">Back</button>
            
-           <div>
-               <h2 className="text-3xl md:text-4xl font-black text-[#E2E8CE] tracking-tighter">{quiz.title}</h2>
-               <p className="text-[#ACBFA4] text-sm font-medium mt-1">Answer honestly for best results.</p>
+           <div className="mt-4 md:mt-0 text-center md:text-left w-full md:w-auto">
+               <h2 className="text-xl md:text-3xl lg:text-4xl font-black text-[#1E3A8A] tracking-tighter">{quiz.title}</h2>
+               <p className="text-[#475569] text-xs md:text-sm font-medium mt-1">Answer honestly for best results.</p>
            </div>
            
-           <div className="flex items-center gap-3 bg-[#333333] px-5 py-2 rounded-full border border-[#444444] shadow-lg">
-             <BsClock className={`text-xl ${seconds < 60 ? "text-[#FF7F11] animate-pulse" : "text-[#ACBFA4]"}`} />
-             <span className={`font-mono text-xl font-bold ${seconds < 60 ? "text-[#FF7F11]" : "text-[#E2E8CE]"}`}>
+           <div className="flex items-center gap-3 bg-[#FFFFFF] px-4 py-2 rounded-full border border-[#E2E8F0] shadow-lg shrink-0">
+             <BsClock className={`text-lg md:text-xl ${seconds < 60 ? "text-[#2563EB] animate-pulse" : "text-[#475569]"}`} />
+             <span className={`font-mono text-lg md:text-xl font-bold ${seconds < 60 ? "text-[#2563EB]" : "text-[#1E3A8A]"}`}>
                {Math.floor(seconds / 60)}:{String(seconds % 60).padStart(2, "0")}
              </span>
            </div>
          </div>
 
-         <div className="space-y-8 pb-20">
+         <div className="space-y-6 md:space-y-8 pb-24 md:pb-20">
            {quiz.questions.map((q, idx) => (
-             <div key={q.id} className="p-8 rounded-[2rem] bg-[#333333] border border-[#444444] shadow-xl hover:border-[#FF7F11] transition-all">
-               <div className="flex items-start gap-6">
-                 <span className="flex-shrink-0 w-8 h-8 rounded-full bg-[#262626] border border-[#444444] flex items-center justify-center text-[#FF7F11] font-black text-sm shadow-inner mt-1">
+             <div key={q.id} className="p-5 md:p-8 rounded-[1.5rem] md:rounded-[2rem] bg-[#FFFFFF] border border-[#E2E8F0] shadow-xl hover:border-[#2563EB] transition-all">
+               <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
+                 <span className="flex-shrink-0 w-6 h-6 md:w-8 md:h-8 rounded-full bg-[#F0F9FF] border border-[#E2E8F0] flex items-center justify-center text-[#2563EB] font-black text-xs md:text-sm shadow-inner mt-1">
                      {idx + 1}
                  </span>
-                 <div className="flex-1">
-                   <p className="mb-6 text-xl font-bold text-[#E2E8CE]">{q.q}</p>
-                   <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                 <div className="flex-1 w-full">
+                   <p className="mb-4 md:mb-6 text-base md:text-xl font-bold text-[#1E3A8A] leading-snug">{q.q}</p>
+                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
                      {options.map((opt, i) => (
                        <label
                          key={opt}
-                         className={`cursor-pointer rounded-xl border px-2 py-4 text-center text-[10px] md:text-xs font-bold uppercase tracking-wide transition-all ${
+                         className={`cursor-pointer rounded-xl border px-1 py-3 md:px-2 md:py-4 text-center text-[10px] md:text-xs font-bold uppercase tracking-wide transition-all flex items-center justify-center min-h-[40px] md:min-h-0 ${
                            answers[q.id] === optionValues[i]
-                             ? "border-[#FF7F11] bg-[#FF7F11] text-[#262626] shadow-lg scale-105"
-                             : "border-[#444444] bg-[#262626] text-[#ACBFA4] hover:border-[#ACBFA4] hover:bg-[#333333]"
+                             ? "border-[#2563EB] bg-[#2563EB] text-[#F0F9FF] shadow-lg scale-105"
+                             : "border-[#E2E8F0] bg-[#F0F9FF] text-[#475569] hover:border-[#475569] hover:bg-[#FFFFFF]"
                          }`}
                        >
                          <input
@@ -435,10 +439,10 @@ const ActiveTest = ({ quiz, onBack }) => {
            ))}
          </div>
 
-         <div className="fixed bottom-8 left-0 w-full flex justify-center pointer-events-none z-50">
+         <div className="fixed bottom-4 md:bottom-8 left-0 w-full flex justify-center pointer-events-none z-50 px-4">
            <button
              onClick={submitTest}
-             className="pointer-events-auto px-12 py-4 rounded-full bg-[#FF7F11] text-[#262626] font-black text-lg uppercase tracking-widest shadow-2xl shadow-orange-500/30 hover:bg-[#e06c09] hover:-translate-y-1 transition-all active:scale-[0.98] border-4 border-[#262626]"
+             className="pointer-events-auto w-full md:w-auto px-8 md:px-12 py-3 md:py-4 rounded-full bg-[#2563EB] text-[#F0F9FF] font-black text-base md:text-lg uppercase tracking-widest shadow-2xl shadow-blue-500/30 hover:bg-[#1D4ED8] hover:-translate-y-1 transition-all active:scale-[0.98] border-4 border-[#F0F9FF]"
            >
              Complete Quiz
            </button>
@@ -451,7 +455,7 @@ export default function MockTestSoftSkills() {
     const [activeQuiz, setActiveQuiz] = useState(null);
 
     return (
-        <div className="min-h-screen bg-[#262626] text-[#E2E8CE] p-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
+        <div className="min-h-screen bg-[#F0F9FF] text-[#1E3A8A] p-4 md:p-6 font-sans selection:bg-[#2563EB] selection:text-[#F0F9FF]">
              <Helmet>
                 <title>Free Mock Tests & Placement Assessment | Soft Skills, Aptitude - EduMedia</title>
                 <meta name="description" content="Take free mock tests for placement preparation. Assess your soft skills, aptitude, communication, and technical knowledge. Get instant analysis and improvement tips." />
@@ -459,16 +463,16 @@ export default function MockTestSoftSkills() {
              </Helmet>
              {/* Background Ambience */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
-                <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
-                <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+                <div className="absolute top-[-10%] right-[-10%] w-[20rem] md:w-[40rem] h-[20rem] md:h-[40rem] bg-[#2563EB]/5 rounded-full blur-[80px] md:blur-[100px]"></div>
+                <div className="absolute bottom-[-10%] left-[-10%] w-[20rem] md:w-[40rem] h-[20rem] md:h-[40rem] bg-[#475569]/5 rounded-full blur-[80px] md:blur-[100px]"></div>
             </div>
 
             <div className="relative z-10 max-w-7xl mx-auto">
                 {!activeQuiz ? (
                     <>
-                        <div className="text-center mb-16 pt-10">
-                            <h1 className="text-5xl md:text-6xl font-black text-[#E2E8CE] tracking-tighter mb-4">Assessment <span className="text-[#FF7F11]">Hub</span></h1>
-                            <p className="text-[#ACBFA4] font-medium text-lg max-w-2xl mx-auto">Select a module to evaluate your professional aptitude and discover areas for growth.</p>
+                        <div className="text-center mb-10 md:mb-16 pt-6 md:pt-10">
+                            <h1 className="text-4xl md:text-6xl font-black text-[#1E3A8A] tracking-tighter mb-4">Assessment <span className="text-[#2563EB]">Hub</span></h1>
+                            <p className="text-[#475569] font-medium text-base md:text-lg max-w-2xl mx-auto px-2">Select a module to evaluate your professional aptitude and discover areas for growth.</p>
                         </div>
                         <QuizList onSelect={setActiveQuiz} />
                     </>
