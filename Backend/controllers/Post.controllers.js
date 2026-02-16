@@ -239,3 +239,43 @@ export const addComment = async (req, res) => {
     });
   }
 };
+/* ---------------------------------------------------
+   ✅ Delete Post
+--------------------------------------------------- */
+export const deletePost = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const post = await Post.findById(id);
+
+    if (!post) {
+      return res.status(404).json({
+        success: false,
+        message: "Post not found.",
+      });
+    }
+
+    // Check ownership
+    if (post.author.toString() !== userId.toString()) {
+      return res.status(403).json({
+        success: false,
+        message: "You are not authorized to delete this post.",
+      });
+    }
+
+    await Post.findByIdAndDelete(id);
+
+    res.status(200).json({
+      success: true,
+      message: "Post deleted successfully.",
+      postId: id
+    });
+  } catch (err) {
+    console.error("❌ Error deleting post:", err);
+    res.status(500).json({
+      success: false,
+      message: "Unable to delete post.",
+    });
+  }
+};

@@ -14,7 +14,8 @@ import {
   Loader,
   ChevronUp,
   ChevronDown,
-  Eye
+  Eye,
+  Trash2
 } from "lucide-react";
 
 // Mock Data
@@ -168,6 +169,27 @@ export default function CareerBlogs() {
     showToast("info", "Link copied to clipboard.");
   };
 
+  const deleteBlog = async (_id) => {
+     if(!window.confirm("Delete this blog?")) return;
+     try {
+         const token = localStorage.getItem("authToken");
+         const res = await fetch(`http://localhost:5001/api/v1/blog/${_id}`, {
+             method: "DELETE",
+             headers: { Authorization: `Bearer ${token}` }
+         });
+         const data = await res.json();
+         if(res.ok) {
+             setBlogs(prev => prev.filter(b => b._id !== _id));
+             showToast("success", "Blog deleted.");
+         } else {
+             showToast("error", data.message || "Failed to delete.");
+         }
+     } catch (e) {
+         console.error(e);
+         showToast("error", "Error deleting blog.");
+     }
+  };
+
   const renderContent = () => {
     if (isLoading)
       return (
@@ -285,6 +307,13 @@ export default function CareerBlogs() {
                       className="p-3 rounded-full bg-transparent border border-[#555555] text-[#ACBFA4] hover:text-[#E2E8CE] hover:border-[#E2E8CE] transition-all"
                     >
                       <Share2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => deleteBlog(blog._id)}
+                      className="p-3 rounded-full bg-transparent border border-[#555555] text-[#ACBFA4] hover:text-red-500 hover:border-red-500 transition-all"
+                      title="Delete Blog"
+                    >
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
 

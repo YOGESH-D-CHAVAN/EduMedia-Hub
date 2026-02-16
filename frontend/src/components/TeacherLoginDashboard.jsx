@@ -107,7 +107,7 @@ export default function TeacherPost() {
   };
 
   return (
-    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans flex items-center justify-center p-6">
+    <div className="w-full text-[#E2E8CE] font-sans p-6 sm:p-0">
       <Helmet>
         <title>Teacher Dashboard - Create Posts & Announcements | EduMedia</title>
         <meta name="description" content="Teacher Dashboard: Create and manage announcements, resources, and activities for your students. Keep your class updated and engaged." />

@@ -218,12 +218,12 @@ const InterviewQuestions = () => {
               ref={scrollRef}
               className="flex-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2"
             >
-              <div className="flex gap-3 w-max min-w-full justify-center">
+              <div className="flex gap-3 w-max sm:w-auto min-w-full sm:justify-center">
                 {allFields.map((field) => (
                   <button
                     key={field}
                     onClick={() => setSelectedField(field)}
-                    className={`snap-start px-6 py-3 text-xs font-black uppercase tracking-wider rounded-full whitespace-nowrap transition-all transform border
+                    className={`snap-start px-6 py-3 text-xs font-black uppercase tracking-wider rounded-full whitespace-nowrap transition-all transform border shrink-0
                       ${selectedField === field
                         ? "bg-[#FF7F11] border-[#FF7F11] text-[#262626] scale-105 shadow-xl shadow-orange-500/20"
                         : "bg-[#333333] border-[#444444] text-[#ACBFA4] hover:bg-[#444444] hover:text-[#E2E8CE]"

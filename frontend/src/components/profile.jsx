@@ -96,7 +96,7 @@ export default function Profile() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative pb-20">
+    <div className="w-full text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative pb-20">
       
        {/* Ambient Backgound */}
        <div className="fixed top-0 left-0 w-full h-full pointer-events-none">

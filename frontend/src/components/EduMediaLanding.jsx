@@ -228,13 +228,7 @@ export default function EduMediaLandingPro() {
            </div>
         </section>
 
-        <footer className="py-12 bg-[#222222] border-t border-[#333333] text-center">
-             <div className="flex items-center justify-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-full bg-[#FF7F11] flex items-center justify-center font-bold text-[#262626]">E</div>
-                <span className="text-xl font-black text-[#E2E8CE] tracking-tight">Edu<span className="text-[#FF7F11]">Media</span></span>
-             </div>
-            <p className="text-[#ACBFA4] text-xs font-bold uppercase tracking-widest opacity-60">© 2024 Organic Systems. All rights cultivated.</p>
-        </footer>
+
       </div>
     </>
   );

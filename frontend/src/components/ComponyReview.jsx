@@ -1,7 +1,7 @@
 // CompanyReview.jsx - Earthy Theme with Functional Backend Integration
 import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { BsStar, BsStarFill, BsPlus, BsFilter, BsSortDown, BsSortUp } from "react-icons/bs";
-import { Loader } from "lucide-react";
+import { Loader, Trash2 } from "lucide-react";
 
 const CompanyReview = () => {
     // ---- Dummy data (Fallback) ----
@@ -195,6 +195,26 @@ const CompanyReview = () => {
         }
     };
 
+    const handleDelete = async (id) => {
+        if(!window.confirm("Delete this review?")) return;
+        try {
+            const token = localStorage.getItem("authToken");
+            const res = await fetch(`http://localhost:5001/api/v1/company-reviews/${id}`, {
+                method: "DELETE",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            const data = await res.json();
+            if(res.ok) {
+                setReviews(prev => prev.filter(r => r._id !== id));
+            } else {
+                alert(data.message || "Failed to delete review.");
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error deleting review.");
+        }
+    };
+
     const SortIcon = useCallback((field) => {
         if (sortBy !== field) return <BsSortDown className="w-4 h-4 text-[#666666]" />;
         return sortOrder === "desc" 
@@ -344,7 +364,12 @@ const CompanyReview = () => {
                                         {r.recommend ? "Recommended" : "Not Recommended"}
                                     </span>
                                 </div>
-                                <span className="text-[10px] font-bold text-[#666666] uppercase tracking-widest">{new Date(r.createdAt || r.date).toLocaleDateString()}</span>
+                                <div className="flex items-center gap-4">
+                                     <span className="text-[10px] font-bold text-[#666666] uppercase tracking-widest">{new Date(r.createdAt || r.date).toLocaleDateString()}</span>
+                                     <button onClick={() => handleDelete(r._id)} className="text-[#666666] hover:text-red-500 transition" title="Delete Review">
+                                         <Trash2 className="w-4 h-4" />
+                                     </button>
+                                </div>
                             </div>
                         </div>
                     )))}

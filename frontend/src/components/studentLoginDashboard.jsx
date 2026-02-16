@@ -1,8 +1,7 @@
 // StudentDashboard.jsx - Earthy Theme with Functional Backend Integration
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
-import SideBar from "../Sidebar";
-import { Heart, MessageSquare, X, ArrowRight, User, Image, FileText, Video, Plus, Loader, Send } from "lucide-react";
+import { Heart, MessageSquare, X, ArrowRight, User, Image, FileText, Video, Plus, Loader, Send, Trash2 } from "lucide-react";
 
 /* ---------- HELPER: ALPHABET AVATAR ---------- */
 const AlphabetAvatar = ({ name, size = "w-12 h-12", fontSize = "text-xl" }) => {
@@ -318,89 +317,114 @@ export default function StudentDashboard() {
       }
   };
 
+  const handleDelete = async (postId) => {
+    if(!window.confirm("Are you sure you want to delete this post?")) return;
+
+    try {
+        const token = localStorage.getItem("authToken");
+        const res = await fetch(`http://localhost:5001/api/v1/post/${postId}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok) {
+            setPosts(posts.filter(p => p._id !== postId));
+        } else {
+            alert(data.message || "Failed to delete post");
+        }
+    } catch (error) {
+        console.error("Error deleting post:", error);
+    }
+  };
+
   return (
-    <div className="flex min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626]">
-       <SideBar />
-       
-       <main className="flex-1 sm:ml-72 p-6 pt-[90px] sm:pt-6 lg:p-12 lg:pt-12 relative overflow-hidden">
-           {/* Background Ambience */}
-            <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-                 <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
-                 <div className="absolute bottom-[-10%] left-[20%] w-[50rem] h-[50rem] bg-[#ACBFA4]/5 rounded-full blur-[120px]"></div>
+
+    <div className="relative overflow-hidden w-full">
+        {/* Background Ambience */}
+        <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
+              <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
+              <div className="absolute bottom-[-10%] left-[20%] w-[50rem] h-[50rem] bg-[#ACBFA4]/5 rounded-full blur-[120px]"></div>
+        </div>
+
+        <div className="max-w-5xl mx-auto relative z-10">
+            {/* Header */}
+            <header className="mb-16 flex flex-col md:flex-row justify-between items-end gap-6 border-b border-[#444444] pb-8">
+                <div>
+                    <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-4 shadow-md">
+                        Campus Feed
+                    </div>
+                    <h1 className="text-5xl font-black text-[#E2E8CE] tracking-tighter mb-2">Community <span className="text-[#FF7F11]">Pulse</span></h1>
+                    <p className="text-[#ACBFA4] font-medium text-lg">See what's happening in your network.</p>
+                </div>
+                
+                <div className="flex gap-4">
+                    <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-3 px-8 py-4 bg-[#ACBFA4] text-[#262626] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#9cafe4] transition hover:-translate-y-1 shadow-lg group">
+                          <Plus className="w-4 h-4"/> Create Post
+                    </button>
+                    <Link to="/chat" className="flex items-center gap-3 px-8 py-4 bg-[#FF7F11] text-[#262626] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition hover:-translate-y-1 shadow-lg group">
+                          Start Discussion <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                </div>
+            </header>
+            
+            {/* Feed */}
+            <div className="space-y-12 pb-20">
+                {loading ? (
+                    <div className="text-center py-20"><div className="animate-spin w-12 h-12 border-4 border-[#333333] border-t-[#FF7F11] rounded-full mx-auto"></div></div>
+                ) : posts.length === 0 ? (
+                    <div className="text-center py-20 border-2 border-dashed border-[#444444] rounded-[2rem]">
+                        <p className="text-[#ACBFA4] font-bold text-lg">No posts yet. Be the first to share!</p>
+                    </div>
+                ) : posts.map(post => (
+                    <article key={post._id} className="bg-[#333333] rounded-[2.5rem] p-8 md:p-10 border border-[#444444] shadow-2xl hover:border-[#FF7F11]/50 transition duration-500 group relative overflow-hidden">
+                          <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF7F11]/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-[#FF7F11]/10 transition-colors"></div>
+                        
+                        {/* Post Header */}
+                        <div className="flex items-center gap-5 mb-8 relative z-10">
+                            <AlphabetAvatar name={post.author?.username || "Unknown"} size="w-14 h-14" fontSize="text-2xl" />
+                            <div>
+                                <h3 className="text-xl font-bold text-[#E2E8CE] flex items-center gap-3">
+                                    {post.author?.username || "Unknown"}
+                                    {post.author?.role === 'teacher' && <span className="text-[10px] bg-[#ACBFA4] text-[#262626] px-2 py-0.5 rounded-md uppercase font-black tracking-wider">Faculty</span>}
+                                </h3>
+                                <p className="text-xs text-[#666666] font-bold uppercase tracking-widest mt-1">{post.type || "GENERAL"} • {new Date(post.createdAt).toLocaleDateString()}</p>
+                            </div>
+                        </div>
+                        
+                        {/* Content */}
+                        <div className="mb-8 relative z-10">
+                            {post.title && <h2 className="text-2xl font-black text-[#E2E8CE] mb-4 tracking-tight leading-tight">{post.title}</h2>}
+                            <p className="text-[#ACBFA4] text-lg font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
+                        </div>
+                        
+                        {/* Media */}
+                        {post.media?.length > 0 && <div className="relative z-10"><MediaStrip media={post.media} /></div>}
+                        
+                        {/* Actions */}
+                        <div className="flex items-center gap-4 relative z-10 w-full justify-between">
+                            <div className="flex gap-4">
+                                <button onClick={() => handleLike(post._id)} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest hover:border-[#FF7F11] hover:text-[#FF7F11] transition group/btn">
+                                    <Heart className="w-4 h-4 group-hover/btn:fill-current" /> {post.likes?.length || 0}
+                                </button>
+                            </div>
+                            
+                            <button onClick={() => handleDelete(post._id)} className="p-3 rounded-full bg-[#262626] border border-[#444444] text-[#666666] hover:text-red-500 hover:border-red-500 transition shadow-lg" title="Delete Post">
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </div>
+                        
+                        {/* Comments */}
+                        <div className="relative z-10">
+                              <CommentSection postId={post._id} comments={post.comments} onAdd={handleAddComment} />
+                        </div>
+                    </article>
+                ))}
             </div>
+        </div>
 
-           <div className="max-w-5xl mx-auto relative z-10">
-               {/* Header */}
-               <header className="mb-16 flex flex-col md:flex-row justify-between items-end gap-6 border-b border-[#444444] pb-8">
-                   <div>
-                       <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-4 shadow-md">
-                          Campus Feed
-                       </div>
-                       <h1 className="text-5xl font-black text-[#E2E8CE] tracking-tighter mb-2">Community <span className="text-[#FF7F11]">Pulse</span></h1>
-                       <p className="text-[#ACBFA4] font-medium text-lg">See what's happening in your network.</p>
-                   </div>
-                   
-                   <div className="flex gap-4">
-                       <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-3 px-8 py-4 bg-[#ACBFA4] text-[#262626] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#9cafe4] transition hover:-translate-y-1 shadow-lg group">
-                            <Plus className="w-4 h-4"/> Create Post
-                       </button>
-                       <Link to="/chat" className="flex items-center gap-3 px-8 py-4 bg-[#FF7F11] text-[#262626] rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#e06c09] transition hover:-translate-y-1 shadow-lg group">
-                            Start Discussion <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                       </Link>
-                   </div>
-               </header>
-               
-               {/* Feed */}
-               <div className="space-y-12 pb-20">
-                   {loading ? (
-                       <div className="text-center py-20"><div className="animate-spin w-12 h-12 border-4 border-[#333333] border-t-[#FF7F11] rounded-full mx-auto"></div></div>
-                   ) : posts.length === 0 ? (
-                       <div className="text-center py-20 border-2 border-dashed border-[#444444] rounded-[2rem]">
-                           <p className="text-[#ACBFA4] font-bold text-lg">No posts yet. Be the first to share!</p>
-                       </div>
-                   ) : posts.map(post => (
-                       <article key={post._id} className="bg-[#333333] rounded-[2.5rem] p-8 md:p-10 border border-[#444444] shadow-2xl hover:border-[#FF7F11]/50 transition duration-500 group relative overflow-hidden">
-                            <div className="absolute top-0 right-0 w-64 h-64 bg-[#FF7F11]/5 rounded-full blur-[80px] pointer-events-none group-hover:bg-[#FF7F11]/10 transition-colors"></div>
-                           
-                           {/* Post Header */}
-                           <div className="flex items-center gap-5 mb-8 relative z-10">
-                               <AlphabetAvatar name={post.author?.username || "Unknown"} size="w-14 h-14" fontSize="text-2xl" />
-                               <div>
-                                   <h3 className="text-xl font-bold text-[#E2E8CE] flex items-center gap-3">
-                                       {post.author?.username || "Unknown"}
-                                       {post.author?.role === 'teacher' && <span className="text-[10px] bg-[#ACBFA4] text-[#262626] px-2 py-0.5 rounded-md uppercase font-black tracking-wider">Faculty</span>}
-                                   </h3>
-                                   <p className="text-xs text-[#666666] font-bold uppercase tracking-widest mt-1">{post.type || "GENERAL"} • {new Date(post.createdAt).toLocaleDateString()}</p>
-                               </div>
-                           </div>
-                           
-                           {/* Content */}
-                           <div className="mb-8 relative z-10">
-                               {post.title && <h2 className="text-2xl font-black text-[#E2E8CE] mb-4 tracking-tight leading-tight">{post.title}</h2>}
-                               <p className="text-[#ACBFA4] text-lg font-medium leading-relaxed whitespace-pre-wrap">{post.content}</p>
-                           </div>
-                           
-                           {/* Media */}
-                           {post.media?.length > 0 && <div className="relative z-10"><MediaStrip media={post.media} /></div>}
-                           
-                           {/* Actions */}
-                           <div className="flex items-center gap-4 relative z-10">
-                               <button onClick={() => handleLike(post._id)} className="flex items-center gap-2 px-6 py-3 rounded-xl bg-[#262626] border border-[#444444] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest hover:border-[#FF7F11] hover:text-[#FF7F11] transition group/btn">
-                                   <Heart className="w-4 h-4 group-hover/btn:fill-current" /> {post.likes?.length || 0}
-                               </button>
-                           </div>
-                           
-                           {/* Comments */}
-                           <div className="relative z-10">
-                                <CommentSection postId={post._id} comments={post.comments} onAdd={handleAddComment} />
-                           </div>
-                       </article>
-                   ))}
-               </div>
-           </div>
-
-           <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onPostCreated={handlePostCreated} />
-       </main>
+        <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onPostCreated={handlePostCreated} />
     </div>
   );
 }

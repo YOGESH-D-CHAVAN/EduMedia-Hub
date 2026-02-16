@@ -1,7 +1,7 @@
 // Teacher.jsx
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import SideBar from "../Sidebar";
+
 
 const API_BASE_URL = "http://localhost:5001";
 
@@ -163,11 +163,8 @@ export default function Teacher() {
   };
 
   return (
-    <div className="flex min-h-screen bg-[#262626] text-[#E2E8CE] font-sans">
-      <SideBar />
-      
-      <main className="flex-1 sm:ml-72 transition-all duration-300 p-4 pt-[80px] sm:p-8 sm:pt-8">
-        <div className="max-w-4xl mx-auto mt-16 sm:mt-8">
+
+        <div className="max-w-4xl mx-auto mt-0">
           
           <header className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6 pb-6 border-b border-[#333333]">
             <div>
@@ -243,7 +240,5 @@ export default function Teacher() {
             </div>
           )}
         </div>
-      </main>
-    </div>
   );
 }

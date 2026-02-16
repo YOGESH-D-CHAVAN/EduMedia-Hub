@@ -144,7 +144,7 @@ const SalaryInsights = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] p-6 lg:p-12 relative">
+    <div className="w-full bg-[#262626] text-[#E2E8CE] font-sans selection:bg-[#FF7F11] selection:text-[#262626] p-6 lg:p-12 relative">
        
         {/* Background Ambience */}
         <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
@@ -162,9 +162,9 @@ const SalaryInsights = () => {
                     <h1 className="text-5xl font-black text-[#E2E8CE] tracking-tighter mb-2">Compensation <span className="text-[#FF7F11]">Radar</span></h1>
                     <p className="text-[#ACBFA4] font-medium text-lg">Real-time salary data to empower your negotiations.</p>
                 </div>
-                <button onClick={downloadPDF} className="flex items-center gap-2 px-6 py-3 bg-[#333333] border border-[#444444] text-[#E2E8CE] rounded-xl font-bold uppercase tracking-widest text-xs hover:border-[#FF7F11] hover:text-[#FF7F11] transition shadow-lg">
+                {/* <button onClick={downloadPDF} className="flex items-center gap-2 px-6 py-3 bg-[#333333] border border-[#444444] text-[#E2E8CE] rounded-xl font-bold uppercase tracking-widest text-xs hover:border-[#FF7F11] hover:text-[#FF7F11] transition shadow-lg">
                     <Download className="w-4 h-4" /> Export Report
-                </button>
+                </button> */}
             </div>
 
             {/* Filters */}

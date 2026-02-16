@@ -1,6 +1,7 @@
 // Quetions.jsx - Earthy Theme
 import React, { useEffect, useState } from "react";
-import { Search, Plus } from "lucide-react";
+import { Search, Plus, Trash2 } from "lucide-react";
+import { jwtDecode } from "jwt-decode";
 
 /* ---------------------------------- Answer Submission Interface (AnswerBox) ---------------------------------- */
 function AnswerBox({ questionId, onAnswer }) {
@@ -61,16 +62,39 @@ function AnswerBox({ questionId, onAnswer }) {
 }
 
 /* ---------------------------------- Question Card ---------------------------------- */
-function QuestionCard({ question, onAnswer }) {
+function QuestionCard({ question, onAnswer, onDelete, currentUserId }) {
+  // Check if current user is the author
+  const isAuthor = currentUserId && question.author && question.author._id === currentUserId;
+
   return (
     <div className="bg-[#333333] rounded-[2rem] shadow-xl border border-[#444444] p-8 hover:border-[#FF7F11] transition-all duration-300 relative overflow-hidden group">
       <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/5 rounded-full blur-[60px] group-hover:bg-[#FF7F11]/10 transition-colors pointer-events-none"></div>
 
       <div className="flex justify-between items-start mb-6 relative z-10">
-        <h3 className="text-xl font-bold text-[#E2E8CE] leading-snug">{question.question}</h3>
-        <span className="flex-shrink-0 ml-4 px-3 py-1 bg-[#262626] border border-[#444444] text-[#FF7F11] rounded-lg text-xs font-black uppercase tracking-widest shadow-inner">
-          {question.answers.length} Replies
-        </span>
+        <div className="flex-1 pr-4">
+             <h3 className="text-xl font-bold text-[#E2E8CE] leading-snug">{question.question}</h3>
+             <div className="flex items-center gap-2 mt-2">
+                {question.author && (
+                    <span className="text-[10px] uppercase font-bold text-[#ACBFA4] tracking-widest bg-[#262626] px-2 py-1 rounded border border-[#444444]">
+                        {question.author.username || "Anonymous"}
+                    </span>
+                )}
+             </div>
+        </div>
+        <div className="flex flex-col items-end gap-2">
+            <span className="flex-shrink-0 px-3 py-1 bg-[#262626] border border-[#444444] text-[#FF7F11] rounded-lg text-xs font-black uppercase tracking-widest shadow-inner">
+            {question.answers.length} Replies
+            </span>
+            {isAuthor && (
+                <button
+                    onClick={() => onDelete(question._id)}
+                    className="p-2 text-[#666666] hover:text-red-500 transition-colors"
+                    title="Delete Question"
+                >
+                    <Trash2 className="w-4 h-4" />
+                </button>
+            )}
+        </div>
       </div>
 
       <div className="mt-8 space-y-4 border-t border-[#444444] pt-6 relative z-10">
@@ -82,7 +106,13 @@ function QuestionCard({ question, onAnswer }) {
               key={idx}
               className="bg-[#262626] rounded-xl p-5 border-l-4 border-[#FF7F11] shadow-md"
             >
-              <p className="text-[#ACBFA4] font-medium leading-relaxed text-sm">{a.text}</p>
+              <div className="flex justify-between items-start mb-2">
+                  <span className="text-[10px] font-bold text-[#ACBFA4] uppercase tracking-wide">
+                      {a.author?.username || "Contributor"}
+                  </span>
+                  <span className="text-[10px] text-[#666666]">{new Date(a.createdAt).toLocaleDateString()}</span>
+              </div>
+              <p className="text-[#E2E8CE] font-medium leading-relaxed text-sm">{a.text}</p>
             </div>
           ))
         ) : (
@@ -102,6 +132,7 @@ export default function QandABoard() {
   const [questions, setQuestions] = useState([]);
   const [questionText, setQuestionText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [currentUserId, setCurrentUserId] = useState(null);
 
   const API_BASE_URL = "http://localhost:5001/api/qna";
 
@@ -118,6 +149,15 @@ export default function QandABoard() {
   };
 
   useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+        try {
+            const decoded = jwtDecode(token);
+            setCurrentUserId(decoded.userId);
+        } catch (e) {
+            console.error("Invalid token", e);
+        }
+    }
     fetchQuestions();
   }, []);
 
@@ -125,17 +165,44 @@ export default function QandABoard() {
     if (!questionText.trim()) return;
 
     try {
+      const token = localStorage.getItem("authToken");  
       const res = await fetch(API_BASE_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}` 
+        },
         body: JSON.stringify({ question: questionText }),
       });
 
       const data = await res.json();
-      setQuestions([data.question, ...questions]);
-      setQuestionText("");
+      if(res.ok) {
+          setQuestions([data.question, ...questions]);
+          setQuestionText("");
+      } else {
+          alert(data.message || "Failed to post question");
+      }
     } catch (err) {
       console.error("Error submitting question:", err);
+    }
+  };
+  
+  const handleDelete = async (id) => {
+    if(!window.confirm("Delete this discussion?")) return;
+    try {
+        const token = localStorage.getItem("authToken");
+        const res = await fetch(`${API_BASE_URL}/${id}`, {
+            method: "DELETE",
+            headers: { Authorization: `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if(res.ok) {
+            setQuestions(prev => prev.filter(q => q._id !== id));
+        } else {
+            alert(data.message || "Failed to delete.");
+        }
+    } catch (e) {
+        console.error(e);
     }
   };
 
@@ -239,7 +306,7 @@ export default function QandABoard() {
 
           {!loading &&
             questions.map((q) => (
-              <QuestionCard key={q._id} question={q} onAnswer={addAnswer} />
+              <QuestionCard key={q._id} question={q} onAnswer={addAnswer} onDelete={handleDelete} currentUserId={currentUserId} />
             ))}
         </div>
       </div>

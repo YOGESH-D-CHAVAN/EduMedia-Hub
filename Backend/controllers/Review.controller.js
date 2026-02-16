@@ -32,3 +32,24 @@ export const getReviews = asyncHandler(async (req, res) => {
         .status(200)
         .json(new ApiResponce(200, "Reviews fetched successfully", reviews));
 });
+// Delete Review
+export const deleteReview = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user._id;
+
+    const review = await Review.findById(id);
+    if (!review) {
+        throw new ApiError(404, "Review not found.");
+    }
+
+    if (review.author && review.author.toString() !== userId.toString()) {
+        throw new ApiError(403, "Not authorized to delete this review.");
+    }
+    
+    // If review has no author (anonymous?), maybe allow admin? 
+    // For now assuming only author can delete.
+
+    await Review.findByIdAndDelete(id);
+
+    return res.status(200).json(new ApiResponce(200, "Review deleted successfully", { reviewId: id }));
+});

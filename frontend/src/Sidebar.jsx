@@ -1,7 +1,7 @@
 // Sidebar.jsx - Earthy Tone Update with Collapsible State
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Menu } from "lucide-react";
+import { ChevronLeft, ChevronRight, Menu, LogOut } from "lucide-react";
 
 const SideBar = ({ isOpen = true, toggleSidebar }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -38,10 +38,11 @@ const SideBar = ({ isOpen = true, toggleSidebar }) => {
 
       {/* Sidebar Container */}
       <aside className={`
-        fixed left-0 top-[74px] h-[calc(100vh-74px)] bg-[#262626] border-r border-[#333333] z-40
+        fixed left-0 top-0 h-screen bg-[#262626] border-r border-[#333333] z-50
         transition-all duration-300 ease-in-out flex flex-col shadow-2xl shadow-black/50
+        pt-[74px] sm:pt-0
         ${mobileMenuOpen ? "translate-x-0 w-72" : "-translate-x-full w-72"} 
-        sm:translate-x-0 sm:top-0 sm:h-screen ${isOpen ? "sm:w-72" : "sm:w-20"}
+        sm:translate-x-0 ${isOpen ? "sm:w-72" : "sm:w-20"}
       `}>
           
         {/* Desktop Toggle Button */}
@@ -110,13 +111,25 @@ const SideBar = ({ isOpen = true, toggleSidebar }) => {
 
         {/* Sidebar Footer */}
         <div className={`p-4 border-t border-[#333333] bg-[#222222] ${!isOpen && "flex justify-center"}`}>
-           <div className="flex items-center gap-3">
+           <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-full bg-[#ACBFA4] flex items-center justify-center text-[#262626] font-bold text-xs shrink-0">U</div>
               <div className={`overflow-hidden transition-all duration-300 ${isOpen ? "w-auto opacity-100" : "w-0 opacity-0"}`}>
                  <p className="text-xs font-bold text-[#E2E8CE] whitespace-nowrap">Guest User</p>
                  <p className="text-[10px] text-[#ACBFA4] whitespace-nowrap">Basic Plan</p>
               </div>
            </div>
+           
+           <button 
+             onClick={() => {
+               localStorage.removeItem("authToken");
+               window.location.href = "/";
+             }}
+             className={`flex items-center gap-3 w-full px-2 py-2 rounded hover:bg-[#333333] text-[#ACBFA4] hover:text-[#FF7F11] transition-colors ${!isOpen && "justify-center"}`}
+             title="Logout"
+           >
+              <LogOut size={16} />
+              <span className={`text-xs font-bold uppercase tracking-widest transition-all duration-300 ${isOpen ? "opacity-100" : "opacity-0 w-0 overflow-hidden"}`}>Logout</span>
+           </button>
         </div>
       </aside>
 
