@@ -162,71 +162,71 @@ const InterviewQuestions = () => {
   }, []);
 
   return (
-    <div className="h-screen overflow-y-auto bg-[#262626] text-[#E2E8CE] font-sans scrollbar-hide selection:bg-[#FF7F11] selection:text-[#262626]">
+    <div className="h-screen overflow-y-auto bg-[#F0F9FF] text-[#1E3A8A] font-sans scrollbar-hide selection:bg-[#2563EB] selection:text-[#F0F9FF]">
       
       {/* Background Ambience */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
-         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
-         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#2563EB]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#475569]/5 rounded-full blur-[100px]"></div>
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12 pb-32 relative z-10">
         
         {/* Header */}
-        <div className="text-center mb-12">
-          <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+        <div className="text-center mb-8 md:mb-12">
+          <div className="inline-block px-3 py-1 md:px-4 md:py-1.5 rounded-full border border-[#E2E8F0] bg-[#FFFFFF] text-[#475569] font-bold text-[10px] md:text-xs uppercase tracking-widest mb-4 md:mb-6 shadow-md">
              Career Forge
           </div>
-          <h2 className="text-5xl md:text-6xl font-black mb-6 text-[#E2E8CE] tracking-tighter">
-            Interview <span className="text-[#FF7F11]">Prep</span>
+          <h2 className="text-4xl md:text-6xl font-black mb-4 md:mb-6 text-[#1E3A8A] tracking-tighter">
+            Interview <span className="text-[#2563EB]">Prep</span>
           </h2>
-          <p className="text-[#ACBFA4] text-lg font-medium max-w-2xl mx-auto mb-8">
+          <p className="text-[#475569] text-base md:text-lg font-medium max-w-2xl mx-auto mb-6 md:mb-8 px-2">
              Master the technical interview with our curated collection of questions across {allFields.length - 1} domains.
           </p>
 
-          <div className="max-w-md mx-auto relative mb-8">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#ACBFA4]" />
+          <div className="max-w-md mx-auto relative mb-6 md:mb-8 px-2 md:px-0">
+              <Search className="absolute left-6 md:left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#475569]" />
               <input 
                  value={search}
                  onChange={(e) => setSearch(e.target.value)}
                  placeholder="Search questions..."
-                 className="w-full bg-[#333333] border border-[#444444] rounded-full pl-12 pr-6 py-4 text-[#E2E8CE] placeholder-[#666666] font-bold outline-none focus:border-[#FF7F11] shadow-xl transition-all"
+                 className="w-full bg-[#FFFFFF] border border-[#E2E8F0] rounded-full pl-12 pr-6 py-3 md:py-4 text-[#1E3A8A] placeholder-[#64748B] font-bold outline-none focus:border-[#2563EB] shadow-xl transition-all text-sm md:text-base"
               />
           </div>
 
-          <div className="flex justify-center gap-4 text-xs font-bold uppercase tracking-widest text-[#666666]">
-            <span className="px-4 py-2 bg-[#333333] rounded-lg border border-[#444444]">
-              <span className="text-[#FF7F11]">{questions.length}</span> Questions
+          <div className="flex justify-center gap-2 md:gap-4 text-[10px] md:text-xs font-bold uppercase tracking-widest text-[#64748B]">
+            <span className="px-3 py-2 md:px-4 md:py-2 bg-[#FFFFFF] rounded-lg border border-[#E2E8F0]">
+              <span className="text-[#2563EB]">{questions.length}</span> Questions
             </span>
-            <span className="px-4 py-2 bg-[#333333] rounded-lg border border-[#444444]">
-              <span className="text-[#ACBFA4]">{allFields.length - 1}</span> Topics
+            <span className="px-3 py-2 md:px-4 md:py-2 bg-[#FFFFFF] rounded-lg border border-[#E2E8F0]">
+              <span className="text-[#475569]">{allFields.length - 1}</span> Topics
             </span>
           </div>
         </div>
 
         {/* Filter Bar */}
-        <div className="sticky top-0 z-30 py-4 bg-[#262626]/90 backdrop-blur-md border-b border-[#333333] mb-8">
-          <div className="flex items-center gap-4">
+        <div className="sticky top-[74px] md:top-0 z-30 py-3 md:py-4 bg-[#F0F9FF]/95 backdrop-blur-md border-b border-[#FFFFFF] mb-8 -mx-6 px-6 md:mx-0 md:px-0">
+          <div className="flex items-center gap-2 md:gap-4">
             <button
               onClick={scrollLeft}
-              className="flex-shrink-0 p-3 rounded-full bg-[#333333] hover:bg-[#FF7F11] hover:text-[#262626] transition-all border border-[#444444] shadow-lg"
+              className="hidden md:block flex-shrink-0 p-3 rounded-full bg-[#FFFFFF] hover:bg-[#2563EB] hover:text-[#F0F9FF] transition-all border border-[#E2E8F0] shadow-lg"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
 
             <div 
               ref={scrollRef}
-              className="flex-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2"
+              className="flex-1 overflow-x-auto scrollbar-hide snap-x snap-mandatory px-2 no-scrollbar"
             >
-              <div className="flex gap-3 w-max min-w-full justify-center">
+              <div className="flex gap-2 md:gap-3 w-max min-w-full md:justify-center">
                 {allFields.map((field) => (
                   <button
                     key={field}
                     onClick={() => setSelectedField(field)}
-                    className={`snap-start px-6 py-3 text-xs font-black uppercase tracking-wider rounded-full whitespace-nowrap transition-all transform border
+                    className={`snap-start px-4 py-2 md:px-6 md:py-3 text-[10px] md:text-xs font-black uppercase tracking-wider rounded-full whitespace-nowrap transition-all transform border shrink-0
                       ${selectedField === field
-                        ? "bg-[#FF7F11] border-[#FF7F11] text-[#262626] scale-105 shadow-xl shadow-orange-500/20"
-                        : "bg-[#333333] border-[#444444] text-[#ACBFA4] hover:bg-[#444444] hover:text-[#E2E8CE]"
+                        ? "bg-[#2563EB] border-[#2563EB] text-[#F0F9FF] scale-105 shadow-xl shadow-blue-500/20"
+                        : "bg-[#FFFFFF] border-[#E2E8F0] text-[#475569] hover:bg-[#E2E8F0] hover:text-[#1E3A8A]"
                       }`}
                   >
                     {field}
@@ -237,7 +237,7 @@ const InterviewQuestions = () => {
 
             <button
               onClick={scrollRight}
-              className="flex-shrink-0 p-3 rounded-full bg-[#333333] hover:bg-[#FF7F11] hover:text-[#262626] transition-all border border-[#444444] shadow-lg"
+              className="hidden md:block flex-shrink-0 p-3 rounded-full bg-[#FFFFFF] hover:bg-[#2563EB] hover:text-[#F0F9FF] transition-all border border-[#E2E8F0] shadow-lg"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" /></svg>
             </button>
@@ -245,30 +245,30 @@ const InterviewQuestions = () => {
         </div>
 
         {/* Grid */}
-        <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid gap-4 md:gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
           {filteredQuestions.map((q, i) => {
             const isAnswerOpen = openAnswerIndex === i;
             return (
               <div
                 key={`${q.field}-${i}`}
                 className={`
-                  relative overflow-hidden rounded-[2rem] bg-[#333333] border border-[#444444] 
-                  transition-all duration-500 ease-out p-8
+                  relative overflow-hidden rounded-[1.5rem] md:rounded-[2rem] bg-[#FFFFFF] border border-[#E2E8F0] 
+                  transition-all duration-500 ease-out p-6 md:p-8
                   ${visible.includes(i) ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"}
                   ${isAnswerOpen 
-                    ? "ring-2 ring-[#FF7F11] shadow-2xl shadow-orange-500/10" 
-                    : "hover:shadow-xl hover:border-[#FF7F11]/50 hover:-translate-y-1"
+                    ? "ring-2 ring-[#2563EB] shadow-2xl shadow-blue-500/10" 
+                    : "hover:shadow-xl hover:border-[#2563EB]/50 hover:-translate-y-1"
                   }
                 `}
                 onClick={() => toggleAnswer(i)}
               >
                 {/* Field Badge */}
-                <span className="inline-block px-3 py-1 bg-[#262626] rounded-lg border border-[#444444] text-[10px] font-black uppercase tracking-widest text-[#ACBFA4] mb-4">
+                <span className="inline-block px-3 py-1 bg-[#F0F9FF] rounded-lg border border-[#E2E8F0] text-[10px] font-black uppercase tracking-widest text-[#475569] mb-4">
                     {q.field}
                 </span>
 
                 {/* Question */}
-                <h3 className="text-xl font-bold text-[#E2E8CE] leading-snug mb-4">
+                <h3 className="text-lg md:text-xl font-bold text-[#1E3A8A] leading-snug mb-4">
                   {q.text}
                 </h3>
 
@@ -278,9 +278,9 @@ const InterviewQuestions = () => {
                       isAnswerOpen ? "max-h-96 opacity-100 mt-6" : "max-h-0 opacity-0"
                     }`}
                   >
-                    <div className="pt-6 border-t border-[#444444]">
-                      <div className="text-[#FF7F11] font-black text-xs uppercase tracking-widest mb-2">Answer</div>
-                      <p className="text-[#ACBFA4] font-medium leading-relaxed">
+                    <div className="pt-6 border-t border-[#E2E8F0]">
+                      <div className="text-[#2563EB] font-black text-xs uppercase tracking-widest mb-2">Answer</div>
+                      <p className="text-[#475569] font-medium leading-relaxed text-sm md:text-base">
                         {q.answer}
                       </p>
                     </div>
@@ -288,7 +288,7 @@ const InterviewQuestions = () => {
 
                 {/* Expand Button */}
                 <button 
-                    className="w-full mt-6 py-3 rounded-xl bg-[#262626] text-[#E2E8CE] font-bold text-xs uppercase tracking-widest hover:bg-[#FF7F11] hover:text-[#262626] transition-all flex items-center justify-center gap-2 group border border-[#444444]"
+                    className="w-full mt-6 py-3 rounded-xl bg-[#F0F9FF] text-[#1E3A8A] font-bold text-[10px] md:text-xs uppercase tracking-widest hover:bg-[#2563EB] hover:text-[#F0F9FF] transition-all flex items-center justify-center gap-2 group border border-[#E2E8F0]"
                 >
                     {isAnswerOpen ? "Hide Answer" : "Reveal Answer"}
                     <svg className={`w-4 h-4 transition-transform duration-300 ${isAnswerOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
@@ -300,12 +300,12 @@ const InterviewQuestions = () => {
 
         {/* Empty State */}
         {filteredQuestions.length === 0 && (
-          <div className="text-center py-32 opacity-50">
-            <div className="w-24 h-24 rounded-full bg-[#333333] mx-auto mb-6 flex items-center justify-center border border-[#444444]">
-                 <Search className="w-10 h-10 text-[#ACBFA4]" />
+          <div className="text-center py-20 md:py-32 opacity-50">
+            <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-[#FFFFFF] mx-auto mb-6 flex items-center justify-center border border-[#E2E8F0]">
+                 <Search className="w-8 h-8 md:w-10 md:h-10 text-[#475569]" />
             </div>
-            <h3 className="text-2xl font-black text-[#E2E8CE]">No Questions Found</h3>
-            <p className="text-[#ACBFA4]">Try adjusting your search or filters.</p>
+            <h3 className="text-xl md:text-2xl font-black text-[#1E3A8A]">No Questions Found</h3>
+            <p className="text-[#475569] text-sm md:text-base">Try adjusting your search or filters.</p>
           </div>
         )}
       </div>
@@ -313,6 +313,7 @@ const InterviewQuestions = () => {
       <style>{`
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
       `}</style>
     </div>
   );

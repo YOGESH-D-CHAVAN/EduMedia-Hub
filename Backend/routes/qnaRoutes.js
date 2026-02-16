@@ -1,10 +1,14 @@
 import express from "express";
-import { getQuestions, addQuestion, addAnswer } from "../controllers/qnaController.js";
+import { getQuestions, addQuestion, addAnswer, deleteQuestion } from "../controllers/qnaController.js";
+import { protect } from "../middleware/protect.middlewares.js";
 
 const router = express.Router();
 
 router.get("/getQuestions", getQuestions);
-router.post("/", addQuestion);
-router.post("/:id/answer", addAnswer);
+router.post("/", protect, addQuestion);
+router.post("/:id/answer", protect, addAnswer);
+router.delete("/:id", protect, deleteQuestion);
+
+
 
 export default router;

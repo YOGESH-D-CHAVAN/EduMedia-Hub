@@ -52,11 +52,11 @@ const Resources = () => {
   };
 
   const Card = ({ title, children }) => (
-    <div className="rounded-[2rem] bg-[#333333] border border-[#444444] p-8 hover:border-[#FF7F11] transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 relative overflow-hidden group">
-      <div className="absolute top-0 right-0 w-32 h-32 bg-[#FF7F11]/5 rounded-full blur-[60px] group-hover:bg-[#FF7F11]/10 transition-colors pointer-events-none"></div>
+    <div className="rounded-[2rem] bg-[#FFFFFF] border border-[#E2E8F0] p-8 hover:border-[#2563EB] transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 relative overflow-hidden group">
+      <div className="absolute top-0 right-0 w-32 h-32 bg-[#2563EB]/5 rounded-full blur-[60px] group-hover:bg-[#2563EB]/10 transition-colors pointer-events-none"></div>
       
-      <h3 className="text-2xl font-black text-[#E2E8CE] mb-6 tracking-tight flex items-center gap-3">
-         <span className="w-2 h-8 bg-[#FF7F11] rounded-full"></span>
+      <h3 className="text-2xl font-black text-[#1E3A8A] mb-6 tracking-tight flex items-center gap-3">
+         <span className="w-2 h-8 bg-[#2563EB] rounded-full"></span>
          {title}
       </h3>
       <div className="space-y-3 relative z-10">{children}</div>
@@ -68,21 +68,21 @@ const Resources = () => {
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-start gap-4 p-4 rounded-xl bg-[#262626] border border-[#444444] hover:border-[#ACBFA4] transition-all duration-200 group/link"
+      className="flex items-start gap-4 p-4 rounded-xl bg-[#F0F9FF] border border-[#E2E8F0] hover:border-[#475569] transition-all duration-200 group/link"
     >
-      <div className="mt-1 w-2 h-2 rounded-full bg-[#FF7F11] group-hover/link:scale-125 transition-transform" />
+      <div className="mt-1 w-2 h-2 rounded-full bg-[#2563EB] group-hover/link:scale-125 transition-transform" />
       <div className="flex-1">
-        <div className="font-bold text-[#E2E8CE] group-hover/link:text-[#FF7F11] transition-colors">{name}</div>
-        <div className="text-xs font-medium text-[#ACBFA4] mt-1">{desc}</div>
+        <div className="font-bold text-[#1E3A8A] group-hover/link:text-[#2563EB] transition-colors">{name}</div>
+        <div className="text-xs font-medium text-[#475569] mt-1">{desc}</div>
       </div>
       <ExternalLink
-        className="ml-auto w-4 h-4 text-[#666666] group-hover/link:text-[#E2E8CE] transition-colors"
+        className="ml-auto w-4 h-4 text-[#64748B] group-hover/link:text-[#1E3A8A] transition-colors"
       />
     </a>
   );
 
   return (
-    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-20 px-6 font-sans selection:bg-[#FF7F11] selection:text-[#262626] relative">
+    <div className="min-h-screen bg-[#F0F9FF] text-[#1E3A8A] py-20 px-6 font-sans selection:bg-[#2563EB] selection:text-[#F0F9FF] relative">
       <Helmet>
         <title>Curated Career Resources | Resume, Coding, System Design - EduMedia</title>
         <meta name="description" content="Access hand-picked resources for free. Best tools for resume building, coding practice, aptitude tests, system design, and mental health support for students." />
@@ -91,19 +91,19 @@ const Resources = () => {
       
        {/* Ambient Backgound */}
        <div className="fixed top-0 left-0 w-full h-full pointer-events-none">
-         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#FF7F11]/5 rounded-full blur-[100px]"></div>
-         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#ACBFA4]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute top-[-10%] right-[-10%] w-[40rem] h-[40rem] bg-[#2563EB]/5 rounded-full blur-[100px]"></div>
+         <div className="absolute bottom-[-10%] left-[-10%] w-[40rem] h-[40rem] bg-[#475569]/5 rounded-full blur-[100px]"></div>
       </div>
 
       <div className="max-w-7xl mx-auto relative z-10">
         <div className="text-center mb-20">
-            <div className="inline-block px-4 py-1.5 rounded-full border border-[#444444] bg-[#333333] text-[#ACBFA4] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
+            <div className="inline-block px-4 py-1.5 rounded-full border border-[#E2E8F0] bg-[#FFFFFF] text-[#475569] font-bold text-xs uppercase tracking-widest mb-6 shadow-md">
                 Toolkit
             </div>
-            <h2 className="text-5xl md:text-6xl font-black text-[#E2E8CE] tracking-tighter mb-6 relative inline-block">
-            Curated <span className="text-[#FF7F11]">Resources</span>
+            <h2 className="text-5xl md:text-6xl font-black text-[#1E3A8A] tracking-tighter mb-6 relative inline-block">
+            Curated <span className="text-[#2563EB]">Resources</span>
             </h2>
-            <p className="text-xl text-[#ACBFA4] max-w-2xl mx-auto font-medium leading-relaxed">
+            <p className="text-xl text-[#475569] max-w-2xl mx-auto font-medium leading-relaxed">
             Hand-picked tools and links that actually work. No fluff, just value.
             </p>
         </div>
@@ -118,9 +118,9 @@ const Resources = () => {
           <Card title="Mental Health">{links.mental.map((l) => <ResourceLink key={l.url} {...l} />)}</Card>
         </div>
         
-        <div className="mt-20 text-center border-t border-[#444444] pt-10">
-             <p className="text-[#666666] text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
-                <CheckCircle className="w-4 h-4 text-[#ACBFA4]" /> Verified & Updated {new Date().getFullYear()}
+        <div className="mt-20 text-center border-t border-[#E2E8F0] pt-10">
+             <p className="text-[#64748B] text-xs font-bold uppercase tracking-widest flex items-center justify-center gap-2">
+                <CheckCircle className="w-4 h-4 text-[#475569]" /> Verified & Updated {new Date().getFullYear()}
              </p>
         </div>
 

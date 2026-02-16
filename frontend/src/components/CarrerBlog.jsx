@@ -14,7 +14,8 @@ import {
   Loader,
   ChevronUp,
   ChevronDown,
-  Eye
+  Eye,
+  Trash2
 } from "lucide-react";
 
 // Mock Data
@@ -55,11 +56,11 @@ const MOCK_BLOGS = [
 const MessageToast = ({ message, type }) => {
   if (!message) return null;
   const base =
-    "fixed bottom-5 right-5 p-4 rounded-xl bg-[#333333] border border-[#ACBFA4] shadow-2xl z-50 flex items-center gap-3 transition-opacity duration-300 font-medium text-sm";
+    "fixed bottom-5 right-5 p-4 rounded-xl bg-[#FFFFFF] border border-[#475569] shadow-2xl z-50 flex items-center gap-3 transition-opacity duration-300 font-medium text-sm";
   const map = {
-    success: { cls: "text-[#ACBFA4] border-[#ACBFA4]", Icon: CheckCircle },
-    error: { cls: "text-[#FF7F11] border-[#FF7F11]", Icon: AlertTriangle },
-    info: { cls: "text-[#E2E8CE] border-[#E2E8CE]", Icon: Info },
+    success: { cls: "text-[#475569] border-[#475569]", Icon: CheckCircle },
+    error: { cls: "text-[#2563EB] border-[#2563EB]", Icon: AlertTriangle },
+    info: { cls: "text-[#1E3A8A] border-[#1E3A8A]", Icon: Info },
   };
   const { cls, Icon } = map[type] || map.info;
   return (
@@ -168,17 +169,38 @@ export default function CareerBlogs() {
     showToast("info", "Link copied to clipboard.");
   };
 
+  const deleteBlog = async (_id) => {
+     if(!window.confirm("Delete this blog?")) return;
+     try {
+         const token = localStorage.getItem("authToken");
+         const res = await fetch(`http://localhost:5001/api/v1/blog/${_id}`, {
+             method: "DELETE",
+             headers: { Authorization: `Bearer ${token}` }
+         });
+         const data = await res.json();
+         if(res.ok) {
+             setBlogs(prev => prev.filter(b => b._id !== _id));
+             showToast("success", "Blog deleted.");
+         } else {
+             showToast("error", data.message || "Failed to delete.");
+         }
+     } catch (e) {
+         console.error(e);
+         showToast("error", "Error deleting blog.");
+     }
+  };
+
   const renderContent = () => {
     if (isLoading)
       return (
         <div className="text-center py-24">
-          <Loader className="mx-auto w-10 h-10 text-[#FF7F11] animate-spin mb-4" />
-          <p className="text-[#ACBFA4] font-medium tracking-wide">Gathering resources...</p>
+          <Loader className="mx-auto w-10 h-10 text-[#2563EB] animate-spin mb-4" />
+          <p className="text-[#475569] font-medium tracking-wide">Gathering resources...</p>
         </div>
       );
     if (error)
       return (
-        <div className="text-center py-20 text-[#FF7F11] bg-[#333333]/50 rounded-2xl border border-[#FF7F11]/20 p-8 mx-auto max-w-lg">
+        <div className="text-center py-20 text-[#2563EB] bg-[#FFFFFF]/50 rounded-2xl border border-[#2563EB]/20 p-8 mx-auto max-w-lg">
           <AlertTriangle className="mx-auto w-12 h-12 mb-4" />
           <p className="font-bold text-lg">Connection Error</p>
           <p className="text-sm opacity-80 mt-2">{error}</p>
@@ -193,7 +215,7 @@ export default function CareerBlogs() {
 
     if (filtered.length === 0)
       return (
-        <div className="text-center py-20 text-[#666666]">
+        <div className="text-center py-20 text-[#64748B]">
           <Search className="mx-auto w-16 h-16 mb-4 opacity-20" />
           <p className="text-xl font-bold">No results found.</p>
           <p className="text-sm mt-2">Try adjusting your search terms.</p>
@@ -217,12 +239,12 @@ export default function CareerBlogs() {
           return (
             <article
               key={blog._id}
-              className={`flex flex-col rounded-[2rem] bg-[#333333] border border-[#444444] overflow-hidden shadow-2xl shadow-black/30 transition-all duration-500 hover:border-[#FF7F11]/50 group ${
-                open ? "ring-1 ring-[#FF7F11] scale-[1.01]" : ""
+              className={`flex flex-col rounded-[2rem] bg-[#FFFFFF] border border-[#E2E8F0] overflow-hidden shadow-2xl shadow-black/30 transition-all duration-500 hover:border-[#2563EB]/50 group ${
+                open ? "ring-1 ring-[#2563EB] scale-[1.01]" : ""
               }`}
             >
-              <div className="h-56 overflow-hidden relative bg-[#262626]">
-                <div className="absolute inset-0 bg-[#FF7F11]/10 mix-blend-overlay z-10 pointer-events-none" />
+              <div className="h-56 overflow-hidden relative bg-[#F0F9FF]">
+                <div className="absolute inset-0 bg-[#2563EB]/10 mix-blend-overlay z-10 pointer-events-none" />
                 <img
                   src={coverUrl}
                   alt={blog.title}
@@ -232,26 +254,26 @@ export default function CareerBlogs() {
 
               <div className="p-8 flex flex-col flex-1 justify-between relative">
                 <div>
-                  <h3 className="text-2xl font-black text-[#E2E8CE] mb-4 leading-tight group-hover:text-[#FF7F11] transition-colors cursor-pointer" onClick={() => toggleExpand(blog._id)}>
+                  <h3 className="text-2xl font-black text-[#1E3A8A] mb-4 leading-tight group-hover:text-[#2563EB] transition-colors cursor-pointer" onClick={() => toggleExpand(blog._id)}>
                     {blog.title}
                   </h3>
 
-                  <div className="flex items-center justify-between text-xs text-[#ACBFA4] font-bold uppercase tracking-widest mb-6 pb-6 border-b border-[#444444]">
+                  <div className="flex items-center justify-between text-xs text-[#475569] font-bold uppercase tracking-widest mb-6 pb-6 border-b border-[#E2E8F0]">
                     <span className="flex items-center gap-2">
-                      <User className="w-4 h-4 text-[#FF7F11]" /> {blog.author}
+                      <User className="w-4 h-4 text-[#2563EB]" /> {blog.author}
                     </span>
                     <span className="flex items-center gap-2">
-                       <Eye className="w-4 h-4 text-[#FF7F11]" /> {blog.views || 0}
+                       <Eye className="w-4 h-4 text-[#2563EB]" /> {blog.views || 0}
                     </span>
                     <span className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-[#FF7F11]" /> {blog.readTime} min
+                      <Clock className="w-4 h-4 text-[#2563EB]" /> {blog.readTime} min
                     </span>
                   </div>
                   
                   {blog.tags && blog.tags.length > 0 && (
                       <div className="flex flex-wrap gap-2 mb-4">
                           {blog.tags.map(t => (
-                              <span key={t} className="px-2 py-1 bg-[#262626] border border-[#444444] rounded text-[10px] uppercase font-bold text-[#E2E8CE] tracking-wider">
+                              <span key={t} className="px-2 py-1 bg-[#F0F9FF] border border-[#E2E8F0] rounded text-[10px] uppercase font-bold text-[#1E3A8A] tracking-wider">
                                   #{t}
                               </span>
                           ))}
@@ -259,38 +281,45 @@ export default function CareerBlogs() {
                   )}
 
                   <div
-                    className={`text-[#E2E8CE]/80 text-base leading-loose transition-all duration-500 ease-in-out overflow-hidden relative ${
+                    className={`text-[#1E3A8A]/80 text-base leading-loose transition-all duration-500 ease-in-out overflow-hidden relative ${
                       open ? "max-h-[1000px] opacity-100" : "max-h-24 opacity-80"
                     }`}
                   >
-                     {!open && <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#333333] to-transparent pointer-events-none" />}
+                     {!open && <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-[#FFFFFF] to-transparent pointer-events-none" />}
                     <p className="whitespace-pre-wrap font-serif">{blog.markdown}</p>
                   </div>
                 </div>
 
-                <div className="mt-8 pt-6 border-t border-[#444444] flex items-center justify-between">
+                <div className="mt-8 pt-6 border-t border-[#E2E8F0] flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <button
                       onClick={() => bookmark(blog._id)}
                       className={`p-3 rounded-full transition-all duration-300 border ${
                         blog.isBookmarked
-                          ? "bg-[#FF7F11] border-[#FF7F11] text-[#262626]"
-                          : "bg-transparent border-[#555555] text-[#ACBFA4] hover:border-[#E2E8CE] hover:text-[#E2E8CE]"
+                          ? "bg-[#2563EB] border-[#2563EB] text-[#F0F9FF]"
+                          : "bg-transparent border-[#555555] text-[#475569] hover:border-[#1E3A8A] hover:text-[#1E3A8A]"
                       }`}
                     >
                       <Bookmark className="w-5 h-5" fill={blog.isBookmarked ? "currentColor" : "none"} />
                     </button>
                     <button
                       onClick={() => share(blog._id)}
-                      className="p-3 rounded-full bg-transparent border border-[#555555] text-[#ACBFA4] hover:text-[#E2E8CE] hover:border-[#E2E8CE] transition-all"
+                      className="p-3 rounded-full bg-transparent border border-[#555555] text-[#475569] hover:text-[#1E3A8A] hover:border-[#1E3A8A] transition-all"
                     >
                       <Share2 className="w-5 h-5" />
+                    </button>
+                    <button
+                      onClick={() => deleteBlog(blog._id)}
+                      className="p-3 rounded-full bg-transparent border border-[#555555] text-[#475569] hover:text-red-500 hover:border-red-500 transition-all"
+                      title="Delete Blog"
+                    >
+                      <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
 
                   <button
                     onClick={() => toggleExpand(blog._id)}
-                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#262626] border border-[#444444] text-[#E2E8CE] text-xs font-bold uppercase tracking-widest hover:bg-[#FF7F11] hover:text-[#262626] hover:border-[#FF7F11] transition-all"
+                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-[#F0F9FF] border border-[#E2E8F0] text-[#1E3A8A] text-xs font-bold uppercase tracking-widest hover:bg-[#2563EB] hover:text-[#F0F9FF] hover:border-[#2563EB] transition-all"
                   >
                     {open ? (
                       <>
@@ -312,7 +341,7 @@ export default function CareerBlogs() {
   };
 
   return (
-    <div className="min-h-screen bg-[#262626] text-[#E2E8CE] py-20 px-6 font-sans">
+    <div className="min-h-screen bg-[#F0F9FF] text-[#1E3A8A] py-20 px-6 font-sans">
       <Helmet>
         <title>Career Blogs & Tech Insights | Student Resources - EduMedia</title>
         <meta name="description" content="Read the latest articles on technology, career growth, interview tips, and student success stories. Stay updated with EduMedia's curated blog." />
@@ -320,19 +349,19 @@ export default function CareerBlogs() {
       </Helmet>
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row items-end justify-between mb-16 border-b border-[#333333] pb-10">
+        <div className="flex flex-col md:flex-row items-end justify-between mb-16 border-b border-[#FFFFFF] pb-10">
           <div className="text-center md:text-left md:flex-1">
-            <h2 className="text-5xl md:text-6xl font-black text-[#E2E8CE] tracking-tighter mb-4">
-              Explore <span className="text-[#FF7F11]">Ideas</span>
+            <h2 className="text-5xl md:text-6xl font-black text-[#1E3A8A] tracking-tighter mb-4">
+              Explore <span className="text-[#2563EB]">Ideas</span>
             </h2>
-            <p className="text-[#ACBFA4] text-lg font-medium max-w-xl">
+            <p className="text-[#475569] text-lg font-medium max-w-xl">
               Curated perspectives on technology, design, and sustainable growth.
             </p>
           </div>
 
           <a
             href="/career-blogs-write"
-            className="flex items-center gap-2 px-8 py-4 rounded-full bg-[#FF7F11] text-[#262626] font-black hover:bg-[#e06c09] shadow-xl shadow-orange-500/20 hover:-translate-y-1 transition-all uppercase tracking-wide text-sm mt-8 md:mt-0"
+            className="flex items-center gap-2 px-8 py-4 rounded-full bg-[#2563EB] text-[#F0F9FF] font-black hover:bg-[#1D4ED8] shadow-xl shadow-blue-500/20 hover:-translate-y-1 transition-all uppercase tracking-wide text-sm mt-8 md:mt-0"
           >
             Start Writing
           </a>
@@ -340,12 +369,12 @@ export default function CareerBlogs() {
 
         {/* Search */}
         <div className="relative mb-20 max-w-2xl mx-auto">
-          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#ACBFA4] w-6 h-6" />
+          <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-[#475569] w-6 h-6" />
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by keyword or author..."
-            className="w-full pl-16 pr-8 py-5 rounded-full bg-[#333333] border border-[#444444] text-[#E2E8CE] placeholder-[#666666] font-medium text-lg focus:outline-none focus:border-[#FF7F11] focus:ring-1 focus:ring-[#FF7F11] transition-all shadow-xl"
+            className="w-full pl-16 pr-8 py-5 rounded-full bg-[#FFFFFF] border border-[#E2E8F0] text-[#1E3A8A] placeholder-[#64748B] font-medium text-lg focus:outline-none focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB] transition-all shadow-xl"
           />
         </div>
 

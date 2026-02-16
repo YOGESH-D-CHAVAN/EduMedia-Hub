@@ -1,8 +1,6 @@
 import { useEffect } from 'react';
 import './App.css'
 import EduMediaLandingPro from './components/EduMediaLanding'
-import Header from './components/Header'
-import Footer from './components/Footer'
 import Register from './components/Register'
 import SignIn from './components/Signin'
 import { Routes, Route } from "react-router-dom"
@@ -25,6 +23,7 @@ import SalaryInsights from './components/SalaryInsighs'
 import QandABoard from './components/Quetions'
 import Chat from './components/Chat'
 import DashboardLayout from './components/DashboardLayout'
+import MainLayout from './layouts/MainLayout'
 
 
 function App() {
@@ -63,24 +62,24 @@ function App() {
 
   return (
     <>
-      <Header />
-
-      {/* Routes control which page shows */}
       <Routes>
-        <Route path="/" element={<EduMediaLandingPro />} />
-        <Route path="/register" element={<Register />} />
-        <Route path='/login' element={<SignIn/>} />
-        <Route path='/feutures' element={<Features/>} />
-        <Route path='/pricing' element={<Pricing/>} />
-        <Route path='/Docs' element={<Docs/>} />
-        <Route path='/student' element={<StudentDashboard/>} />
-        <Route path='/teacher' element={<TeacherPost/>} />
-        <Route path='/teacher-post' element={<TeacherPostCreator/>} />
+        {/* Public Routes - Wrapped in MainLayout */}
+        <Route element={<MainLayout />}>
+          <Route path="/" element={<EduMediaLandingPro />} />
+          <Route path="/register" element={<Register />} />
+          <Route path='/login' element={<SignIn/>} />
+          <Route path='/feutures' element={<Features/>} />
+          <Route path='/pricing' element={<Pricing/>} />
+          <Route path='/Docs' element={<Docs/>} />
+        </Route>
 
-        <Route path='/profile' element={<Profile/>} />
-        
-        {/* Dashboard Pages with Sidebar */}
+        {/* Dashboard Routes - Wrapped in DashboardLayout */}
         <Route element={<DashboardLayout />}>
+          <Route path='/student' element={<StudentDashboard/>} />
+          <Route path='/teacher' element={<TeacherPost/>} />
+          <Route path='/teacher-post' element={<TeacherPostCreator/>} />
+          <Route path='/profile' element={<Profile/>} />
+          
           <Route path='/interview-questions' element={<InterviewQuestions/>} />
           <Route path='/placement-guidance' element={<PlacementGuidance/>} />
           <Route path='/resources' element={<Resources/>} />
@@ -93,9 +92,9 @@ function App() {
           <Route path='/EduQ&A' element={<QandABoard/>} />
         </Route>
         
+        {/* Standalone Route */}
         <Route path='/chat' element={<Chat/>} />
       </Routes>
-      <Footer />
     </>
   )
 }

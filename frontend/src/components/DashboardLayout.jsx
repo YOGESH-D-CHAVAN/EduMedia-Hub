@@ -6,7 +6,7 @@ const DashboardLayout = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(true);
 
   return (
-    <div className="flex min-h-screen bg-[#262626] text-[#E2E8CE] font-sans">
+    <div className="flex min-h-screen bg-[#F0F9FF] text-[#1E3A8A] font-sans">
       <SideBar isOpen={isSidebarOpen} toggleSidebar={() => setSidebarOpen(!isSidebarOpen)} />
       <div 
         className={`flex-1 transition-all duration-300 p-4 pt-[90px] sm:p-8 sm:pt-8 ${
